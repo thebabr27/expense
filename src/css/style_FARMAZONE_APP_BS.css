@@ -46,7 +46,18 @@
 * {
   font-family: 'Carrois Gothic', sans-serif;
 }
+.logo {
+  content: url("..\\img\\icons\\MAINLOGO.svg");
+  width: 172px;
+  height: 172px;
+}
 
+@media only screen and (max-height: 600px) {
+  .logo {
+    width: 72px;
+    height: 72px;
+  }
+}
 .bg1 {
   background-color: #42CED4!important;
 }
@@ -56,10 +67,6 @@
 }
 .custom-select, .list-group-item {
   font-size: 1.25rem;
-}
-.swiper-container {
-    width: 600px;
-    height: 300px;
 }
 
 .b0 {
