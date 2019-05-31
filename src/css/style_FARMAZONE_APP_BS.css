@@ -46,18 +46,40 @@
 * {
   font-family: 'Carrois Gothic', sans-serif;
 }
+
+
 .logo {
   content: url("..\\img\\icons\\MAINLOGO.svg");
   width: 172px;
   height: 172px;
 }
 
-@media only screen and (max-height: 500px) {
+@media only screen and (max-height: 520px) {
   .logo {
     width: 72px;
     height: 72px;
   }
 }
+
+@media only screen and (max-height: 400px) {
+  .logo {
+    width: 52px;
+    height: 52px;
+  }
+
+  #logo {
+    margin-top: 0!important;
+  }
+
+  #welcomeText {
+    font-size: 1.5rem;
+  }
+
+  #farmacoScelto, #homeButtonConferma {
+    font-size: 1rem;
+  }
+}
+
 .bg1 {
   background-color: #42CED4!important;
 }
