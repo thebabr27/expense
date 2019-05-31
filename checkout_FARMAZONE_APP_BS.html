@@ -18,10 +18,10 @@
       <img class="d-block mx-auto m-4" src="src\img\icons\MAINLOGO.svg" alt="" width="72" height="72">
 
     </div>
-    <h1 class="px-5">Riepilogo Ordine</h1>
+    <h1 id="welcomeText" class="px-5">Riepilogo Ordine</h1>
   </div>
 
-  <div class="container fixed-bottom">
+  <div class="container">
 
     <div class="px-4 pb-4 mb-4">
       <ul class="list-group mb-3">
@@ -41,20 +41,27 @@
         <ul class="list-group mb-3">
 
           <li class="list-group-item d-flex justify-content-between">
-            <span>Consegna</span>
+            <span id="rideName">Consegna</span>
             <strong id="rideAmount">€0,00</strong>
           </li>
           <li class="list-group-item d-flex justify-content-between">
-            <span>Totale</span>
+            <span id="totalName">Totale</span>
             <strong id="totalAmount">€0,00</strong>
           </li>
         </ul>
 
-     <hr class="m-3">
-      <button onclick="done()" id="homeButtonConferma" class="btn btn-info btn-lg btn-block" type="submit">Conferma ordine</button>
-
+       <div class="container fixed-bottom">
+         <div class="px-4 pb-4 mb-4">
+           <hr class="m-3">
+           <button onclick="done()" id="homeButtonConferma" class="btn btn-info btn-lg btn-block" type="submit">Conferma ordine</button>
+        </div>
+      </div>
     </div>
   </div>
+</div>
+
+<div id="buttonbgwhite">
+
 </div>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
