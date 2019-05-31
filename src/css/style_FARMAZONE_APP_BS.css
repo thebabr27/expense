@@ -47,6 +47,34 @@
   font-family: 'Carrois Gothic', sans-serif;
 }
 
+.logomini {
+  content: url("..\\img\\icons\\MAINLOGO.svg");
+  width: 72px;
+  height: 72px;
+}
+
+#buttonbg, #buttonbgwhite, #buttonbgmax {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 120%;
+}
+
+#buttonbg, #buttonbgwhite {
+  height: 110px;
+}
+
+#buttonbgmax {
+  height: 130px;
+}
+
+#buttonbg, #buttonbgmax {
+  background-color:  #42CED4!important;
+}
+
+#buttonbgwhite {
+  background-color:  white!important;
+}
 
 .logo {
   content: url("..\\img\\icons\\MAINLOGO.svg");
@@ -60,6 +88,7 @@
     height: 72px;
   }
 }
+
 
 @media only screen and (max-height: 400px) {
   .logo {
@@ -75,7 +104,9 @@
     font-size: 1.5rem;
   }
 
-  #farmacoScelto, #homeButtonConferma {
+  #farmacoScelto, #homeButtonConferma, #farmaciaSelezionata,
+  #customerData, #item1Name, #item1Amount, #rideName, #rideAmount,
+  #totalName, #totalAmount {
     font-size: 1rem;
   }
 }
