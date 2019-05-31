@@ -15,39 +15,45 @@
 
   <div class="container text-center">
     <div class="px-4 mt-5">
-      <img class="d-block mx-auto m-4" src="src\img\icons\MAINLOGO.svg" alt="" width="72" height="72">
+      <img class="d-block mx-auto m-4 logomini" src="" alt="" width="72" height="72">
 
     </div>
-    <h1 class="px-5 text-light">Inserisci i dati per la consegna</h1>
+    <h1 id="welcomeText" class="px-5 text-light">Inserisci i dati per la consegna</h1>
   </div>
 
-  <div class="container fixed-bottom">
+  <div class="container">
     <div class="p-4 mb-4">
       <div class="input-group input-group-lg">
-        <input id="nominativoCliente" type="text" class="form-control text-center" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg"
+        <input id="nominativoCliente" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg"
         placeholder="Nome">
-      </div>
+    </div>
 
       <hr class="m-3">
 
       <div class="input-group input-group-lg" rows="8" cols="80">
-        <input id="indirizzoCliente" type="text" class="form-control text-center" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg"
+        <input id="indirizzoCliente" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg"
         placeholder="Indirizzo">
       </div>
 
       <div class="input-group input-group-lg" rows="8" cols="80">
-        <input id="localitaCliente" type="text" class="form-control text-center" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg"
+        <input id="localitaCliente" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg"
         placeholder="Località">
-          <input id="capCliente" type="text" class="form-control text-center" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg"
-          placeholder="CAP">
+        <input id="capCliente" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg"
+        placeholder="CAP">
       </div>
 
-      <hr class="m-3">
-
-      <button onclick="alertDatiInd(nominativoCliente, indirizzoCliente, localitaCliente, capCliente)" id="homeButtonConferma" class="btn btn-info btn-lg btn-block" type="submit">Continua</button>
+      <div class="container fixed-bottom">
+        <div class="p-4 mb-4">
+          <hr class="m-3">
+          <button onclick="alertDatiInd(nominativoCliente, indirizzoCliente, localitaCliente, capCliente)" id="homeButtonConferma" class="btn btn-info btn-lg btn-block" type="submit">Continua</button>
+        </div>
+      </div>
 
     </div>
   </div>
+</div>
+<div id="buttonbg">
+
 </div>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
