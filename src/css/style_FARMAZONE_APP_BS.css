@@ -47,10 +47,172 @@
   font-family: 'Carrois Gothic', sans-serif;
 }
 
+.bg1 {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #66CFD3 0%, rgba(99, 216, 221, 0.5) 100%);
+  position: fixed;
+  z-index: -1;
+}
+
+.bg2 {
+  background: #00BFC7!important;
+}
+.bgwhite {
+  background: #ffffff!important;
+}
+
+.emptycardprova {
+  width: 100%;
+  height: 50px;
+  background-color: transparent;
+}
+
+.cardprova {
+  width: 100%;
+  height: 150px;
+  background-color: #ffffff;
+}
+
+.buttonhouse {
+  width: 80%;
+  margin-left: 5%;
+  margin-bottom: 10vh;
+  position: fixed;
+  bottom: 0;
+  justify-content: center;
+}
+.card {
+  border: 1px solid transparent;
+  border-radius: 10px!important;
+}
+.fixed {
+  position: fixed;
+}
+
+.b10 {
+  bottom: 10%;
+}
+
+.homelogo, .logo {
+    content: url("..\\img\\icons\\logo_nuovo.svg");
+}
+.logo_scatola {
+    content: url("..\\img\\icons\\logo_scatola.svg");
+    width: 30%;
+}
+.readonly {
+      background-color: white!important;
+}
+
+.outline {
+  border: 1px solid #ced4da;
+  border-radius: 10px;
+}
+.homelogo {
+width: 90%;
+height: 90%;
+}
+
+.logo {
+  width: 50%;
+  height: 50%;
+}
+
+.logorider {
+  content: url("..\\img\\icons\\logo_nuovo_rider.svg");
+  width: 20%;
+  height: 20%;
+}
+
 .logomini {
-  content: url("..\\img\\icons\\MAINLOGO.svg");
+  content: url("..\\img\\icons\\logo.svg");
   width: 72px;
   height: 72px;
+}
+
+.logodiv {
+  display: flex;
+  justify-content: center;
+}
+.card-body {
+  height: 80px!important;
+  margin: 5px 5px 5px 5px;
+  padding-top: 0;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow: scroll;
+}
+.custom-select, .list-group-item {
+  font-size: 1.25rem;
+}
+
+
+.form-control, .btn {
+  font-size: 1rem!important;
+  height: 3rem!important;
+  padding: 1rem!important;
+
+}
+
+.custom-select {
+  font-size: 1rem!important;
+  height: 3rem!important;
+}
+.separator {
+  margin: 10vh;
+}
+
+.card-img-top {
+  width: 98px!important;
+  height: 98px!important;
+  align-self: center!important;
+  overflow: hidden;
+}
+
+.btn {
+  padding-top:5px!important;
+  padding-bottom:5px!important;
+}
+
+.productdiv {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.h2, h2 {
+    font-size: 4rem!important;
+}
+
+.productdiv h2 {
+  text-align: center;
+  align-self: center;
+  margin-right: 5%;
+  margin-top: 5%;
+}
+
+.card-text {
+  height: 60px;
+
+}
+::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  height: 100%;
+}
+.infodiv {
+  margin: 2%;
+  margin-top: 4%;
+  background-color: var(--info);
+  border-radius: 10px;
+  z-index: 2;
+}
+button {
+  line-height: 1rem!important;
+  min-height: 40px!important;;
 }
 
 #buttonbg, #buttonbgwhite, #buttonbgmax {
@@ -76,23 +238,39 @@
   background-color:  white!important;
 }
 
-.logo {
-  content: url("..\\img\\icons\\MAINLOGO.svg");
-  width: 172px;
-  height: 172px;
+#welcomeText {
+  font-size: 1.5rem;
+}
+
+@media only screen and (max-width: 950px) {
+  .h2, h2 {
+      font-size: 3rem!important;
+  }
+}
+
+@media only screen and (max-width: 700px) {
+  .h2, h2 {
+      font-size: 2rem!important;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .h2, h2 {
+      font-size: 2rem!important;
+  }
 }
 
 @media only screen and (max-height: 520px) {
   .logo {
-    width: 72px;
-    height: 72px;
+    width: 172px;
+    height: 82px;
   }
 }
 
 
 @media only screen and (max-height: 400px) {
   .logo {
-    width: 52px;
+    width: 72px;
     height: 52px;
   }
 
@@ -100,9 +278,6 @@
     margin-top: 0!important;
   }
 
-  #welcomeText {
-    font-size: 1.5rem;
-  }
 
   #farmacoScelto, #homeButtonConferma, #farmaciaSelezionata,
   #customerData, #item1Name, #item1Amount, #rideName, #rideAmount,
@@ -111,20 +286,8 @@
   }
 }
 
-.bg1 {
-  background-color: #42CED4!important;
-}
-
-.hidden {
-  visibility: hidden;
-}
-.custom-select, .list-group-item {
-  font-size: 1.25rem;
-}
-
-.b0 {
-  position: absolute;
-  bottom: 0;
+#customerData {
+  height: 60px;
 }
 
 ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
@@ -147,9 +310,6 @@ color: #ffffff;
 ::selection {
 color: #ffffff;
   background: #42CED4;
-}
-textarea {
-  text-align: center;
 }
 
 /* classi per il toggle */
