@@ -5,7 +5,6 @@ var items = [
   ["Aspirina C", "Compresse", 5.99],
 ]
 
-alert(localStorage.carrello);
 createElenco();
 
 function createElenco() {
