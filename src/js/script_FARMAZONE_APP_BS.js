@@ -1,7 +1,7 @@
 var inputProduct;
 
 function restart() {
-    window.location.href = "index.html";
+    window.location.href = "index_FARMAZONE_APP_BS.html";
 }
 
 function sceltaFarmacia (inputFarm) {
@@ -24,17 +24,4 @@ function cercaFarmaci(a) {
 function elencoFarmaci (inputProduct) {
   localStorage.prodotto = inputProduct.value;
   window.location.href = "product_FARMAZONE_APP_BS.html";
-}
-
-var carrello = [];
-
-var thisdiv;
-function selezioneFarmaco (thisdiv, b) {
-  carrello.push(b);
-
-};
-
-function sceltaFarmaco () {
-  localStorage.carrello = carrello;
-  window.location.href = "address_FARMAZONE_APP_BS.html";
 }
