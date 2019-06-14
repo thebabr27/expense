@@ -10,7 +10,7 @@
 </head>
 
 <body>
-<div class="bgwhite">
+<div class="bg1">
   <div class="container">
     <div class="container">
     <div class="separator"></div>
@@ -19,7 +19,7 @@
         <img class="homelogo mt-5" src="" alt="">
       </div>
       <br><br>
-      <h4 class="mb-3 text-center text-dark">Grazie per aver ordinato! Purtroppo il servizio nella tua zona non è ancora disponibile, ma ci attiveremo al piu presto! Registrati per usufruire della promozione dedicata a te :)</h4>
+      <h4 class="mb-3 text-center text-dark">Benvenuto</h4>
       <br>
 
 
@@ -28,10 +28,17 @@
 </div>
 <div class="container fixed b10">
 
+  <input id="inputSearch" type="text" class="form-control text-center" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg"
+  placeholder="Nome farmaco o codice NRE">
+
+  <hr class="m-3">
+  <input id="fiscalCode" type="text" class="form-control text-center" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg"
+  placeholder="Codice fiscale / Tessera sanitaria">
+
   <hr class="m-3">
 
-<button onclick="restart()" id="homeButtonConferma" class="btn btn-info btn-lg btn-block bg2" type="submit">
-  Torna all'inizio</button>
+<button onclick="cercaFarmaci(inputSearch)" id="homeButtonConferma" class="btn btn-info btn-lg btn-block bg2" type="submit">
+  Cerca</button>
 </div>
 </div>
 

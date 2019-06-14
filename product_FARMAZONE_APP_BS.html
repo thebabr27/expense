@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="it"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Marco Cocchi">
+<title>FARMAZONE_APP_BS</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="src/css/style_FARMAZONE_APP_BS.css">
+</head>
+
+<body>
+
+  <div class="bg1 fixed"></div> <!-- BG ONLY -->
+
+  <div class="logodiv">
+    <img class="logorider mt-5" src="" alt="">
+  </div>
+  <div class="container mt-5">
+    <h4 class="mb-3 text-center text-dark">Seleziona il prodotto desiderato</h4>
+<br>
+<div class="row">
+  <div class="col">
+
+    <!-- CARD PRODOTTO -->
+    <div class="card mb-3">
+      <div class="productdiv">
+        <img src="src\img\bg\aspirina1.jpg" class="card-img-top" alt="...">
+        <h2 class="">€5,99</h2>
+
+      </div>
+        <div class="card-body">
+          <h5 class="card-title">Aspirina C 10 compresse</h5>
+          <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+        </div>
+
+        <div class="infodiv">
+          <div class="row">
+            <div class="col">
+              <button onclick="selezioneFarmaco(this, 1)" type="button" class="btn btn-info btn-lg btn-block">
+              <i class="fa fa-shopping-cart"></i>
+                Aggiungi al carrello</button>
+              </div>
+          </div>
+        </div>
+      </div>
+  </div> <!-- end col -->
+</div> <!-- end row -->
+    <br><br>
+  <div class="row">
+  <div class="col">
+
+    <!-- CARD PRODOTTO -->
+    <div class="card mb-3">
+      <div class="productdiv">
+        <img src="src\img\bg\oki1.jpg" class="card-img-top" alt="...">
+        <h2 class="">€5,99</h2>
+
+      </div>
+        <div class="card-body">
+          <h5 class="card-title">Card title</h5>
+          <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+        </div>
+
+          <div class="infodiv">
+            <div class="row">
+              <div class="col"><button onclick="selezioneFarmaco(this, 2)" type="button" class="btn btn-info btn-lg btn-block">
+                <i class="fa fa-shopping-cart"></i>
+                  Aggiungi al carrello</button></div>
+            </div>
+          </div>
+    </div>
+  </div> <!-- end col -->
+
+</div> <!-- end row -->
+    <br>
+
+
+    <hr class="mb-4">
+    <button onclick="sceltaFarmaco()" class="btn btn-info btn-lg btn-block" type="submit">
+      Acquista</button>
+<br><br>
+
+</div> <!-- CONTAINER END -->
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="src/js/script_FARMAZONE_APP_BS.js"></script>
+
+</body>
+</html>
