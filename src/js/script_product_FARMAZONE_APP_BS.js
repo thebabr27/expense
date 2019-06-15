@@ -56,7 +56,6 @@ var carrello = [];
 var thisdiv;
 function selezioneFarmaco (thisdiv, b) {
   carrello.push(b);
-alert(carrello);
 };
 
 function sceltaFarmaco () {
