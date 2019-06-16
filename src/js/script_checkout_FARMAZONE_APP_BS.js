@@ -5,14 +5,9 @@ var items = [
   ["Okitask", "40mg 10 compresse", 4.69, 'oki1',
   'Ketoprofene Sale Di Lisina',
   'Dolori di diversa origine e natura, ed in particolare: mal di testa, mal di denti, nevralgie, dolori mestruali, dolori muscolari e osteoarticolari.'],
-  ["Vivin C", "530mg 20 compresse effervescenti", 5.99, 'vivin-c',
-  'Acido acetilsalicilico 0,330g, acido ascorbico 0,200g.',
-  'Mal di testa e di denti, nevralgie, dolori mestruali, dolori reumatici e muscolari. Terapia sintomatica degli stati febbrili e delle sindrom i influenzali e da raffreddamento.'],
   ["Aspirina C", "500mg 10 compresse", 4.73, 'aspirina1',
   'Acido acetilsalicilico e derivati.',
   'Trattamento sintomatico di mal di testa e di dent i, nevralgie, dolori mestruali, dolori reumatici e muscolari.'],
-  ["Tipo di consegna scelta", "Express", 3.50, '',
-  '',''],
   ]
 
 createElenco();
