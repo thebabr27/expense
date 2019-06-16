@@ -1,7 +1,7 @@
 var inputProduct;
 
 function restart() {
-    window.location.href = "index_FARMAZONE_APP_BS.html";
+    window.location.href = "index.html";
 }
 
 function sceltaFarmacia (inputFarm) {
