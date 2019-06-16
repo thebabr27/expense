@@ -32,7 +32,7 @@ function createElenco() {
     '<strong>€'+somma.toFixed(2)+'</strong>\r'+
   '</li>\r'
   document.getElementById("itemsList").innerHTML = elenco;
-  document.getElementById("itemsNum").innerHTML = (items.length)-1;
+  document.getElementById("itemsNum").innerHTML = (items.length);
 }
 
 document.getElementById("customerData").innerHTML =
