@@ -1,6 +1,6 @@
 var items = [
-  ["Tachipirina 1000", "Bustine 20g", 5.49, 'tachipirina1000',
-  '1000mg compresse ',
+  ["Tachipirina 1000", "1000mg compresse", 5.49, 'tachipirina1000',
+  'Paracetamolo',
   'Trattamento sintomatico delle affezioni dolorose di ogni genere (ad esempio, mal di testa, mal di denti, torcicollo, dolori articolari e lombosacrali, dolori mestruali, piccoli interventi chirurgici).'],
   ["Okitask", "40mg 10 compresse", 4.69, 'oki1',
   'Ketoprofene Sale Di Lisina',
@@ -29,7 +29,7 @@ function createElenco() {
             '<h2 class="">€'+(items[i][2]).toFixed(2)+'</h2>\r'+
           '</div>\r'+
             '<div class="card-body">\r'+
-              '<h5 class="card-title">'+(items[i][1])+'</h5>\r'+
+              '<h5 class="card-title">'+(items[i][0])+" - "+(items[i][1])+'</h5>\r'+
               '<p class="card-text">'+(items[i][4])+" - "+(items[i][5])+'</p>\r'+
             '</div>\r'+
           '\r'+
