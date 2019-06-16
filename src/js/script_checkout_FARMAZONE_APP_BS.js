@@ -32,13 +32,12 @@ function createElenco() {
     somma+=(items[i][2]);
   }
   //aggiunta del totale
-  somma-=somma;
   elenco+='<li class="list-group-item d-flex justify-content-between lh-condensed">\r'+
     '<span>Totale</span>\r'+
     '<strong>€'+somma.toFixed(2)+'</strong>\r'+
   '</li>\r'
   document.getElementById("itemsList").innerHTML = elenco;
-  document.getElementById("itemsNum").innerHTML = items.length;
+  document.getElementById("itemsNum").innerHTML = (items.length)-1;
 }
 
 document.getElementById("customerData").innerHTML =
