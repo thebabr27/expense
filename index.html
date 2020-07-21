@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html><head><meta  charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"></meta><title>toscana</title><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<html>
+<head>
+<meta  charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</meta><title>toscana
+</title><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css">
 <link rel="stylesheet" href="src/css/style.css">
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
@@ -8,5 +12,564 @@
 <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-database.js"></script>
-</head><body><h1 id='button' class=' pt-2 pb-3 position-absolute bg-success text-light w-100 text-center '  onclick="scrollWin()" style="top:50%; z-index:1000;">Toscana Tour!</h1><nav class=' navbar navbar-expand-md fixed-top  shadow bg-success navbar-dark'><div class=' navbar-brand mt-auto d-flex'><a><div class=' d-none d-md-inline-block'></div></a></div><div class=' navbar-brand mt-auto d-flex'><a class=' myhover'  href="home.html"><div class='  ml-5 d-inline-block d-md-none'></div></a></div><button id='navbar-toggler' class=' navbar-toggler'  type="button" data-toggle="collapse" data-target="#theNavbar" aria-controls="theNavbar" aria-expanded="false" aria-label="Toggle navigation"><span class=' fa fa-bars'></span></button><div id='theNavbar' class=' navbar-collapse collapse'><ul class=' navbar-nav ml-auto'><li class=' align-self-center'><a class=' d-md-none nav-link text-center'  onclick="document.getElementById('navbar-toggler').click()" href="#section2">Itinerario</a><a class=' d-none d-md-block nav-link text-center'  href="#section2">Itinerario</a></li><li class=' align-self-center'><a class=' d-md-none nav-link text-center'  onclick="document.getElementById('navbar-toggler').click()" href="#section3">Arrivi-Partenze</a><a class=' d-none d-md-block nav-link text-center'  href="#section3">Arrivi-Partenze</a></li><li class=' align-self-center'><a class=' d-md-none nav-link text-center'  onclick="document.getElementById('navbar-toggler').click()" href="#section4">Luoghi</a><a class=' d-none d-md-block nav-link text-center'  href="#section4">Luoghi</a></li><li class=' align-self-center'><a class=' d-md-none nav-link text-center'  onclick="document.getElementById('navbar-toggler').click()" href="#section5">Avventurieri</a><a class=' d-none d-md-block nav-link text-center'  href="#section5">Avventurieri</a></li></ul></div></nav><img class=' d-sm-none w-100'  src="./src/img/florence-s.jpg"><img class=' d-none d-sm-block d-md-none w-100'  src="./src/img/florence-m.jpg"><img class=' d-none d-md-block w-100'  src="./src/img/florence.jpg"><div class='container mt-5'><h1 class=' text-center mb-3'>Itinerario</h1><div id='section2' class='row mb-3 pb-5'><div class=' col-12'><img class=' w-100'  src="./src/img/itinerary_map.svg"></div></div><div class='row mb-3 pb-5'><div class=' col-1 p-0 pl-2 d-flex flex-column'><img class=' mt-4'  src="./src/img/topIt.svg"><img   src="./src/img/midIt.svg"><img   src="./src/img/midIt.svg"><img   src="./src/img/midIt.svg"><img   src="./src/img/midIt.svg"><img   src="./src/img/midIt.svg"><img   src="./src/img/midIt.svg"><img   src="./src/img/midIt.svg"><img   src="./src/img/midIt.svg"><img   src="./src/img/midIt.svg"><img   src="./src/img/midIt.svg"><img   src="./src/img/midIt.svg"><img  src="./src/img/botIt.svg"></div><div class=' col-11'><h6><div class=' w-100 d-flex justify-content-between'><div class=' small'>Luogo</div><div class=' small'>Data</div></div></h6><h6 class='  border-bottom border-warning py-2'><div class=' w-100 d-flex justify-content-between'><div class=' card w-100 mb-4 shadow-sm'><div class=' card-body'><p class=' text-center'>Giorno 1 - Sab 22 Ago / Dom 23 Ago</p><button class=' btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseSiena_e_Abbazia_San_Galganoundefined" ><h5 class=' card-title m-0 text-left'>Siena e Abbazia San Galgano</h5><div class=' h-100'><i class=' fa fa-chevron-down'></i></div></button><div id='collapseSiena_e_Abbazia_San_Galganoundefined' class=' collapse'><div class=' d-flex justify-coontent-between'><div class=' w-100 d-flex'><p class=' d-flex flex-column justify-content-center btn btn-warning mt-3 mr-2 px-2'><i class=' fa fa-university'></i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'><i class=' fa fa-utensils'></i></p><p class=' d-flex flex-column justify-content-center btn btn-danger mt-3 mr-2 px-2'><i class=' fa fa-wine-glass-alt'></i></p><p class=' d-flex flex-column justify-content-center btn btn-primary mt-3 mr-2 px-2'><i class=' fa fa-building'></i></p></div></div><p>Benvenuti in Toscana! <br><br>Dopo esserci salutati e aver lasciato i bagagli in hotel ci spostiamo verso San Galgano dove troveremo l'omonima abbazia con all'interno la famosa"Spada nella Roccia". In serata ritorno a Siena per una passeggiata e una ricca cena di benvenuto.</p></div></div></div></div></h6><h6 class='  border-bottom border-warning py-2'><div class=' w-100 d-flex justify-content-between'><div class=' card w-100 mb-4 shadow-sm'><div class=' card-body'><p class=' text-center'>Giorno 2 - Dom 23 Ago / Lun 24 Ago</p><button class=' btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseMontalcino_San_Quiricoundefined" ><h5 class=' card-title m-0 text-left'>Montalcino, San Quirico</h5><div class=' h-100'><i class=' fa fa-chevron-down'></i></div></button><div id='collapseMontalcino_San_Quiricoundefined' class=' collapse'><div class=' d-flex justify-coontent-between'><div class=' w-100 d-flex'><p class=' d-flex flex-column justify-content-center btn btn-warning mt-3 mr-2 px-2'><i class=' fa fa-university'></i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'><i class=' fa fa-utensils'></i></p><p class=' d-flex flex-column justify-content-center btn btn-danger mt-3 mr-2 px-2'><i class=' fa fa-wine-glass-alt'></i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'><i class=' fa fa-image'></i></p><p class=' d-flex flex-column justify-content-center btn btn-dark mt-3 mr-2 px-2'><i class=' fa fa-camera'></i></p></div></div><p>Ci spostiamo a Montalcino dove inizia la nostra esplorazione della Val d'Orcia. Proseguiamo poi verso San Quirico d'Orcia, sempre tra degustazioni e passeggiate con panorami incantevoli, per finire raggiungiamo il nostro hotel alle Terme di Chianciano.</p></div></div></div></div></h6><h6 class='  border-bottom border-warning py-2'><div class=' w-100 d-flex justify-content-between'><div class=' card w-100 mb-4 shadow-sm'><div class=' card-body'><p class=' text-center'>Giorno 3 - Lun 24 Ago / Mar 25 Ago</p><button class=' btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapsePienza_Montepulciano_Terme_di_Chiancianoundefined" ><h5 class=' card-title m-0 text-left'>Pienza, Montepulciano, Terme di Chianciano</h5><div class=' h-100'><i class=' fa fa-chevron-down'></i></div></button><div id='collapsePienza_Montepulciano_Terme_di_Chiancianoundefined' class=' collapse'><div class=' d-flex justify-coontent-between'><div class=' w-100 d-flex'><p class=' d-flex flex-column justify-content-center btn btn-warning mt-3 mr-2 px-2'><i class=' fa fa-university'></i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'><i class=' fa fa-utensils'></i></p><p class=' d-flex flex-column justify-content-center btn btn-danger mt-3 mr-2 px-2'><i class=' fa fa-wine-glass-alt'></i></p><p class=' d-flex flex-column justify-content-center btn btn-primary mt-3 mr-2 px-2'><i class=' fa fa-swimmer'></i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'><i class=' fa fa-image'></i></p><p class=' d-flex flex-column justify-content-center btn btn-dark mt-3 mr-2 px-2'><i class=' fa fa-camera'></i></p></div></div><p>Si continua con l'esplorazione della Val d'Orcia con Pienza, a seguire Montepulciano, per concludere con una serata rilassante alle terme nel nostro hotel. Mattina dopo si riparte, direzione Norcenni Girasole Village</p></div></div></div></div></h6><h6 class='  border-bottom border-warning py-2'><div class=' w-100 d-flex justify-content-between'><div class=' card w-100 mb-4 shadow-sm'><div class=' card-body'><p class=' text-center'>Giorno 4 - Mar 25 Ago / Mer 26 Ago</p><button class=' btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseGiornata_Relax__Canyoning_Bagni_di_Lucca_" ><h5 class=' card-title m-0 text-left'>Giornata Relax / Canyoning Bagni di Lucca </h5><div class=' h-100'><i class=' fa fa-chevron-down'></i></div></button><div id='collapseGiornata_Relax__Canyoning_Bagni_di_Lucca_' class=' collapse'><div class=' d-flex justify-coontent-between'><div class=' w-100 d-flex'><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'><i class=' fa fa-mountain'></i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'><i class=' fa fa-utensils'></i></p><p class=' d-flex flex-column justify-content-center btn btn-danger mt-3 mr-2 px-2'><i class=' fa fa-wine-glass-alt'></i></p><p class=' d-flex flex-column justify-content-center btn btn-primary mt-3 mr-2 px-2'><i class=' fa fa-swimmer'></i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'><i class=' fa fa-image'></i></p><p class=' d-flex flex-column justify-content-center btn btn-dark mt-3 mr-2 px-2'><i class=' fa fa-camera'></i></p></div></div><p>Qui abbiamo doppia scelta. Per chi se la sente giornata "Wild" a Bagni di Lucca dove ci cimenteremo con il Paddleboard, la tavola galleggiante, all'interno del canyon che potremo così apprezzare dal basso. <br>Altrimenti totale relax all'interno del Norcenni Girasole Village.</p></div></div></div></div></h6><h6 class='  border-bottom border-warning py-2'><div class=' w-100 d-flex justify-content-between'><div class=' card w-100 mb-4 shadow-sm'><div class=' card-body'><p class=' text-center'>Giorno 5 - Mer 26 Ago / Gio 27 Ago</p><button class=' btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseGreve_in_Chianti_San_Gimignano_undefined" ><h5 class=' card-title m-0 text-left'>Greve in Chianti, San Gimignano </h5><div class=' h-100'><i class=' fa fa-chevron-down'></i></div></button><div id='collapseGreve_in_Chianti_San_Gimignano_undefined' class=' collapse'><div class=' d-flex justify-coontent-between'><div class=' w-100 d-flex'><p class=' d-flex flex-column justify-content-center btn btn-warning mt-3 mr-2 px-2'><i class=' fa fa-university'></i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'><i class=' fa fa-utensils'></i></p><p class=' d-flex flex-column justify-content-center btn btn-danger mt-3 mr-2 px-2'><i class=' fa fa-wine-glass-alt'></i></p><p class=' d-flex flex-column justify-content-center btn btn-primary mt-3 mr-2 px-2'><i class=' fa fa-swimmer'></i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'><i class=' fa fa-image'></i></p><p class=' d-flex flex-column justify-content-center btn btn-dark mt-3 mr-2 px-2'><i class=' fa fa-camera'></i></p></div></div><p>Visiteremo Greve in Chianti e il vicino castello di Verrazzano, con annessa degustazione di vino. Dopodichè ci muoveremo verso San Gimignano e volendo alla Riserva Naturale di Castelvecchio.</p></div></div></div></div></h6><h6 class='  border-bottom border-warning py-2'><div class=' w-100 d-flex justify-content-between'><div class=' card w-100 mb-4 shadow-sm'><div class=' card-body'><p class=' text-center'>Giorno 6 - Gio 27 Ago / Ven 28 Ago</p><button class=' btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseFirenze_e_arrivederciundefined" ><h5 class=' card-title m-0 text-left'>Firenze e arrivederci</h5><div class=' h-100'><i class=' fa fa-chevron-down'></i></div></button><div id='collapseFirenze_e_arrivederciundefined' class=' collapse'><div class=' d-flex justify-coontent-between'><div class=' w-100 d-flex'><p class=' d-flex flex-column justify-content-center btn btn-warning mt-3 mr-2 px-2'><i class=' fa fa-university'></i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'><i class=' fa fa-utensils'></i></p><p class=' d-flex flex-column justify-content-center btn btn-danger mt-3 mr-2 px-2'><i class=' fa fa-wine-glass-alt'></i></p></div></div><p>Non possiamo che concludere questo tour della toscana che a Firenze! Visiteremo la città, un buon pranzo tipico e poi ci salutiamo.</p></div></div></div></div></h6></div></div></div><div class=' d-flex flex-column justify-content-center'><div class=' position-absolute w-100'><h1 id='button' class=' bg-success text-light w-100 py-2 text-center '  onclick="scrollWin()" style="top:50%; z-index:1000;">Norcenni Girasole Village</h1></div><img class=' d-sm-none w-100'  src="./src/img/norcenni-s.jpg"><img class=' d-none d-sm-block d-md-none w-100 '  src="./src/img/norcenni-m.jpg"><img class=' d-none d-md-block w-100'  src="./src/img/norcenni.jpeg"></div><div class='container pt-5 '><h1 class=' text-center mb-5'>Arrivi-Partenze</h1><div id='section3' class='row mb-3'><div class=' col-3'><table id='partecipanti' class=' table table-striped table-sm text-center'><tbody><tr><th>Partecipanti</th></tr><tr><td>Sara</td></tr><tr><td>Tatiana</td></tr><tr><td>Andrea S. <i class=' fa fa-car'></i></td></tr><tr><td>Andrea R. <i class=' fa fa-car'></i></td></tr><tr><td>Marco</td></tr><tr><td>Amelia</td></tr><tr><td>Elisa <i class=' fa fa-car'></i></td></tr></tbody></table></div><div class=' col-1 d-sm-none'></div><div class=' col-7 col-sm-9 '  style="overflow-x:scroll"><table id='arrivi_partenze' class=' table table-striped table-sm text-center'><tbody><tr><th class=' pr-0'>Ven21</th><th class=' pr-0'>Sab22</th><th class=' px-0'>Dom23</th><th class=' px-0'>Lun24</th><th class=' px-0'>Mar25</th><th class=' px-0'>Mer26</th><th class=' px-0'>Gio27</th><th class=' px-0'>Ven28</th><th class=' px-0'>Sab29</th></tr><tr><td><img></td><td><img></td><td class=' px-0'><img class=' w-100'   src="./src/img/topFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/botFly.svg"></td><td><img></td></tr><tr><td><img></td><td><img></td><td class=' px-0'><img class=' w-100'   src="./src/img/topFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/botFly.svg"></td><td><img></td></tr><tr><td><img></td><td><img></td><td class=' px-0'><img class=' w-100'   src="./src/img/topFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/botFly.svg"></td></tr><tr><td><img></td><td class=' px-0'><img class=' w-100'   src="./src/img/topFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/botFly.svg"></td></tr><tr><td><img></td><td class=' px-0'><img class=' w-100'   src="./src/img/topFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/botFly.svg"></td></tr><tr><td class=' px-0'><img class=' w-100'   src="./src/img/topFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/botFly.svg"></td><td><img></td><td><img></td></tr><tr><td class=' px-0'><img class=' w-100'   src="./src/img/topFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/midFly.svg"></td><td class=' px-0'><img class=' w-100'   src="./src/img/botFly.svg"></td><td><img></td></tr></tbody></table></div></div></div><div class='container '><hr class=' my-5'></hr><h1 id='section4' class=' text-center mb-3'>Luoghi</h1><div class='row py-3'><div class=' col-12 col-md-4'><div class=' card mb-4 shadow-sm'><div class=' card-img-container'><img class=' card-img-top shadow-sm'  src="./src/img/siena.jpg"></div><div class=' card-body'><button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseSiena" ><h5 class=' card-title m-0 text-left'>Siena</h5><i class=' fa fa-chevron-down'></i></button><div class=' w-100 d-flex justify-content-between'></div><div id='collapseSiena' class=' collapse'><p>Siena, città della Toscana, nel Centro Italia, si distingue per i suoi edifici medievali in mattoni. Piazza del Campo, la piazza centrale dalla caratteristica forma a ventaglio, è sede del Palazzo Pubblico (il municipio in stile gotico) e della Torre del Mangia, una slanciata torre del XIV secolo dalla cui bianca merlatura si gode di una vista stupenda. Le diciassette storiche contrade (i quartieri cittadini) si estendono tutt'intorno proprio a partire dalla piazza.</p></div></div></div></div><div class=' col-12 col-md-4'><div class=' card mb-4 shadow-sm'><div class=' card-img-container'><img class=' card-img-top shadow-sm'  src="./src/img/florence-s.jpg"></div><div class=' card-body'><button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseFirenze" ><h5 class=' card-title m-0 text-left'>Firenze</h5><i class=' fa fa-chevron-down'></i></button><div class=' w-100 d-flex justify-content-between'></div><div id='collapseFirenze' class=' collapse'><p>Firenze, capoluogo della Toscana, ospita molti capolavori dell'arte e dell'architettura rinascimentale. Uno dei luoghi più celebri è il Duomo, la cattedrale con cupola di tegole progettata dal Brunelleschi e il campanile di Giotto. La Galleria dell'Accademia espone la scultura del David di Michelangelo mentre nella Galleria degli Uffizi si trovano La nascita di Venere di Botticelli e l&#146Annunciazione di Leonardo da Vinci.</p></div></div></div></div><div class=' col-12 col-md-4'><div class=' card mb-4 shadow-sm'><div class=' card-img-container'><img class=' card-img-top shadow-sm'  src="./src/img/s_gimignano.jpg"></div><div class=' card-body'><button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseSan_Gimignano" ><h5 class=' card-title m-0 text-left'>San Gimignano</h5><i class=' fa fa-chevron-down'></i></button><div class=' w-100 d-flex justify-content-between'></div><div id='collapseSan_Gimignano' class=' collapse'><p>San Gimignano è una città collinare della Toscana situata a sud-ovest di Firenze. Circondata da mura del XIII secolo, il fulcro del suo centro storico è piazza della Cisterna, una piazza triangolare fiancheggiata da case medievali. Nella skyline di torri medievali spicca la Torre Grossa in pietra. Il Duomo di San Gimignano è una chiesa del XII secolo in cui è possibile ammirare gli affreschi del Ghirlandaio nella Cappella di Santa Fina.</p></div></div></div></div><div class=' col-12 col-md-4'><div class=' card mb-4 shadow-sm'><div class=' card-img-container'><img class=' card-img-top shadow-sm'  src="./src/img/castiglione_della_pescaia.jpg"></div><div class=' card-body'><button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseCastiglione_della_Pescaia" ><h5 class=' card-title m-0 text-left'>Castiglione della Pescaia</h5><i class=' fa fa-chevron-down'></i></button><div class=' w-100 d-flex justify-content-between'></div><div id='collapseCastiglione_della_Pescaia' class=' collapse'><p>Castiglione della Pescaia è un caratteristico borgo marinaro arroccato su un promontorio della costa maremmana. Sulla sua sommità il castello aragonese, le mura, le torri e lo splendido panorama donano a questo luogo una bellezza disarmante. Castiglione della Pescaia è anche un'esclusiva meta turistica apprezzata per la qualità dell'ambiente e del mare.</p></div></div></div></div><div class=' col-12 col-md-4'><div class=' card mb-4 shadow-sm'><div class=' card-img-container'><img class=' card-img-top shadow-sm'  src="./src/img/val_d_orcia.jpg"></div><div class=' card-body'><button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseVal_d_Orcia" ><h5 class=' card-title m-0 text-left'>Val d'Orcia</h5><i class=' fa fa-chevron-down'></i></button><div class=' w-100 d-flex justify-content-between'></div><div id='collapseVal_d_Orcia' class=' collapse'><p>La Val d'Orcia sito culturale del Patrimonio Mondiale si trova nell'entroterra agricolo di Siena, nell'Italia Centrale, e comprende i centri storici e gran parte del territorio dei Comuni di <b>Castiglione d'Orcia, Montalcino, Pienza, Radicofani, San Quirico d'Orcia.</b></p></div></div></div></div><div class=' col-12 col-md-4'><div class=' card mb-4 shadow-sm'><div class=' card-img-container'><img class=' card-img-top shadow-sm'  src="./src/img/montepulciano.jpg"></div><div class=' card-body'><button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseMontepulciano" ><h5 class=' card-title m-0 text-left'>Montepulciano</h5><i class=' fa fa-chevron-down'></i></button><div class=' w-100 d-flex justify-content-between'></div><div id='collapseMontepulciano' class=' collapse'><p>Montepulciano è una città medievale in collina della Toscana, in Italia. Circondata da vigneti, è conosciuta per il suo vino rosso Nobile. La Torre di Pulcinella è una torre dell'orologio sormontata da Pulcinella, una delle figure della commedia dell'arte. Piazza Grande ospita il Palazzo Comunale del XIV secolo, con una torre che offre una vista sulla campagna circostante, e il Duomo, che espone un enorme trittico sull'altare.</p></div></div></div></div><div class=' col-12 col-md-4'><div class=' card mb-4 shadow-sm'><div class=' card-img-container'><img class=' card-img-top shadow-sm'  src="./src/img/san_galgano.jpg"></div><div class=' card-body'><button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseSan_Galgano" ><h5 class=' card-title m-0 text-left'>San Galgano</h5><i class=' fa fa-chevron-down'></i></button><div class=' w-100 d-flex justify-content-between'></div><div id='collapseSan_Galgano' class=' collapse'><p>L'abbazia di San Galgano è un'abbazia cistercense, sita a una trentina di chilometri da Siena, nel comune di Chiusdino. Il sito è costituito dall'eremo (detto "Rotonda di Montesiepi") e dalla grande abbazia, ora completamente in rovina e ridotta alle sole mura, meta di flusso turistico.</p></div></div></div></div><div class=' col-12 col-md-4'><div class=' card mb-4 shadow-sm'><div class=' card-img-container'><img class=' card-img-top shadow-sm'  src="./src/img/chianciano_terme.jpg"></div><div class=' card-body'><button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseChianciano_Terme" ><h5 class=' card-title m-0 text-left'>Chianciano Terme</h5><i class=' fa fa-chevron-down'></i></button><div class=' w-100 d-flex justify-content-between'></div><div id='collapseChianciano_Terme' class=' collapse'><p>Le Terme di Chianciano sono il luogo ideale per scoprire il benessere termale e la tradizione delle terme in Italia. Da noi, immersi nel cuore della Toscana, fra bellezze naturali e artistiche è possibile rigenerarsi grazie al potere curativo e rilassante delle acque termali.</p></div></div></div></div><div class=' col-12 col-md-4'><div class=' card mb-4 shadow-sm'><div class=' card-img-container'><img class=' card-img-top shadow-sm'  src="./src/img/canyon-sup.jpg"></div><div class=' card-body'><button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseBagni_di_Lucca" ><h5 class=' card-title m-0 text-left'>Bagni di Lucca</h5><i class=' fa fa-chevron-down'></i></button><div class=' w-100 d-flex justify-content-between'></div><div id='collapseBagni_di_Lucca' class=' collapse'><p>Esplora il Canyon in Stand Up Paddleboard in acqua. Un&#146acqua dai colori surreali, un tetto verde, pareti scoscese e inaccessibili. Queste sono le Strette di Cocciglia, una sezione di fiume con acqua cristallina unica nel suo genere. È possibile esplorare il Canyon in SUP (Stand UpPaddleboard) avventurandosi in un ambiente spettacolare, con sorgenti che sgorgano dalla roccia. Vengono fornite tavola, pagaia, casco e un briefing iniziale. <b>Adatto a tutti.</b><div class=' text-center w-100'><a  href="https://www.canyonpark.it/canyon-sup/" target="_blank">www.canyonpark.it</a></div></p></div></div></div></div><div class=' col-12 col-md-4'><div class=' card mb-4 shadow-sm'><div class=' card-img-container'><img class=' card-img-top shadow-sm'  src="./src/img/follonica.jpg"></div><div class=' card-body'><button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseFollonica" ><h5 class=' card-title m-0 text-left'>Follonica</h5><i class=' fa fa-chevron-down'></i></button><div class=' w-100 d-flex justify-content-between'></div><div id='collapseFollonica' class=' collapse'><p>Follonica è una cittadina situata nel cuore dell'omonimo Golfo tra il promontorio di Pidi Piombino, Punta Ala e di fronte all'Isola d'Elba nell' Alta Maremma Toscana. Il litorale ha prevalentemente sabbia bianca e fine, tratti di scoglio e bassi fondali che degradano lentamente.</p></div></div></div></div><div class=' col-12 col-md-4'><div class=' card mb-4 shadow-sm'><div class=' card-img-container'><img class=' card-img-top shadow-sm'  src="./src/img/greve_in_chianti.jpg"></div><div class=' card-body'><button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseGreve_in_Chianti" ><h5 class=' card-title m-0 text-left'>Greve in Chianti</h5><i class=' fa fa-chevron-down'></i></button><div class=' w-100 d-flex justify-content-between'></div><div id='collapseGreve_in_Chianti' class=' collapse'><p>Greve in Chianti è l'unico comune della provincia di Firenze a rientrare interamente nella zona del Chianti. In epoca antica Greve era un piccolo nucleo del territorio detto Agro di Florentia. Furono i Romani ad abitare per primi stabilmente questi luoghi non lontani dalla via Cassia.</p></div></div></div></div><div class=' col-12 col-md-4'><div class=' card mb-4 shadow-sm'><div class=' card-img-container'><img class=' card-img-top shadow-sm'  src="./src/img/bagni_s_filippo.jpg"></div><div class=' card-body'><button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseBagni_di_San_Filippo" ><h5 class=' card-title m-0 text-left'>Bagni di San Filippo</h5><i class=' fa fa-chevron-down'></i></button><div class=' w-100 d-flex justify-content-between'></div><div id='collapseBagni_di_San_Filippo' class=' collapse'><p>Nel piccolo paese di Bagni San Filippo, frazione di Castiglione d'Orcia, oltre ad una struttura termale a pagamento ci sono delle terme gratuite che potete raggiungere attraversando un piccolo sentiero nel bosco che conduce al Fosso Bianco, il torrente dove confluiscono le sorgenti d&#146acqua calda che nel tempo hanno creato uno scenario incantevole, fatto di montagne calcaree bianche da cui sgorga acqua bollente che confluisce in piccole piscine naturali.</p></div></div></div></div></div></div><div class=' mb-5 d-flex flex-column justify-content-center'><div class=' position-absolute w-100'><h2 class=' bg-success text-light w-100 py-2 text-center '   style="top:50%; z-index:1000;"><a  target="_blank" href="https://www.canyonpark.it/canyon-sup/">Canyonpark - Bagni di Lucca</a></h2></div><img class=' d-sm-none w-100'  src="./src/img/canyon-sup-s.jpg"><img class=' d-none d-sm-block d-md-none w-100 '  src="./src/img/canyon-sup-m.jpg"><img class=' d-none d-md-block w-100'  src="./src/img/canyon-sup.jpg"></div><div id='section5' class='container-fluid container-marketing'><h1 class=' text-center mb-5'>Avventurieri</h1><div class='row px-sm-5'  style="text-align:center;"><div class=' container-marketing col-12 col-lg-4'><div class=' container-circle'><img  style="" src="./src/img/sara.jpg"></div><h2 class=' mt-2'>Sara</h2><h5>Sono Sara e sono del segno del Sagittario. Non a caso amo il movimento, i viaggi e le avventure e il bello di queste esperienze, secondo me, è l&#146incontro di persone, di idee e di condivisione.  Mi piace la montagna, gli itinerari in mezzo alla natura e le colline toscane saranno la cornice perfetta per il nostro viaggio on the road! Nel mio zaino di viaggio vorrei mettere le città visitate, i borghi medievali scoperti, le escursioni sudate,  il buon cibo gustato, il relax delle acque termali, le risate assieme voi e tante tante foto ricordo!</h5></div><div class=' container-marketing col-12 col-lg-4'><div class=' container-circle'><img  style="" src="./src/img/amelia.jpg"></div><h2 class=' mt-2'>Amelia</h2><h5>Ciao! Sono di Caserta e quest'anno le mie ferie in Toscana sono l'ideale per una vacanza italiana...tra vigneti, città termali, storia e buon cibo...Non manca nulla. <br>Pronti a partire???? <i class=' fa fa-smile'></i></h5></div><div class=' container-marketing col-12 col-lg-4'><div class=' container-circle'><img  style="" src="./src/img/andrea_r.jpg"></div><h2 class=' mt-2'>Andrea R.</h2><h5>Ciao! Sono Andrea, un malato cronico di Wanderlust (per chi non ne conoscesse il significato, lascio il piacere della ricerca su internet...d'altronde mi piace giocare! ;-) ). <br>Amo viaggiare (sia fare lunghi viaggi itineranti, ma anche brevi escursioni durante i weekend) e sono purtroppo reduce da un mancato viaggio in Islanda (già prenotato..) rinviato per l'attuale situazione. Quindi mi aspetto tanta avventura, tanta scoperta, tante emozioni insieme a voi, anche perché parto con la certezza di ritrovare 2 carissimi amici con cui ho condiviso lo splendido viaggio in Giordania lo scorso agosto (Marco e Sara) e di farne certamente di nuovi! Let's go! <i class=' fa fa-smile-wink'></i></h5></div><div class=' container-marketing col-12 col-lg-4'><div class=' container-circle'><img  style="" src="./src/img/elisa.jpg"></div><h2 class=' mt-2'>Elisa</h2><h5>Ciao a tutti!! Piacere Elisa, milanese doc (una rarità lo so).. Amo viaggiare, non sono molto avventuriera spericolata in quanto amo anche viaggi relax... mi piace stare insieme alla gente... quindi pronta per godermi in pieno questa scoperta Toscana! </h5></div><div class=' container-marketing col-12 col-lg-4'><div class=' container-circle'><img  style="" src="./src/img/tatiana.jpg"></div><h2 class=' mt-2'>Tatiana.</h2><h5>Sì sono Tatiana. A chi non piace viaggiare... poi mi piace la gente aperta, solare,socievole accogliente.Non vedo l'ora di conoscervi!E spero che rideremo sotto il sole e le stelle dellaToscana!Di me non mi piace parlare. Ci conosceremo lÃ¡ con un bicchiere di vino (o forse due,tre <i class=' fa fa-grin-tongue'></i>)</h5></div><div class=' container-marketing col-12 col-lg-4'><div class=' container-circle'><img  style="" src="./src/img/andrea_s.jpg"></div><h2 class=' mt-2'>Andrea S.</h2><div class=' form-group'><textarea id='andrea_s_desc' class=' form-control'  placeholder="Sei Andrea Stella? Inserisci qui una tua breve descrizione e clicca Invia. Provvederò ad inserirla al più presto!"></textarea><h5 id='andrea_s_thanks' class=' d-none text-center my-3'>Grazie per aver inviato la descrizione :)</h5><button id='andrea_s_send' class=' mt-2 btn btn-secondary btn-block'  onclick="send('andrea_s', andrea_s_desc.value)">Invia</button></div></div><div class=' container-marketing col-12 col-lg-4'><div class=' container-circle'><img  style="" src="./src/img/marco.jpg"></div><h2 class=' mt-2'>Marco</h2><h5>Ciao a tutti!! Non vedo l'ora di conoscervi. Sono Marco, amo la natura, i panorami mozzafiato, ancor di più se in luoghi difficili da raggiungere per vederli, le escursioni e le vacanze adventure ma non disdegno ovviamente il relax, la sabbia bianca e il mare cristallino con uno spritz o una birra ghiacciata in mano. Sono anche un grande amante della buona cucina, (e infatti spesso e volentieri mi diletto ai fornelli...) e del buon vino. Per questo scelgo la Toscana, perchè include tutto questo. Ma se c'è una cosa che ho imparato è che la differenza la fanno i compagni di viaggio! Quindi... Daje!</h5></div></div></div><div class='container py-5'></div><script type="text/javascript" src="src/js/script.js"></script>
+</head><body>
+<h1 id='button' class=' pt-2 pb-3 position-absolute bg-success text-light w-100 text-center '  onclick="scrollWin()" style="top:50%; z-index:1000;">
+Toscana Tour!</h1><nav class=' navbar navbar-expand-md fixed-top  shadow bg-success navbar-dark'>
+<div class=' navbar-brand mt-auto d-flex'>
+<a>
+<div class=' d-none d-md-inline-block'>
+</div></a></div><div class=' navbar-brand mt-auto d-flex'>
+<a class=' myhover'  href="home.html">
+<div class='  ml-5 d-inline-block d-md-none'>
+</div></a></div><button id='navbar-toggler' class=' navbar-toggler'  type="button" data-toggle="collapse" data-target="#theNavbar" aria-controls="theNavbar" aria-expanded="false" aria-label="Toggle navigation">
+<span class=' fa fa-bars'>
+</span></button><div id='theNavbar' class=' navbar-collapse collapse'>
+<ul class=' navbar-nav ml-auto'>
+<li class=' align-self-center'>
+<a class=' d-md-none nav-link text-center'  onclick="document.getElementById('navbar-toggler').click()" href="#section2">
+Itinerario</a><a class=' d-none d-md-block nav-link text-center'  href="#section2">
+Itinerario</a></li><li class=' align-self-center'>
+<a class=' d-md-none nav-link text-center'  onclick="document.getElementById('navbar-toggler').click()" href="#section3">
+Arrivi-Partenze</a><a class=' d-none d-md-block nav-link text-center'  href="#section3">
+Arrivi-Partenze</a></li><li class=' align-self-center'>
+<a class=' d-md-none nav-link text-center'  onclick="document.getElementById('navbar-toggler').click()" href="#section4">
+Luoghi</a><a class=' d-none d-md-block nav-link text-center'  href="#section4">
+Luoghi</a></li><li class=' align-self-center'>
+<a class=' d-md-none nav-link text-center'  onclick="document.getElementById('navbar-toggler').click()" href="#section5">
+Avventurieri</a><a class=' d-none d-md-block nav-link text-center'  href="#section5">
+Avventurieri</a></li></ul></div></nav><img class=' d-sm-none w-100'  src="./src/img/florence-s.jpg">
+<img class=' d-none d-sm-block d-md-none w-100'  src="./src/img/florence-m.jpg">
+<img class=' d-none d-md-block w-100'  src="./src/img/florence.jpg">
+<div class='container mt-5'>
+<h1 class=' text-center mb-3'>
+Itinerario</h1><div id='section2' class='row mb-3 pb-5'>
+<div class=' col-12'>
+<img class=' w-100'  src="./src/img/itinerary_map.svg">
+</div></div><div class='row mb-3 pb-5'>
+<div class=' col-1 p-0 pl-2 d-flex flex-column'>
+<img class=' mt-4'  src="./src/img/topIt.svg">
+<img   src="./src/img/midIt.svg">
+<img   src="./src/img/midIt.svg">
+<img   src="./src/img/midIt.svg">
+<img   src="./src/img/midIt.svg">
+<img   src="./src/img/midIt.svg">
+<img   src="./src/img/midIt.svg">
+<img   src="./src/img/midIt.svg">
+<img   src="./src/img/midIt.svg">
+<img   src="./src/img/midIt.svg">
+<img   src="./src/img/midIt.svg">
+<img   src="./src/img/midIt.svg">
+<img  src="./src/img/botIt.svg">
+</div><div class=' col-11'>
+<h6>
+<div class=' w-100 d-flex justify-content-between'>
+<div class=' small'>
+Luogo</div><div class=' small'>
+Data</div></div></h6><h6 class='  border-bottom border-warning py-2'>
+<div class=' w-100 d-flex justify-content-between'>
+<div class=' card w-100 mb-4 shadow-sm'>
+<div class=' card-body'>
+<p class=' text-center'>
+Giorno 1 - Sab 22 Ago / Dom 23 Ago</p><button class=' btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseSiena_e_Abbazia_San_Galganoundefined" >
+<h5 class=' card-title m-0 text-left'>
+Siena e Abbazia San Galgano</h5><div class=' h-100'>
+<i class=' fa fa-chevron-down'>
+</i></div></button><div id='collapseSiena_e_Abbazia_San_Galganoundefined' class=' collapse'>
+<div class=' d-flex justify-coontent-between'>
+<div class=' w-100 d-flex'>
+<p class=' d-flex flex-column justify-content-center btn btn-warning mt-3 mr-2 px-2'>
+<i class=' fa fa-university'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'>
+<i class=' fa fa-utensils'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-danger mt-3 mr-2 px-2'>
+<i class=' fa fa-wine-glass-alt'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-primary mt-3 mr-2 px-2'>
+<i class=' fa fa-building'>
+</i></p></div></div><p>
+Benvenuti in Toscana! <br><br>Dopo esserci salutati e aver lasciato i bagagli in hotel ci spostiamo verso San Galgano dove troveremo l'omonima abbazia con all'interno la famosa"Spada nella Roccia". In serata ritorno a Siena per una passeggiata e una ricca cena di benvenuto.</p></div></div></div></div></h6><h6 class='  border-bottom border-warning py-2'>
+<div class=' w-100 d-flex justify-content-between'>
+<div class=' card w-100 mb-4 shadow-sm'>
+<div class=' card-body'>
+<p class=' text-center'>
+Giorno 2 - Dom 23 Ago / Lun 24 Ago</p><button class=' btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseMontalcino_San_Quiricoundefined" >
+<h5 class=' card-title m-0 text-left'>
+Montalcino, San Quirico</h5><div class=' h-100'>
+<i class=' fa fa-chevron-down'>
+</i></div></button><div id='collapseMontalcino_San_Quiricoundefined' class=' collapse'>
+<div class=' d-flex justify-coontent-between'>
+<div class=' w-100 d-flex'>
+<p class=' d-flex flex-column justify-content-center btn btn-warning mt-3 mr-2 px-2'>
+<i class=' fa fa-university'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'>
+<i class=' fa fa-utensils'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-danger mt-3 mr-2 px-2'>
+<i class=' fa fa-wine-glass-alt'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'>
+<i class=' fa fa-image'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-dark mt-3 mr-2 px-2'>
+<i class=' fa fa-camera'>
+</i></p></div></div><p>
+Ci spostiamo a Montalcino dove inizia la nostra esplorazione della Val d'Orcia. Proseguiamo poi verso San Quirico d'Orcia, sempre tra degustazioni e passeggiate con panorami incantevoli, per finire raggiungiamo il nostro hotel alle Terme di Chianciano.</p></div></div></div></div></h6><h6 class='  border-bottom border-warning py-2'>
+<div class=' w-100 d-flex justify-content-between'>
+<div class=' card w-100 mb-4 shadow-sm'>
+<div class=' card-body'>
+<p class=' text-center'>
+Giorno 3 - Lun 24 Ago / Mar 25 Ago</p><button class=' btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapsePienza_Montepulciano_Terme_di_Chiancianoundefined" >
+<h5 class=' card-title m-0 text-left'>
+Pienza, Montepulciano, Terme di Chianciano</h5><div class=' h-100'>
+<i class=' fa fa-chevron-down'>
+</i></div></button><div id='collapsePienza_Montepulciano_Terme_di_Chiancianoundefined' class=' collapse'>
+<div class=' d-flex justify-coontent-between'>
+<div class=' w-100 d-flex'>
+<p class=' d-flex flex-column justify-content-center btn btn-warning mt-3 mr-2 px-2'>
+<i class=' fa fa-university'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'>
+<i class=' fa fa-utensils'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-danger mt-3 mr-2 px-2'>
+<i class=' fa fa-wine-glass-alt'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-primary mt-3 mr-2 px-2'>
+<i class=' fa fa-swimmer'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'>
+<i class=' fa fa-image'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-dark mt-3 mr-2 px-2'>
+<i class=' fa fa-camera'>
+</i></p></div></div><p>
+Si continua con l'esplorazione della Val d'Orcia con Pienza, a seguire Montepulciano, per concludere con una serata rilassante alle terme nel nostro hotel. Mattina dopo si riparte, direzione Norcenni Girasole Village</p></div></div></div></div></h6><h6 class='  border-bottom border-warning py-2'>
+<div class=' w-100 d-flex justify-content-between'>
+<div class=' card w-100 mb-4 shadow-sm'>
+<div class=' card-body'>
+<p class=' text-center'>
+Giorno 4 - Mar 25 Ago / Mer 26 Ago</p><button class=' btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseGiornata_Relax__Canyoning_Bagni_di_Lucca_" >
+<h5 class=' card-title m-0 text-left'>
+Giornata Relax / Canyoning Bagni di Lucca </h5><div class=' h-100'>
+<i class=' fa fa-chevron-down'>
+</i></div></button><div id='collapseGiornata_Relax__Canyoning_Bagni_di_Lucca_' class=' collapse'>
+<div class=' d-flex justify-coontent-between'>
+<div class=' w-100 d-flex'>
+<p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'>
+<i class=' fa fa-mountain'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'>
+<i class=' fa fa-utensils'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-danger mt-3 mr-2 px-2'>
+<i class=' fa fa-wine-glass-alt'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-primary mt-3 mr-2 px-2'>
+<i class=' fa fa-swimmer'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'>
+<i class=' fa fa-image'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-dark mt-3 mr-2 px-2'>
+<i class=' fa fa-camera'>
+</i></p></div></div><p>
+Qui abbiamo doppia scelta. Per chi se la sente giornata "Wild" a Bagni di Lucca dove ci cimenteremo con il Paddleboard, la tavola galleggiante, all'interno del canyon che potremo così apprezzare dal basso. <br>Altrimenti totale relax all'interno del Norcenni Girasole Village.</p></div></div></div></div></h6><h6 class='  border-bottom border-warning py-2'>
+<div class=' w-100 d-flex justify-content-between'>
+<div class=' card w-100 mb-4 shadow-sm'>
+<div class=' card-body'>
+<p class=' text-center'>
+Giorno 5 - Mer 26 Ago / Gio 27 Ago</p><button class=' btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseGreve_in_Chianti_San_Gimignano_undefined" >
+<h5 class=' card-title m-0 text-left'>
+Greve in Chianti, San Gimignano </h5><div class=' h-100'>
+<i class=' fa fa-chevron-down'>
+</i></div></button><div id='collapseGreve_in_Chianti_San_Gimignano_undefined' class=' collapse'>
+<div class=' d-flex justify-coontent-between'>
+<div class=' w-100 d-flex'>
+<p class=' d-flex flex-column justify-content-center btn btn-warning mt-3 mr-2 px-2'>
+<i class=' fa fa-university'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'>
+<i class=' fa fa-utensils'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-danger mt-3 mr-2 px-2'>
+<i class=' fa fa-wine-glass-alt'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-primary mt-3 mr-2 px-2'>
+<i class=' fa fa-swimmer'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'>
+<i class=' fa fa-image'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-dark mt-3 mr-2 px-2'>
+<i class=' fa fa-camera'>
+</i></p></div></div><p>
+Visiteremo Greve in Chianti e il vicino castello di Verrazzano, con annessa degustazione di vino. Dopodichè ci muoveremo verso San Gimignano e volendo alla Riserva Naturale di Castelvecchio.</p></div></div></div></div></h6><h6 class='  border-bottom border-warning py-2'>
+<div class=' w-100 d-flex justify-content-between'>
+<div class=' card w-100 mb-4 shadow-sm'>
+<div class=' card-body'>
+<p class=' text-center'>
+Giorno 6 - Gio 27 Ago / Ven 28 Ago</p><button class=' btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseFirenze_e_arrivederciundefined" >
+<h5 class=' card-title m-0 text-left'>
+Firenze e arrivederci</h5><div class=' h-100'>
+<i class=' fa fa-chevron-down'>
+</i></div></button><div id='collapseFirenze_e_arrivederciundefined' class=' collapse'>
+<div class=' d-flex justify-coontent-between'>
+<div class=' w-100 d-flex'>
+<p class=' d-flex flex-column justify-content-center btn btn-warning mt-3 mr-2 px-2'>
+<i class=' fa fa-university'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-success mt-3 mr-2 px-2'>
+<i class=' fa fa-utensils'>
+</i></p><p class=' d-flex flex-column justify-content-center btn btn-danger mt-3 mr-2 px-2'>
+<i class=' fa fa-wine-glass-alt'>
+</i></p></div></div><p>
+Non possiamo che concludere questo tour della toscana che a Firenze! Visiteremo la città, un buon pranzo tipico e poi ci salutiamo.</p></div></div></div></div></h6></div></div></div><div class=' d-flex flex-column justify-content-center'>
+<div class=' position-absolute w-100'>
+<h1 id='button' class=' bg-success text-light w-100 py-2 text-center '  onclick="scrollWin()" style="top:50%; z-index:1000;">
+Norcenni Girasole Village</h1></div><img class=' d-sm-none w-100'  src="./src/img/norcenni-s.jpg">
+<img class=' d-none d-sm-block d-md-none w-100 '  src="./src/img/norcenni-m.jpg">
+<img class=' d-none d-md-block w-100'  src="./src/img/norcenni.jpeg">
+</div><div class='container pt-5 '>
+<h1 class=' text-center mb-5'>
+Arrivi-Partenze</h1><div id='section3' class='row mb-3'>
+<div class=' col-3'>
+<table id='partecipanti' class=' table table-striped table-sm text-center'>
+<tbody>
+<tr>
+<th>
+Partecipanti</th></tr><tr>
+<td>
+Sara</td></tr><tr>
+<td>
+Tatiana</td></tr><tr>
+<td>
+Andrea S. <i class=' fa fa-car'>
+</i></td></tr><tr>
+<td>
+Andrea R. <i class=' fa fa-car'>
+</i></td></tr><tr>
+<td>
+Marco</td></tr><tr>
+<td>
+Amelia</td></tr><tr>
+<td>
+Elisa <i class=' fa fa-car'>
+</i></td></tr></tbody></table></div><div class=' col-1 d-sm-none'>
+</div><div class=' col-7 col-sm-9 '  style="overflow-x:scroll">
+<table id='arrivi_partenze' class=' table table-striped table-sm text-center'>
+<tbody>
+<tr>
+<th class=' pr-0'>
+Ven21</th><th class=' pr-0'>
+Sab22</th><th class=' px-0'>
+Dom23</th><th class=' px-0'>
+Lun24</th><th class=' px-0'>
+Mar25</th><th class=' px-0'>
+Mer26</th><th class=' px-0'>
+Gio27</th><th class=' px-0'>
+Ven28</th><th class=' px-0'>
+Sab29</th></tr><tr>
+<td>
+<img>
+</td><td>
+<img>
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/topFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/botFly.svg">
+</td><td>
+<img>
+</td></tr><tr>
+<td>
+<img>
+</td><td>
+<img>
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/topFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/botFly.svg">
+</td><td>
+<img>
+</td></tr><tr>
+<td>
+<img>
+</td><td>
+<img>
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/topFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/botFly.svg">
+</td></tr><tr>
+<td>
+<img>
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/topFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/botFly.svg">
+</td></tr><tr>
+<td>
+<img>
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/topFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/botFly.svg">
+</td></tr><tr>
+<td class=' px-0'>
+<img class=' w-100'   src="./src/img/topFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/botFly.svg">
+</td><td>
+<img>
+</td><td>
+<img>
+</td></tr><tr>
+<td class=' px-0'>
+<img class=' w-100'   src="./src/img/topFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/midFly.svg">
+</td><td class=' px-0'>
+<img class=' w-100'   src="./src/img/botFly.svg">
+</td><td>
+<img>
+</td></tr></tbody></table></div></div></div><div class='container '>
+<hr class=' my-5'>
+</hr><h1 id='section4' class=' text-center mb-3'>
+Luoghi</h1><div class='row py-3'>
+<div class=' col-12 col-md-4'>
+<div class=' card mb-4 shadow-sm'>
+<div class=' card-img-container'>
+<img class=' card-img-top shadow-sm'  src="./src/img/siena.jpg">
+</div><div class=' card-body'>
+<button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseSiena" >
+<h5 class=' card-title m-0 text-left'>
+Siena</h5><i class=' fa fa-chevron-down'>
+</i></button><div class=' w-100 d-flex justify-content-between'>
+</div><div id='collapseSiena' class=' collapse'>
+<p>
+Siena, città della Toscana, nel Centro Italia, si distingue per i suoi edifici medievali in mattoni. Piazza del Campo, la piazza centrale dalla caratteristica forma a ventaglio, è sede del Palazzo Pubblico (il municipio in stile gotico) e della Torre del Mangia, una slanciata torre del XIV secolo dalla cui bianca merlatura si gode di una vista stupenda. Le diciassette storiche contrade (i quartieri cittadini) si estendono tutt'intorno proprio a partire dalla piazza.</p></div></div></div></div><div class=' col-12 col-md-4'>
+<div class=' card mb-4 shadow-sm'>
+<div class=' card-img-container'>
+<img class=' card-img-top shadow-sm'  src="./src/img/florence-s.jpg">
+</div><div class=' card-body'>
+<button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseFirenze" >
+<h5 class=' card-title m-0 text-left'>
+Firenze</h5><i class=' fa fa-chevron-down'>
+</i></button><div class=' w-100 d-flex justify-content-between'>
+</div><div id='collapseFirenze' class=' collapse'>
+<p>
+Firenze, capoluogo della Toscana, ospita molti capolavori dell'arte e dell'architettura rinascimentale. Uno dei luoghi più celebri è il Duomo, la cattedrale con cupola di tegole progettata dal Brunelleschi e il campanile di Giotto. La Galleria dell'Accademia espone la scultura del David di Michelangelo mentre nella Galleria degli Uffizi si trovano La nascita di Venere di Botticelli e l&#146Annunciazione di Leonardo da Vinci.</p></div></div></div></div><div class=' col-12 col-md-4'>
+<div class=' card mb-4 shadow-sm'>
+<div class=' card-img-container'>
+<img class=' card-img-top shadow-sm'  src="./src/img/s_gimignano.jpg">
+</div><div class=' card-body'>
+<button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseSan_Gimignano" >
+<h5 class=' card-title m-0 text-left'>
+San Gimignano</h5><i class=' fa fa-chevron-down'>
+</i></button><div class=' w-100 d-flex justify-content-between'>
+</div><div id='collapseSan_Gimignano' class=' collapse'>
+<p>
+San Gimignano è una città collinare della Toscana situata a sud-ovest di Firenze. Circondata da mura del XIII secolo, il fulcro del suo centro storico è piazza della Cisterna, una piazza triangolare fiancheggiata da case medievali. Nella skyline di torri medievali spicca la Torre Grossa in pietra. Il Duomo di San Gimignano è una chiesa del XII secolo in cui è possibile ammirare gli affreschi del Ghirlandaio nella Cappella di Santa Fina.</p></div></div></div></div><div class=' col-12 col-md-4'>
+<div class=' card mb-4 shadow-sm'>
+<div class=' card-img-container'>
+<img class=' card-img-top shadow-sm'  src="./src/img/castiglione_della_pescaia.jpg">
+</div><div class=' card-body'>
+<button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseCastiglione_della_Pescaia" >
+<h5 class=' card-title m-0 text-left'>
+Castiglione della Pescaia</h5><i class=' fa fa-chevron-down'>
+</i></button><div class=' w-100 d-flex justify-content-between'>
+</div><div id='collapseCastiglione_della_Pescaia' class=' collapse'>
+<p>
+Castiglione della Pescaia è un caratteristico borgo marinaro arroccato su un promontorio della costa maremmana. Sulla sua sommità il castello aragonese, le mura, le torri e lo splendido panorama donano a questo luogo una bellezza disarmante. Castiglione della Pescaia è anche un'esclusiva meta turistica apprezzata per la qualità dell'ambiente e del mare.</p></div></div></div></div><div class=' col-12 col-md-4'>
+<div class=' card mb-4 shadow-sm'>
+<div class=' card-img-container'>
+<img class=' card-img-top shadow-sm'  src="./src/img/val_d_orcia.jpg">
+</div><div class=' card-body'>
+<button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseVal_d_Orcia" >
+<h5 class=' card-title m-0 text-left'>
+Val d'Orcia</h5><i class=' fa fa-chevron-down'>
+</i></button><div class=' w-100 d-flex justify-content-between'>
+</div><div id='collapseVal_d_Orcia' class=' collapse'>
+<p>
+La Val d'Orcia sito culturale del Patrimonio Mondiale si trova nell'entroterra agricolo di Siena, nell'Italia Centrale, e comprende i centri storici e gran parte del territorio dei Comuni di <b>Castiglione d'Orcia, Montalcino, Pienza, Radicofani, San Quirico d'Orcia.</b></p></div></div></div></div><div class=' col-12 col-md-4'>
+<div class=' card mb-4 shadow-sm'>
+<div class=' card-img-container'>
+<img class=' card-img-top shadow-sm'  src="./src/img/montepulciano.jpg">
+</div><div class=' card-body'>
+<button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseMontepulciano" >
+<h5 class=' card-title m-0 text-left'>
+Montepulciano</h5><i class=' fa fa-chevron-down'>
+</i></button><div class=' w-100 d-flex justify-content-between'>
+</div><div id='collapseMontepulciano' class=' collapse'>
+<p>
+Montepulciano è una città medievale in collina della Toscana, in Italia. Circondata da vigneti, è conosciuta per il suo vino rosso Nobile. La Torre di Pulcinella è una torre dell'orologio sormontata da Pulcinella, una delle figure della commedia dell'arte. Piazza Grande ospita il Palazzo Comunale del XIV secolo, con una torre che offre una vista sulla campagna circostante, e il Duomo, che espone un enorme trittico sull'altare.</p></div></div></div></div><div class=' col-12 col-md-4'>
+<div class=' card mb-4 shadow-sm'>
+<div class=' card-img-container'>
+<img class=' card-img-top shadow-sm'  src="./src/img/san_galgano.jpg">
+</div><div class=' card-body'>
+<button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseSan_Galgano" >
+<h5 class=' card-title m-0 text-left'>
+San Galgano</h5><i class=' fa fa-chevron-down'>
+</i></button><div class=' w-100 d-flex justify-content-between'>
+</div><div id='collapseSan_Galgano' class=' collapse'>
+<p>
+L'abbazia di San Galgano è un'abbazia cistercense, sita a una trentina di chilometri da Siena, nel comune di Chiusdino. Il sito è costituito dall'eremo (detto "Rotonda di Montesiepi") e dalla grande abbazia, ora completamente in rovina e ridotta alle sole mura, meta di flusso turistico.</p></div></div></div></div><div class=' col-12 col-md-4'>
+<div class=' card mb-4 shadow-sm'>
+<div class=' card-img-container'>
+<img class=' card-img-top shadow-sm'  src="./src/img/chianciano_terme.jpg">
+</div><div class=' card-body'>
+<button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseChianciano_Terme" >
+<h5 class=' card-title m-0 text-left'>
+Chianciano Terme</h5><i class=' fa fa-chevron-down'>
+</i></button><div class=' w-100 d-flex justify-content-between'>
+</div><div id='collapseChianciano_Terme' class=' collapse'>
+<p>
+Le Terme di Chianciano sono il luogo ideale per scoprire il benessere termale e la tradizione delle terme in Italia. Da noi, immersi nel cuore della Toscana, fra bellezze naturali e artistiche è possibile rigenerarsi grazie al potere curativo e rilassante delle acque termali.</p></div></div></div></div><div class=' col-12 col-md-4'>
+<div class=' card mb-4 shadow-sm'>
+<div class=' card-img-container'>
+<img class=' card-img-top shadow-sm'  src="./src/img/canyon-sup.jpg">
+</div><div class=' card-body'>
+<button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseBagni_di_Lucca" >
+<h5 class=' card-title m-0 text-left'>
+Bagni di Lucca</h5><i class=' fa fa-chevron-down'>
+</i></button><div class=' w-100 d-flex justify-content-between'>
+</div><div id='collapseBagni_di_Lucca' class=' collapse'>
+<p>
+Esplora il Canyon in Stand Up Paddleboard in acqua. Un&#146acqua dai colori surreali, un tetto verde, pareti scoscese e inaccessibili. Queste sono le Strette di Cocciglia, una sezione di fiume con acqua cristallina unica nel suo genere. È possibile esplorare il Canyon in SUP (Stand UpPaddleboard) avventurandosi in un ambiente spettacolare, con sorgenti che sgorgano dalla roccia. Vengono fornite tavola, pagaia, casco e un briefing iniziale. <b>Adatto a tutti.</b><div class=' text-center w-100'>
+<a  href="https://www.canyonpark.it/canyon-sup/" target="_blank">
+www.canyonpark.it</a></div></p></div></div></div></div><div class=' col-12 col-md-4'>
+<div class=' card mb-4 shadow-sm'>
+<div class=' card-img-container'>
+<img class=' card-img-top shadow-sm'  src="./src/img/follonica.jpg">
+</div><div class=' card-body'>
+<button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseFollonica" >
+<h5 class=' card-title m-0 text-left'>
+Follonica</h5><i class=' fa fa-chevron-down'>
+</i></button><div class=' w-100 d-flex justify-content-between'>
+</div><div id='collapseFollonica' class=' collapse'>
+<p>
+Follonica è una cittadina situata nel cuore dell'omonimo Golfo tra il promontorio di Pidi Piombino, Punta Ala e di fronte all'Isola d'Elba nell' Alta Maremma Toscana. Il litorale ha prevalentemente sabbia bianca e fine, tratti di scoglio e bassi fondali che degradano lentamente.</p></div></div></div></div><div class=' col-12 col-md-4'>
+<div class=' card mb-4 shadow-sm'>
+<div class=' card-img-container'>
+<img class=' card-img-top shadow-sm'  src="./src/img/greve_in_chianti.jpg">
+</div><div class=' card-body'>
+<button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseGreve_in_Chianti" >
+<h5 class=' card-title m-0 text-left'>
+Greve in Chianti</h5><i class=' fa fa-chevron-down'>
+</i></button><div class=' w-100 d-flex justify-content-between'>
+</div><div id='collapseGreve_in_Chianti' class=' collapse'>
+<p>
+Greve in Chianti è l'unico comune della provincia di Firenze a rientrare interamente nella zona del Chianti. In epoca antica Greve era un piccolo nucleo del territorio detto Agro di Florentia. Furono i Romani ad abitare per primi stabilmente questi luoghi non lontani dalla via Cassia.</p></div></div></div></div><div class=' col-12 col-md-4'>
+<div class=' card mb-4 shadow-sm'>
+<div class=' card-img-container'>
+<img class=' card-img-top shadow-sm'  src="./src/img/bagni_s_filippo.jpg">
+</div><div class=' card-body'>
+<button class=' mb-3 btn btn-light btn-block d-flex justify-content-between'  data-toggle="collapse" data-target="#collapseBagni_di_San_Filippo" >
+<h5 class=' card-title m-0 text-left'>
+Bagni di San Filippo</h5><i class=' fa fa-chevron-down'>
+</i></button><div class=' w-100 d-flex justify-content-between'>
+</div><div id='collapseBagni_di_San_Filippo' class=' collapse'>
+<p>
+Nel piccolo paese di Bagni San Filippo, frazione di Castiglione d'Orcia, oltre ad una struttura termale a pagamento ci sono delle terme gratuite che potete raggiungere attraversando un piccolo sentiero nel bosco che conduce al Fosso Bianco, il torrente dove confluiscono le sorgenti d&#146acqua calda che nel tempo hanno creato uno scenario incantevole, fatto di montagne calcaree bianche da cui sgorga acqua bollente che confluisce in piccole piscine naturali.</p></div></div></div></div></div></div><div class=' mb-5 d-flex flex-column justify-content-center'>
+<div class=' position-absolute w-100'>
+<h2 class=' bg-success text-light w-100 py-2 text-center '   style="top:50%; z-index:1000;">
+<a  target="_blank" href="https://www.canyonpark.it/canyon-sup/">
+Canyonpark - Bagni di Lucca</a></h2></div><img class=' d-sm-none w-100'  src="./src/img/canyon-sup-s.jpg">
+<img class=' d-none d-sm-block d-md-none w-100 '  src="./src/img/canyon-sup-m.jpg">
+<img class=' d-none d-md-block w-100'  src="./src/img/canyon-sup.jpg">
+</div><div id='section5' class='container-fluid container-marketing'>
+<h1 class=' text-center mb-5'>
+Avventurieri</h1><div class='row px-sm-5'  style="text-align:center;">
+<div class=' container-marketing col-12 col-lg-4'>
+<div class=' container-circle'>
+<img  style="" src="./src/img/sara.jpg">
+</div><h2 class=' mt-2'>
+Sara</h2><h5>
+Sono Sara e sono del segno del Sagittario. Non a caso amo il movimento, i viaggi e le avventure e il bello di queste esperienze, secondo me, è l&#146incontro di persone, di idee e di condivisione.  Mi piace la montagna, gli itinerari in mezzo alla natura e le colline toscane saranno la cornice perfetta per il nostro viaggio on the road! Nel mio zaino di viaggio vorrei mettere le città visitate, i borghi medievali scoperti, le escursioni sudate,  il buon cibo gustato, il relax delle acque termali, le risate assieme voi e tante tante foto ricordo!</h5></div><div class=' container-marketing col-12 col-lg-4'>
+<div class=' container-circle'>
+<img  style="" src="./src/img/amelia.jpg">
+</div><h2 class=' mt-2'>
+Amelia</h2><h5>
+Ciao! Sono di Caserta e quest'anno le mie ferie in Toscana sono l'ideale per una vacanza italiana...tra vigneti, città termali, storia e buon cibo...Non manca nulla. <br>Pronti a partire???? <i class=' fa fa-smile'>
+</i></h5></div><div class=' container-marketing col-12 col-lg-4'>
+<div class=' container-circle'>
+<img  style="" src="./src/img/andrea_r.jpg">
+</div><h2 class=' mt-2'>
+Andrea R.</h2><h5>
+Ciao! Sono Andrea, un malato cronico di Wanderlust (per chi non ne conoscesse il significato, lascio il piacere della ricerca su internet...d'altronde mi piace giocare! ;-) ). <br>Amo viaggiare (sia fare lunghi viaggi itineranti, ma anche brevi escursioni durante i weekend) e sono purtroppo reduce da un mancato viaggio in Islanda (già prenotato..) rinviato per l'attuale situazione. Quindi mi aspetto tanta avventura, tanta scoperta, tante emozioni insieme a voi, anche perché parto con la certezza di ritrovare 2 carissimi amici con cui ho condiviso lo splendido viaggio in Giordania lo scorso agosto (Marco e Sara) e di farne certamente di nuovi! Let's go! <i class=' fa fa-smile-wink'>
+</i></h5></div><div class=' container-marketing col-12 col-lg-4'>
+<div class=' container-circle'>
+<img  style="" src="./src/img/elisa.jpg">
+</div><h2 class=' mt-2'>
+Elisa</h2><h5>
+Ciao a tutti!! Piacere Elisa, milanese doc (una rarità lo so).. Amo viaggiare, non sono molto avventuriera spericolata in quanto amo anche viaggi relax... mi piace stare insieme alla gente... quindi pronta per godermi in pieno questa scoperta Toscana! </h5></div><div class=' container-marketing col-12 col-lg-4'>
+<div class=' container-circle'>
+<img  style="" src="./src/img/tatiana.jpg">
+</div><h2 class=' mt-2'>
+Tatiana.</h2><h5>
+Sì sono Tatiana. A chi non piace viaggiare... poi mi piace la gente aperta, solare,socievole accogliente.Non vedo l'ora di conoscervi! E spero che rideremo sotto il sole e le stelle dellaToscana! Di me non mi piace parlare. Ci conosceremo la, con un bicchiere di vino (o forse due,tre <i class=' fa fa-grin-tongue'>
+</i>)</h5></div><div class=' container-marketing col-12 col-lg-4'>
+<div class=' container-circle'>
+<img  style="" src="./src/img/andrea_s.jpg">
+</div><h2 class=' mt-2'>
+Andrea S.</h2><div class=' form-group'>
+<textarea id='andrea_s_desc' class=' form-control'  placeholder="Sei Andrea Stella? Inserisci qui una tua breve descrizione e clicca Invia. Provvederò ad inserirla al più presto!">
+</textarea><h5 id='andrea_s_thanks' class=' d-none text-center my-3'>
+Grazie per aver inviato la descrizione :)</h5><button id='andrea_s_send' class=' mt-2 btn btn-secondary btn-block'  onclick="send('andrea_s', andrea_s_desc.value)">
+Invia</button></div></div><div class=' container-marketing col-12 col-lg-4'>
+<div class=' container-circle'>
+<img  style="" src="./src/img/marco.jpg">
+</div><h2 class=' mt-2'>
+Marco</h2><h5>
+Ciao a tutti!! Non vedo l'ora di conoscervi. Sono Marco, amo la natura, i panorami mozzafiato, ancor di più se in luoghi difficili da raggiungere per vederli, le escursioni e le vacanze adventure ma non disdegno ovviamente il relax, la sabbia bianca e il mare cristallino con uno spritz o una birra ghiacciata in mano. Sono anche un grande amante della buona cucina, (e infatti spesso e volentieri mi diletto ai fornelli...) e del buon vino. Per questo scelgo la Toscana, perchè include tutto questo. Ma se c'è una cosa che ho imparato è che la differenza la fanno i compagni di viaggio! Quindi... Daje!</h5></div></div></div><div class='container py-5'>
+</div><script type="text/javascript" src="src/js/script.js"></script>
 </body></html>
