@@ -19,7 +19,4 @@ eval("document.getElementById('"+name+"_send').classList.add('disabled');");
 eval("document.getElementById('"+name+"_send').innerText = 'Fatto';");
 
 };
-
-$("#bell").on("click",()=>{
-  $(".tooltip-inner").append("<br><a href="#section6">Vedi prenotazioni</a>");
-});
+$(".notification").tooltip("show");$(".tooltip-inner").append('<br><a href="#section6">Vedi prenotazioni</a>');$(".tooltip-inner").on("click",()=>{$(".notification").tooltip("hide");});$("#bell").on("click",()=>{$(".tooltip-inner").append('<br><a href="#section6">Vedi prenotazioni</a>');});$(function () {$('[data-toggle="tooltip"]').tooltip()})
