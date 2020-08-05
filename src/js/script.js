@@ -10,7 +10,7 @@ appId: "1:1010593277055:web:1b729dc7368b8f6f"
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 console.log("firebase loaded");
-function send(name,desc) { 
+var countDownDate = new Date("Aug 21, 2020 00:00:00").getTime();var x = setInterval(function() {var now = new Date().getTime();var distance = countDownDate - now;var days = Math.floor(distance / (1000 * 60 * 60 * 24));var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));var seconds = Math.floor((distance % (1000 * 60)) / 1000);document.getElementById("demo").innerHTML = "- "+days + " giorni " + hours + " ore "+ minutes + " minuti e " + seconds + " secondi alla partenza! <i class='fa fa-smile'></i>";if (distance < 0) {clearInterval(x);document.getElementById("demo").innerHTML = "00:00:00";}}, 1000);function send(name,desc) { 
 var d = new Date(),myname = "";
 myname=name+"_"+d.getDay()+d.getHours()+d.getMinutes();
 firebase.database().ref("db/toscana/"+myname).set({descrizione: desc,});
