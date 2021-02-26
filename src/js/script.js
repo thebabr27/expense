@@ -10,7 +10,21 @@ appId: "1:1010593277055:web:1b729dc7368b8f6f"
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 console.log("database service loaded");
-const auth = firebase.auth();const update = document.getElementById('update');const send = document.getElementById('send');const name = document.getElementById('name');const confirmName = document.getElementById('confirmName');const enter_spinner = document.getElementById('enter_spinner');const message = document.getElementById('message');var myVar = setInterval(()=>{ updateChat()}, 1000);var allchats = [], dbupdates = [], allupdates = [], todayschat = [],actualchat = [];confirmName.addEventListener("click", ()=>{var names_list = ["mario","luigi"];if(name.value.length < 1){undefined
+const auth = firebase.auth();loginButton.addEventListener("click", e => {const email = inputEmail.value;const pass = inputPassword.value;const promise = auth.signInWithEmailAndPassword(email,pass);if(validateInput("inputEmail")){document.getElementById("loginSpin").classList.toggle("d-none");
+setTimeout(function(){document.getElementById("loginSpin").classList.toggle("d-none");
+},3000);
+
+}console.log('AHA');promise.catch(e => console.log("err"));});logoutButton.addEventListener("click", e => {firebase.auth().signOut();});firebase.auth().onAuthStateChanged(firebaseUser => {if (firebaseUser) {document.getElementById("loginGroup").classList.toggle("d-none");
+document.getElementById("logoutGroup").classList.toggle("d-none");
+
+} else {		document.getElementById("logoutGroup").classList.add("d-none");
+document.getElementById("loginGroup").classList.remove("d-none");
+
+}});function validateInput(theInput) { 
+return true;
+
+};
+const update = document.getElementById('update');const send = document.getElementById('send');const name = document.getElementById('name');const confirmName = document.getElementById('confirmName');const enter_spinner = document.getElementById('enter_spinner');const message = document.getElementById('message');var myVar = setInterval(()=>{ updateChat()}, 1000);var allchats = [], dbupdates = [], allupdates = [], todayschat = [],actualchat = [];confirmName.addEventListener("click", ()=>{var names_list = ["mario","luigi"];if(name.value.length < 1){undefined
 alertInputInvalid("name","insert_name");
 console.log("inserire un nome...");
 } else if(names_list.indexOf(name.value)>=0){undefined
