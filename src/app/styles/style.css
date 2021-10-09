@@ -1,0 +1,15 @@
+* {
+    font-family: Rockwell Nova;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 20px;
+    line-height: 25px;
+}
+.app-container {
+    height: 100vh;
+    background-color: #EAEAEA;
+}
+.card-custom {
+    border:none;
+    background-color: transparent;
+}
