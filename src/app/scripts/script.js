@@ -1,12 +1,4 @@
-let appScript = document.createElement("script");
-appScript.setAttribute("id","appScript");
-appScript.innerHTML = 
-`
-console.log("YEAH")
-`
-document.body.appendChild(appScript);
-document.querySelector('#appScript').remove();
-/* 
+
 let appContainer = document.createElement("div");
 appContainer.setAttribute("class","app-container ");
 appContainer.innerHTML =
@@ -49,5 +41,3 @@ function out(item) {
 document.getElementsByTagName("body")[0].insertBefore(appContainer,
     document.getElementsByTagName("body")[0].firstChild)
 
-
-    document.querySelector("#loneScript").remove(); */
