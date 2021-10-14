@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="./src/app/styles/style.css">
+    <link rel="stylesheet" href="./src/app/styles/calcolo.css">
+    <title>Expense Calculator</title>
+  </head>
+  <body>
+      <div id="modalBG" style="z-index:500; background-color: black; opacity: .5;" 
+            class="d-none fixed-top w-100 h-100">
+      </div>
+      <div id="modal" style="overflow:hidden; border-top-left-radius:50px; border-top-right-radius:50px; bottom:0; height:80vh;  width:100%!important; z-index:1000" 
+            class="d-none fixed-bottom container app-container">  
+            <div class="card-body pb-0 px-0">     
+                <div class="px-3">
+                    <button style="transform: scale(1.5) translateX(-5px);" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>                      
+                    <div class="w-100 text-center">
+                        <h2 id="modalTitle">-</h2>
+                    </div>                     
+                </div>
+                <div class="container-fluid"><div class="row pt-3">
+                    <div class="col-6">               
+                        <div class="card card-custom text-center">
+                            <div class="card-body p-0">
+                                <p class="m-0">Recuperare</p> 
+                                <h4 id="payedInput2" >€-,--</h4>
+                            </div>
+                        </div></div>
+                    <div class="col-6">                
+                        <div class="card card-custom text-center">
+                            <div class="card-body p-0">
+                                <p class="m-0">Rimasto</p> 
+                                <h4 id="remainingInput2" >€-,--</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div></div>
+            </div>  
+            <div style="overflow-y:auto;height: calc(100% - 150px);" class="card-body px-0">
+            <div class="container-fluid"><div class="row">
+                
+                <div class="col-12">                
+                    <div class="card card-custom">
+                        <div class="card-body py-0 text-center">
+                        Riprende da
+                        </div>
+                        <div class="card card-custom">
+                            <div id="peopleSlider2" style="overflow-x: auto;" class="card-body d-flex "></div>
+                        </div>
+                    </div>
+                </div>                
+                <div class="col-12">                
+                    <div class="card card-custom text-center">
+                        <div class="card-body p-0">
+                            <p class="m-0">Disponibile</p> 
+                            <h4 id="availableInput2" >€-,--</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col 4  d-flex flex-column">
+                    <div class="row">
+                        <div class="d-none d-sm-block col-4"></div>
+                        <div class="col-12 col-sm-8">
+                            <div class="d-flex flex-column text-center">
+                                 euro
+                                 <button id="euroInc" class="btn rounded">
+                                    <i style="height:100px;" class="bi bi-caret-up-fill"></i>
+                                 </button>
+                            </div>
+                        </div>
+                        <div class="d-none d-sm-block col-4"></div>
+                        <div class="col-12 col-sm-8">
+                            <button id="euroButton"  style="height:150px" class=" rounded-lg btn btn-success btn-block">
+                                <h2 id="euro">-</h2>
+                            </button>
+                        </div>
+                        <div class="d-none d-sm-block col-4"></div>
+                        <div class="col-12 col-sm-8">
+                            <div class="d-flex flex-column text-center">
+                                <button id="euroDec" class="btn rounded">
+                                   <i style="height:100px;" class="bi bi-caret-down-fill"></i>
+                                </button>
+                            </div></div>
+                    </div>
+                </div>                
+                <div class="col 4  d-flex flex-column">
+                    <div class="row">
+                        <div class="col-12 col-sm-8">
+                            <div class="d-flex flex-column text-center">
+                                 cent
+                                 <button id="centInc" class="btn rounded">
+                                    <i style="height:100px;" class="bi bi-caret-up-fill"></i>
+                                 </button>
+                            </div>
+                        </div>
+                        <div class="d-none d-sm-block col-4"></div>
+                        <div class="col-12 col-sm-8">
+                            <button id="centButton" style="height:150px" class=" rounded-lg btn btn-success btn-block">
+                                <h2 id="cent">--</h2>
+                            </button>
+                        </div>
+                        <div class="d-none d-sm-block col-4"></div>
+                        <div class="col-12 col-sm-8">
+                            <div class="d-flex flex-column text-center">
+                                <button id="centDec" class="btn rounded">
+                                   <i style="height:100px;" class="bi bi-caret-down-fill"></i>
+                                </button>
+                            </div></div>
+                        <div class="d-none d-sm-block col-4"></div>
+                    </div>
+                </div>
+                <div class="col-12">                
+                    <div class="card card-custom">
+                        <div class="card-body">
+                            <button id="confirmPayButton" class="btn btn-block btn-success rounded-pill">
+                                Conferma
+                                <span id="confirmPaySpinner" class="d-none spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div></div>
+            </div>
+      </div>
+   <div class="app-container">
+       <div class="container px-0 app-wrapper h-100 d-flex flex-column">
+           
+       <div class="card card-custom text-center">
+           <div class="card-body pb-0">
+               Importo da pagare
+               <h5 id="topayInput" >€-,--</h5>
+           </div>
+       </div>
+        <div class="row">
+            <div class="col-6 px-0">
+                <div class="card card-custom text-center">
+                    <div class="card-body py-0">
+                        Pagato
+                        <h2 id="payedInput" >€-,--</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 px-0">
+                <div class="card card-custom text-center">
+                    <div class="card-body py-0">
+                        Resto
+                        <h2 id="remainingInput" >€-,--</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+       <div class="card card-custom">
+           <div class="card-body pb-0 text-center">
+            Seleziona Partecipante
+           </div>
+            <div class="card card-custom">
+                <div id="peopleSlider" style="overflow-x: auto;" class="card-body d-flex ">
+       
+                </div>
+            </div>
+       </div>
+       <div class="card card-custom">
+           <div id="peopleTable"  class="card-body pt-0">
+               <div>                   
+                    <div class="w-100 text-center">
+                        <h5>-</h5>
+                    </div>
+                    <div class="quota d-flex justify-content-between p-2 mb-1">
+                        <div>Quota</div>
+                        <div>€-,--</div>
+                    </div>
+                    <div class="perc d-flex justify-content-between p-2 mb-1">
+                        <div>Percentuale</div>
+                        <div>-%</div>
+                    </div>
+                    <div class="vers d-flex justify-content-between bg-danger rounded p-2 mb-1 text-light">
+                        <div>Versato</div>
+                        <div>€-,--</div>
+                    </div>
+                    <div class="diff d-flex justify-content-between p-2 mb-1">
+                        <div>Differenza</div>
+                        <div>€-,--</div>
+                    </div>
+                    <div class="rip d-flex justify-content-between p-2 mb-1">
+                        <div>Ripreso</div>
+                        <div>€-,--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card card-custom">
+                <div class="card-body">
+                    <button id="takeButton" class="mb-3 btn btn-block btn-outline-success rounded-pill">
+                        Recupera
+                        <span id="takeSpinner" class="d-none spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    </button>
+                    <div class="input-group mb-3">
+                        <input id="payInput"  type="text" class="rounded-pill form-control" aria-describedby="basic-addon1">
+                        <div class="input-group-prepend">
+                        <span class="input-group-text p-0 border-0 bg-transparent" id="basic-addon1">                            
+                            <button id="payButton"  style="z-index:500; right:0" class="position-absolute btn btn-success rounded-pill">
+                                Versa
+                                <span  class="d-none spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </button>
+                        </span>
+                    </div>
+                    </div>
+           </div>
+       </div>
+    </div>
+
+   </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="./src/app/scripts/utilities.js"></script>
+    <script type="text/javascript" src="./src/app/scripts/calcolo.js"></script>
+  </body>
+</html>
