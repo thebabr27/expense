@@ -55,8 +55,12 @@ confirmPayButton.addEventListener("click",()=>{
         if (e.name==peopleSelected.name) {
             return e
         }    
-    })[0].rip = editedEuroCent
-    console.log(newList2)
+    })[0].rip += editedEuroCent
+    newList2.filter((e)=>{
+        if (e.name==peopleInModalSelected.name) {
+            return e
+        }    
+    })[0].vers+=editedEuroCent
     updateTable();
 })
 
@@ -106,6 +110,11 @@ centButton.addEventListener("click",()=>{
     updateModal()
 })
 
+euroButton.addEventListener("click",()=>{
+    increase10(euro)   
+    updateModal()
+})
+
 euroInc.addEventListener("click",()=>{
     increase(euro)   
     updateModal()
@@ -127,7 +136,11 @@ centDec.addEventListener("click",()=>{
 })
 
 function increase10(item) {
-    editedEuroCent+=.10;
+    switch (item.id) {
+        case 'euro': editedEuroCent+=10; break;
+        case 'cent': editedEuroCent+=10; break;
+        default: console.log("err");
+    }
     updateIncDec()
 }
 
