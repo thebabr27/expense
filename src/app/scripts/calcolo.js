@@ -44,7 +44,7 @@ console.log(amount)
 console.log(newList2)
 payButton.addEventListener("click",()=>{
     payInput.value = fix(payInput.value,true);
-    peopleSelected.vers = parseFloat(payInput.value)
+    peopleSelected.vers += parseFloat(payInput.value)
     updateData();
     updateTable();
 })
@@ -137,7 +137,7 @@ centDec.addEventListener("click",()=>{
 
 function increase10(item) {
     switch (item.id) {
-        case 'euro': editedEuroCent+=10; break;
+        case 'euro': if (editedEuroCent>89){} else {editedEuroCent+=10}; break;
         case 'cent': editedEuroCent+=.10; break;
         default: console.log("err");
     }
