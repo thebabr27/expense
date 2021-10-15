@@ -138,7 +138,7 @@ centDec.addEventListener("click",()=>{
 function increase10(item) {
     switch (item.id) {
         case 'euro': editedEuroCent+=10; break;
-        case 'cent': editedEuroCent+=10; break;
+        case 'cent': editedEuroCent+=.10; break;
         default: console.log("err");
     }
     updateIncDec()
