@@ -1,3 +1,4 @@
+let log = []
 let lista = JSON.parse(localStorage.getItem("lista"));
   let newList2 = JSON.parse(localStorage.getItem("newList"));
   let newList3 = [];
@@ -43,25 +44,30 @@ updateTable();
 console.log(amount)
 console.log(newList2)
 payButton.addEventListener("click",()=>{
+    log.push(peopleSelected.name+" versa "+fix(payInput.value))
     payInput.value = fix(payInput.value,true);
     peopleSelected.vers += parseFloat(payInput.value)
     updateData();
     updateTable();
+    console.log(log)
 })
 
 confirmPayButton.addEventListener("click",()=>{
     console.log(editedEuroCent)
+    log.push(peopleSelected.name+" riprende da "+peopleInModalSelected.name+" "+editedEuroCent.toFixed(2))
     newList2.filter((e)=>{
+        console.log(e.name+"?")
         if (e.name==peopleSelected.name) {
             return e
         }    
     })[0].rip += editedEuroCent
-    newList2.filter((e)=>{
+    newList3.filter((e)=>{
         if (e.name==peopleInModalSelected.name) {
             return e
         }    
     })[0].vers+=editedEuroCent
     updateTable();
+    console.log(log)
 })
 
 takeButton.addEventListener("click",(e)=>{
@@ -73,6 +79,8 @@ takeButton.addEventListener("click",(e)=>{
 closeModal.addEventListener("click",()=>{
     modal.classList.add("d-none")
     modalBG.classList.add("d-none")
+    console.log(newList2)
+    editedEuroCent=0
 })
 
 function updateIncDec() {
@@ -86,14 +94,18 @@ function updateModal() {
             return e
         }
     })
+    newList3=newList3.concat(
+        [{name:"resto",diff:parseFloat(amount.remaining),perc:0,quota:0,rest:[],rip:0,vers:0}]
+    )
     modalTitle.innerHTML = peopleSelected.name
     payedInput2.innerHTML = "€"+fix(peopleSelected.diff.toFixed(2))
-    remainingInput2.innerHTML = "€"+fix((peopleSelected.diff-editedEuroCent).toFixed(2))
+    remainingInput2.innerHTML = "€"+fix((peopleSelected.diff-peopleSelected.rip-editedEuroCent).toFixed(2))
     updatePeopleList(newList3,peopleSlider2)
     highlight(payedInput2,peopleSelected.diff);
     highlight(remainingInput2,peopleSelected.rip);   
     switchInModalPeople(peopleInModalSelected.name)
     editedAvailableInput2= (newList2.filter((e)=>{
+        console.log(e,peopleInModalSelected)
         if (e.name==peopleInModalSelected.name) {
             return e
         }        
@@ -104,6 +116,12 @@ function updateModal() {
     cent.innerHTML=editedEuroCent.toFixed(2).toString().split(".")[1]
 
 }
+
+availableInput2.addEventListener("click",()=>{
+    updateModal()
+    editedEuroCent=peopleInModalSelected.diff*-1
+    updateModal()
+})
 
 centButton.addEventListener("click",()=>{
     increase10(cent)   
@@ -164,13 +182,14 @@ function decrease(item) {
 
 peopleSlider2.addEventListener("click",(e)=>{
     let name = e.target.innerText
-    peopleInModalSelected=newList2.filter((e)=>{
+    peopleInModalSelected=newList3.filter((e)=>{
         name=name.replace("\n","")
         if (e.name==name) {
             return e
         }
     })[0]
     switchInModalPeople(peopleInModalSelected.name)
+    updateModal();
 })
 
 peopleSlider.addEventListener("click",(e)=>{
@@ -191,7 +210,7 @@ payInput.addEventListener("keydown",(e)=>{
 })
 
 function switchInModalPeople(peopleName) {
-    
+    console.log()
     let people = peopleTable.querySelectorAll('.people');
     for (let i in newList3) {
         if (peopleSlider2.querySelectorAll('.btn')[i].innerText.split(" ").length>1) {
@@ -295,11 +314,11 @@ function updateTable() {
         <div class="w-100 text-center">
             <h5>`+newList2[i].name+`</h5>
         </div>
-        <div class="quota d-flex justify-content-between p-2 mb-1">
+        <div class="quota d-flex justify-content-between rounded p-2 mb-1">
             <div>Quota</div>
             <div>€`+newList2[i].quota+`</div>
         </div>
-        <div class="perc d-flex justify-content-between p-2 mb-1">
+        <div class="perc d-flex justify-content-between rounded p-2 mb-1">
             <div>Percentuale</div>
             <div>`+newList2[i].perc+`</div>
         </div>
@@ -307,11 +326,11 @@ function updateTable() {
             <div>Versato</div>
             <div>€`+(parseFloat(newList2[i].vers)).toFixed(2)+`</div>
         </div>
-        <div class="diff d-flex justify-content-between p-2 mb-1">
+        <div class="diff d-flex justify-content-between rounded p-2 mb-1">
             <div>Differenza</div>
             <div>€`+(parseFloat(newList2[i].diff)).toFixed(2)+`</div>
         </div>
-        <div class="rip d-flex justify-content-between p-2 mb-1">
+        <div class="rip d-flex justify-content-between rounded p-2 mb-1">
             <div>Ripreso</div>
             <div>€`+(parseFloat(newList2[i].rip)).toFixed(2)+`</div>
         </div>
