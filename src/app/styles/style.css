@@ -1,15 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@700&display=swap');
+
+body, html {
+    overflow-x: hidden;
+    width: 100%;
+}
+body {
+  overflow-y: hidden;
+}
 * {
-    font-family: Rockwell Nova;
+  font-family: 'Lato', sans-serif;
     font-style: normal;
     font-weight: normal;
     font-size: 20px;
     line-height: 25px;
 }
-.app-container {
-    height: 100vh;
+.app-container, .app-container .d-flex {
     background-color: #EAEAEA;
+}
+.app-container {
+  overflow-y:auto ;
 }
 .card-custom {
     border:none;
     background-color: transparent;
 }
+.disabled {
+    pointer-events: none;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height:10px;
+    background-color: #EAEAEA;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background-color: #EAEAEA;
+    border-radius: 10px;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #EAEAEA;
+  }
+  .bi {
+    font-size:30px
+  }
+  .rounded-lg {
+    border-radius: .8rem!important;
+  }
