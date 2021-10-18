@@ -14,7 +14,7 @@ body {
     font-size: 20px;
     line-height: 25px;
 }
-.app-container, .app-container .d-flex {
+.app-container, .app-container .d-flex, .log-wrapper {
     background-color: #EAEAEA;
 }
 .app-container {
