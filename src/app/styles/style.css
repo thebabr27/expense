@@ -19,6 +19,7 @@ body {
 }
 .app-container {
   overflow-y:auto ;
+  height: 100vh;
 }
 .card-custom {
     border:none;
