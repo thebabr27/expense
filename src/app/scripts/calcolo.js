@@ -17,6 +17,8 @@ let lista = JSON.parse(localStorage.getItem("lista"));
   const modal = document.getElementById("modal");
   const modalBG = document.getElementById("modalBG");
   const appContainer = document.querySelectorAll('.app-container')[1];
+  const logContainer = document.querySelectorAll('.log-container')[0];
+  const logWrapper = document.querySelectorAll('.log-wrapper')[0];
   const closeModal = document.querySelector('.close');
   const modalTitle = document.querySelector('#modalTitle');
   const euro = document.querySelector('#euro');
@@ -27,6 +29,8 @@ let lista = JSON.parse(localStorage.getItem("lista"));
   const euroInc = document.querySelector('#euroInc');
   const euroButton = document.querySelector('#euroButton');
   const centButton = document.querySelector('#centButton');
+  const logButton = document.querySelector('#logButton');
+  const closeLog = logWrapper.querySelector('.close');
   const confirmPayButton = document.querySelector('#confirmPayButton');
   const confirmPaySpinner = document.querySelector('#confirmPaySpinner');
   let editedEuro=0;
@@ -40,9 +44,28 @@ let lista = JSON.parse(localStorage.getItem("lista"));
 updateData();
 updatePeopleList(newList2,peopleSlider);
 updateTable();
+let logText="";
 
 console.log(amount)
 console.log(newList2)
+
+closeLog.addEventListener("click",()=>{
+    logWrapper.classList.toggle("d-none")
+    appContainer.classList.toggle("d-none")
+    logButton.classList.toggle("d-none")
+})
+
+logButton.addEventListener("click",()=>{
+    logText=""; for (let i in log) {
+        log
+        logText+='<h6>'+log[i]+'</h6>'
+    }
+    logContainer.innerHTML = logText;
+    logWrapper.classList.toggle("d-none")
+    appContainer.classList.toggle("d-none")
+    logButton.classList.toggle("d-none")
+})
+
 payButton.addEventListener("click",()=>{
     log.push(peopleSelected.name+" versa "+fix(payInput.value))
     payInput.value = fix(payInput.value,true);
@@ -56,7 +79,7 @@ confirmPayButton.addEventListener("click",()=>{
     console.log(editedEuroCent)
     log.push(peopleSelected.name+" riprende da "+peopleInModalSelected.name+" "+editedEuroCent.toFixed(2))
     newList2.filter((e)=>{
-        console.log(e.name+"?")
+        //console.log(e.name+"?")
         if (e.name==peopleSelected.name) {
             return e
         }    
@@ -103,9 +126,12 @@ function updateModal() {
     updatePeopleList(newList3,peopleSlider2)
     highlight(payedInput2,peopleSelected.diff);
     highlight(remainingInput2,peopleSelected.rip);   
+    if (peopleInModalSelected==peopleSelected) {
+        peopleInModalSelected= newList3[0];
+    }
     switchInModalPeople(peopleInModalSelected.name)
     editedAvailableInput2= (newList2.filter((e)=>{
-        console.log(e,peopleInModalSelected)
+        //console.log(e,peopleInModalSelected)
         if (e.name==peopleInModalSelected.name) {
             return e
         }        
@@ -210,7 +236,6 @@ payInput.addEventListener("keydown",(e)=>{
 })
 
 function switchInModalPeople(peopleName) {
-    console.log()
     let people = peopleTable.querySelectorAll('.people');
     for (let i in newList3) {
         if (peopleSlider2.querySelectorAll('.btn')[i].innerText.split(" ").length>1) {
