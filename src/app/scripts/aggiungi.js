@@ -3,16 +3,8 @@ const inputNewPerson = document.getElementById("inputNewPerson");
 const addPersonConfirmSpinner = addPersonConfirmButton.querySelector(".spinner-border");
 const appContainer = document.querySelector(".app-container");
 const appWrapper = document.querySelector(".app-wrapper");
-const addButton = document.getElementById('add');
 inputNewPerson.focus();
 
-window.addEventListener('DOMContentLoaded', (event) => {
-    addButton.addEventListener('click', () => {
-        addButton.classList.toggle("d-none")
-        appContainer.classList.toggle("d-none")
-        document.body.requestFullscreen();
-    });
-  });
 addPersonConfirmButton.addEventListener("click",()=>{
     console.log(inputNewPerson.value);
     inputNewPerson.value = fixName(inputNewPerson.value)
