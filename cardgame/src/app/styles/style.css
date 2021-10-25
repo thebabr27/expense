@@ -1,12 +1,12 @@
 
 .game-button {
-    height:90px;
-    width:60px;
+    height:140px;
+    width:100px;
     transition: .4s
 }
 .game-card {
-    height:90px;
-    width:60px;
+    height:140px;
+    width:100px;
     transition: .4s
 }
 .red-card, .stop-card {
@@ -36,14 +36,14 @@
     padding-right: 3px;
 }
 .game-card-header,.game-card-footer {
-    height:15px;
+    height:25px;
     width:100%;
 }
 .game-card-header {
     justify-content: start;
 }
 .game-card-body {
-    height:42px;
+    height:72px;
     width:100%;
     justify-content: center;
     font-size: 50px;
