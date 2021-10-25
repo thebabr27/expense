@@ -140,8 +140,8 @@ function showDragged(e) {
     document.getElementById("only").classList.remove("d-none")
     document.getElementById("only")
     .setAttribute("style",`
-    margin-top: calc(${e.touches[0].clientY}px - 250px);
-    margin-left: calc(${e.touches[0].clientX}px - 150px);
+    margin-top: calc(${e.touches[0].clientY}px - 50vh);
+    margin-left: calc(${e.touches[0].clientX}px - 30vh);
     `)
 }
 function touched(e) {
