@@ -80,11 +80,11 @@ function generateCards(cards,area) {
         } else {
             button.setAttribute("class","game-button position-relative  btn p-0 rounded")
         }
-        button.setAttribute("id","card_"+i)
+        button.setAttribute("id",`card_${cards[i].id}`)
         button.setAttribute("style","margin-left:-30px")
         let html = "";
         html=`
-            <div id="card_${i}Slider" value="${cards[i].value}" style="z-index:1000" class="w-100 h-100 position-absolute"></div>     
+            <div id="card_${cards[i].id}Slider" value="${cards[i].value}" style="z-index:1000" class="w-100 h-100 position-absolute"></div>     
             <div class="card game-card ${cards[i].icon} p-1">
             <div class="game-card-wrapper">
             <div class="game-card-header"><i></i></div>  
@@ -95,11 +95,11 @@ function generateCards(cards,area) {
         `
         button.innerHTML=html;
         area.appendChild(button)
-        document.getElementById(`card_${i}Slider`).addEventListener("touchmove",(e)=>{            
+        document.getElementById(`card_${cards[i].id}Slider`).addEventListener("touchmove",(e)=>{            
             e.preventDefault()
             touched(e)
         })
-        document.getElementById(`card_${i}Slider`).addEventListener("touchend",(e)=>{            
+        document.getElementById(`card_${cards[i].id}Slider`).addEventListener("touchend",(e)=>{            
             e.preventDefault()
             touchEnd(e)
         })
@@ -145,6 +145,7 @@ function showDragged(e) {
     `)
 }
 function touched(e) {
+    console.log("touching",e)
     if (e.touches[0]) {        
         let x0 = e.touches[0].clientX
         , y0 = e.touches[0].clientY
