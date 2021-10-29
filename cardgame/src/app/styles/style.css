@@ -1,10 +1,9 @@
 
 #dropArea,#dropArea2 {
-    margin-left:18px;
     overflow-x: auto;
+    padding-left:130px
 }
 .spinner-border {
-    margin-left:-18px;
     margin-top:50px;
 }
 .game-button {
