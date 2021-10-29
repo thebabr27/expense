@@ -1,7 +1,9 @@
 
+#dropArea2 {
+    padding-left:130px
+}
 #dropArea,#dropArea2 {
     overflow-x: auto;
-    padding-left:130px
 }
 .spinner-border {
     margin-top:50px;
