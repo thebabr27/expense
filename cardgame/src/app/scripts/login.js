@@ -9,7 +9,6 @@ var firebaseConfig = {
   };
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
-  console.log(firebase)
   const loginButton = document.getElementById("loginButton");
   const logoutButton = document.getElementById("logoutButton");
   const enter = document.getElementById("enter");

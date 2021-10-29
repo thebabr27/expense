@@ -9,7 +9,7 @@ var firebaseConfig = {
   };
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
-  console.log(firebase)
+  
 const container = document.getElementsByClassName("container")[0]
   firebase.database().ref("cardgame/people").once('value').then(function(snapshot) {
 		try {

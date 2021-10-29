@@ -1,4 +1,12 @@
 
+#dropArea,#dropArea2 {
+    margin-left:18px;
+    overflow-x: auto;
+}
+.spinner-border {
+    margin-left:-18px;
+    margin-top:50px;
+}
 .game-button {
     height:140px;
     width:100px;
@@ -9,7 +17,11 @@
     width:100px;
     transition: .4s
 }
-.red-card, .stop-card {
+.black-card {
+    background-color: #212121;
+    color: white;
+}
+.red-card {
     background-color: #E82626;
     color: white;
 }
@@ -29,6 +41,9 @@
     border:2px solid white;
     border-radius: 5px;
     height:100%;
+}
+.yellow-card .game-card-wrapper {
+    border:2px solid #212121!important;
 }
 .game-card-header,.game-card-footer,.game-card-body {
     display: flex;
@@ -55,6 +70,23 @@
 }
 .user {
     content: url("./icons/user.svg");
+}
+.toolbar-cards-icon {
+    content: url("./icons/toolbar-cards.svg");
+}
+.play-icon {
+    content: url("./icons/play.svg");
+}
+.toolbar-cards-icon:hover,.toolbar-cards-icon:focus,
+.next-player-icon:hover,.next-player-icon:focus,
+.uno-icon:hover, .uno-icon:focus {
+    filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.5));
+}
+.next-player-icon {
+    content: url("./icons/next-player.svg");
+}
+.uno-icon {
+    content: url("./icons/uno-icon.svg");
 }
 .one-white .game-card-body i 
 , .one-white .game-card-header i  
@@ -106,10 +138,65 @@
 , .five-white .game-card-footer i  {
     content: url("./icons/five-white.svg");
 }
-.one-white .game-card-body i 
-, .one-white .game-card-header i  
-, .one-white .game-card-footer i  {
-    content: url("./icons/one-white.svg");
+.six-black .game-card-body i 
+, .six-black .game-card-header i  
+, .six-black .game-card-footer i  {
+    content: url("./icons/six-black.svg");
+}
+.six-white .game-card-body i 
+, .six-white .game-card-header i  
+, .six-white .game-card-footer i  {
+    content: url("./icons/six-white.svg");
+}
+.seven-black .game-card-body i 
+, .seven-black .game-card-header i  
+, .seven-black .game-card-footer i  {
+    content: url("./icons/seven-black.svg");
+}
+.seven-white .game-card-body i 
+, .seven-white .game-card-header i  
+, .seven-white .game-card-footer i  {
+    content: url("./icons/seven-white.svg");
+}
+.eight-black .game-card-body i 
+, .eight-black .game-card-header i  
+, .eight-black .game-card-footer i  {
+    content: url("./icons/eight-black.svg");
+}
+.eight-white .game-card-body i 
+, .eight-white .game-card-header i  
+, .eight-white .game-card-footer i  {
+    content: url("./icons/eight-white.svg");
+}
+.nine-black .game-card-body i 
+, .nine-black .game-card-header i  
+, .nine-black .game-card-footer i  {
+    content: url("./icons/nine-black.svg");
+}
+.nine-white .game-card-body i 
+, .nine-white .game-card-header i  
+, .nine-white .game-card-footer i  {
+    content: url("./icons/nine-white.svg");
+}
+.zero-black .game-card-body i 
+, .zero-black .game-card-header i  
+, .zero-black .game-card-footer i  {
+    content: url("./icons/zero-black.svg");
+}
+.zero-white .game-card-body i 
+, .zero-white .game-card-header i  
+, .zero-white .game-card-footer i  {
+    content: url("./icons/zero-white.svg");
+}
+.stop-black .game-card-body i 
+, .stop-black .game-card-header i  
+, .stop-black .game-card-footer i  {
+    content: url("./icons/stop-black.svg");
+}
+.stop-white .game-card-body i 
+, .stop-white .game-card-header i  
+, .stop-white .game-card-footer i  {
+    content: url("./icons/stop-white.svg");
 }
 .invert-white .game-card-body i 
 , .invert-white .game-card-header i  
@@ -121,25 +208,45 @@
 , .invert-black .game-card-footer i  {
     content: url("./icons/invert-black.svg");
 }
-.one-black .game-card-body i 
-, .one-black .game-card-header i  
-, .one-black .game-card-footer i  {
-    content: url("./icons/one-black.svg");
+.change-color .game-card-body i 
+, .change-color .game-card-header i  
+, .change-color .game-card-footer i  {
+    content: url("./icons/change-color.svg");
 }
-.one-white .game-card-body i 
-, .one-white .game-card-header i  
-, .one-white .game-card-footer i  {
-    content: url("./icons/one-white.svg");
+.plus-two-green .game-card-header i  
+, .plus-two-green .game-card-footer i  {
+    content: url("./icons/plus-two-white.svg");
 }
-.one-black .game-card-body i 
-, .one-black .game-card-header i  
-, .one-black .game-card-footer i  {
-    content: url("./icons/one-black.svg");
+.plus-two-green .game-card-body i {
+    content: url("./icons/plus-two-green.svg");
 }
-.stop-white .game-card-body i 
-, .stop-white .game-card-header i  
-, .stop-white .game-card-footer i  {
-    content: url("./icons/stop-white.svg");
+.plus-two-yellow .game-card-header i  
+, .plus-two-yellow .game-card-footer i  {
+    content: url("./icons/plus-two-black.svg");
+}
+.plus-two-yellow .game-card-body i {
+    content: url("./icons/plus-two-yellow.svg");
+}
+.plus-four-white .game-card-header i  
+, .plus-four-white .game-card-footer i  {
+    content: url("./icons/plus-four-white.svg");
+}
+.plus-two-blue .game-card-header i  
+, .plus-two-blue .game-card-footer i  {
+    content: url("./icons/plus-two-white.svg");
+}
+.plus-two-blue .game-card-body i {
+    content: url("./icons/plus-two-blue.svg");
+}
+.plus-two-red .game-card-header i  
+, .plus-two-red .game-card-footer i  {
+    content: url("./icons/plus-two-white.svg");
+}
+.plus-two-red .game-card-body i {
+    content: url("./icons/plus-two-red.svg");
+}
+.plus-four-white .game-card-body i {
+    content: url("./icons/plus-four-white-spec.svg");
 }
 /* width */
 ::-webkit-scrollbar {
