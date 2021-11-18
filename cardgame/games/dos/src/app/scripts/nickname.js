@@ -1,4 +1,5 @@
 const enterWithNicknameButton = document.getElementById("enterWithNickname");
+const goToWaitingRoomButton = document.getElementById("goToWaitingRoom");
 const inputNickname = document.getElementById("inputNickname");
 const invalidFeedbacks = document.getElementsByClassName('invalid-feedback')
 const form = document.getElementsByClassName('form-group')[0]
@@ -11,6 +12,7 @@ db.read('/cardgame/people',snapshot=>{
     data = snapshot.val()
     form.classList.remove("d-none")
     enterWithNicknameButton.classList.remove("d-none")
+    goToWaitingRoomButton.classList.remove("d-none")
     loading.classList.add("d-none")
     loading.classList.remove("d-flex")
     appContainer.classList.remove("d-none")
@@ -20,6 +22,11 @@ db.read('/cardgame/people',snapshot=>{
         loadedData.push(data[i])
         names.push(data[i].name.toUpperCase())
     }
+})
+goToWaitingRoomButton.addEventListener("click",e=>{
+    setTimeout(e=>{
+        window.location.href = "./waitingroom.html"
+    },500)
 })
 enterWithNicknameButton.addEventListener("click",e=>{
     if(checkNickname()) {
