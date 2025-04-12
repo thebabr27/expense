@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+    <div id="login">
+        <input id="emailInput" type="email" placeholder="email">
+        <input id="pwInput" type="password" placeholder="password">
+        <button id="loginButton" class="btn btn-primary">Login</button>
+    </div>
+    <div id="app" class="container d-none">
+        <div class="row">
+            <div class="col-12 my-3">
+                <button id="logoutButton" class="btn btn-primary">Logout</button>
+                <!-- <button id="readButton" class="btn btn-primary">Leggi dati</button> -->
+                <button id="addItemButton" class="btn btn-primary">Aggiungi item</button>
+            </div>
+            <div id="itemForm" class="col-12 d-none">
+                <input id="categoryInput" type="text" placeholder="category">
+                <input id="nameInput" type="text" placeholder="name">
+                <button id="confirmAddItemButton" class="btn btn-primary">Aggiungi</button>
+            </div>
+            <div id="elementList" class="col-12 my-3">
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+        crossorigin="anonymous"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js'
+
+        // If you enabled Analytics in your project, add the Firebase SDK for Google Analytics
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js'
+
+        // Add Firebase products that you want to use
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+
+        import { getDatabase, ref, set, get, onValue, remove } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js';
+
+        // Configurazione del progetto Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyPpwYB1X-e5VnUkUgJ2orPcDr9ybDHEU",
+            authDomain: "draggable-9f92b.firebaseapp.com",
+            databaseURL: "https://draggable-9f92b.firebaseio.com",
+            projectId: "draggable-9f92b",
+            storageBucket: "draggable-9f92b.appspot.com",
+            messagingSenderId: "1010593277055",
+            appId: "1:1010593277055:web:1b729dc7368b8f6f"
+        };
+
+        // Inizializza Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const userRef = ref(db, 'test');
+        const auth = getAuth();
+        const riferimento = userRef
+
+        const itemForm = document.getElementById('itemForm');
+        /* const readButton = document.getElementById('readButton'); */
+        const emailInput = document.getElementById('emailInput');
+        const elementList = document.getElementById('elementList');
+        const pwInput = document.getElementById('pwInput');
+        const categoryInput = document.getElementById('categoryInput');
+        const nameInput = document.getElementById('nameInput');
+        const loginButton = document.getElementById('loginButton');
+        const logoutButton = document.getElementById('logoutButton');
+        const addItemButton = document.getElementById('addItemButton');
+        const confirmAddItemButton = document.getElementById('confirmAddItemButton');
+        let globalData = []
+        let editedGlobalData = []
+        /* readButton.addEventListener('click', e => {
+            leggiDatiRealtime('test')
+        }) */
+        loginButton.addEventListener('click', e => {
+            login(emailInput.value, pwInput.value)
+        })
+        logoutButton.addEventListener('click', e => {
+            logout()
+        })
+        addItemButton.addEventListener('click', e => {
+            itemForm.classList.remove('d-none')
+        })
+        confirmAddItemButton.addEventListener('click', e => {
+            addData()
+        })
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log('Utente loggato:', user.email);
+                document.getElementById('app').classList.remove('d-none')
+                document.getElementById('login').classList.add('d-none')
+                leggiDatiRealtime('test')
+                // Puoi anche usare user.uid, user.displayName, ecc.
+            } else {
+                console.log('Nessun utente loggato');
+                document.getElementById('app').classList.add('d-none')
+                document.getElementById('login').classList.remove('d-none')
+            }
+        });
+
+        function login(email, password) {
+            const auth = getAuth();
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    console.log('Login riuscito:', user.email);
+                })
+                .catch((error) => {
+                    console.error('Errore login:', error.message);
+                });
+        }
+
+        function logout() {
+            const auth = getAuth();
+            signOut(auth)
+                .then(() => {
+                    console.log('Logout riuscito');
+                })
+                .catch((error) => {
+                    console.error('Errore logout:', error.message);
+                });
+        }
+
+
+        function removeData(parentId) {
+            console.log(parentId)
+            get(riferimento)
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        console.log('Dati letti:', Array.from(snapshot.val()));
+                        let index = globalData.findIndex(e => e && e.id == parentId)
+                        editedGlobalData = globalData
+                        editedGlobalData.splice(index, 1)
+                        console.log(editedGlobalData)
+                        set(ref(db, 'test'), editedGlobalData).then(() => {
+                            console.log('Scrittura riuscita');
+                            globalData = editedGlobalData
+                        })
+                            .catch((error) => {
+                                console.error('Errore scrittura:', error);
+                            });;
+                    } else {
+                        console.log('Nessun dato trovato');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Errore nella lettura:', error);
+                });
+            /* remove(ref(db, path))
+                .then(() => {
+                    console.log(`Item rimosso da ${path}`);
+                })
+                .catch((error) => {
+                    console.error('Errore durante la rimozione:', error);
+                }); */
+        }
+
+        function addData() {
+
+            get(riferimento)
+                .then((snapshot) => {
+                    editedGlobalData = globalData
+                    let randomId = Math.floor(Math.random() * 100000);
+                    if (editedGlobalData.length < 1
+                        && editedGlobalData.map(e => e.id).indexOf(randomId) > -1) {
+                        randomId = Math.floor(Math.random() * 100000);
+                    }
+
+                    editedGlobalData.push({
+                        id: randomId,
+                        category: categoryInput.value,
+                        quantity: 1,
+                        name: nameInput.value,
+                        status: 'clock',
+                        color: 'warning'
+                    })
+                    console.log(editedGlobalData)
+                    set(ref(db, 'test'), editedGlobalData).then(() => {
+                        console.log('Scrittura riuscita');
+                        globalData = editedGlobalData
+                    })
+                })
+        }
+
+        function addQty(parentId, value) {
+            value = parseInt(value) + 1
+            setQty(parentId, value)
+        }
+
+        function removeQty(parentId, value) {
+            if (value > 0) {
+                value = parseInt(value) - 1
+                setQty(parentId, value)
+            }
+        }
+
+        function changeStatus(parentId) {
+            console.log("set status ", parentId)
+            get(riferimento)
+                .then((snapshot) => {
+                    let index = globalData.findIndex(e => e && e.id == parentId)
+                    editedGlobalData = globalData
+                    switch (editedGlobalData[index].status) {
+                        case 'check2':
+                            editedGlobalData[index].status = 'x-lg'
+                            editedGlobalData[index].color = 'danger'
+                            break;
+                        case 'x-lg':
+                            editedGlobalData[index].status = 'clock'
+                            editedGlobalData[index].color = 'warning'
+                            break;
+                        default:
+                            editedGlobalData[index].status = 'check2'
+                            editedGlobalData[index].color = 'success'
+                    }
+                    console.log(editedGlobalData)
+                    set(ref(db, 'test'), editedGlobalData).then(() => {
+                        console.log('Scrittura riuscita');
+                        globalData = editedGlobalData
+                    })
+                        .catch((error) => {
+                            console.error('Errore scrittura:', error);
+                        });;
+
+                })
+                .catch((error) => {
+                    console.error('Errore nella lettura:', error);
+                });
+        }
+
+        function setQty(parentId, value) {
+            console.log("set ", parentId, value)
+            get(riferimento)
+                .then((snapshot) => {
+                    let index = globalData.findIndex(e => e && e.id == parentId)
+                    editedGlobalData = globalData
+                    editedGlobalData[index].quantity = value
+                    console.log(editedGlobalData)
+                    set(ref(db, 'test'), editedGlobalData).then(() => {
+                        console.log('Scrittura riuscita');
+                        globalData = editedGlobalData
+                    })
+                        .catch((error) => {
+                            console.error('Errore scrittura:', error);
+                        });;
+
+                })
+                .catch((error) => {
+                    console.error('Errore nella lettura:', error);
+                });
+        }
+
+        function updateList(dati) {
+            let datiArray = []
+            for (let [i, el] of Object.keys(dati)) {
+                datiArray.push(dati[i])
+            }
+            dati = datiArray
+            let categories = [...new Set(dati.map(e => e.category))].sort((a, b) => a.localeCompare(b));
+            elementList.innerHTML = ""
+            for (let [i, cat] of categories.entries()) {
+                elementList.innerHTML += `
+                <h2>${cat}</h2>
+                <ul class="list-group">`
+                for (let el of dati.filter(f => f.category == cat).sort((a, b) => a.name.localeCompare(b.name))) {
+                    elementList.innerHTML += `
+                <li id="${el.id}" class="border rounded p-2 btn btn-outline-dark align-items-center list-group-item d-flex justify-content-between">
+                    ${el.name}
+                    <div class="d-flex">  
+                    </div>
+
+                </li>
+                
+                `
+
+                    /* 
+                            <button onclick="removeData('test/${el.id}')" class="btn btn-danger delete-item-button delete-item-${el.id}">
+                                <i class="bi bi-trash"></i>
+                            </button> */
+                }
+
+
+                elementList.innerHTML += `</ul>
+                 `
+            }
+            for (let [i, cat] of categories.entries()) {
+                for (let el of dati.filter(f => f.category == cat)) {
+
+                    let elIndex = dati.findIndex(e => e.id == el.id)
+                    const changeStatusButton = document.createElement('button')
+                    const changeStatusIcon = document.createElement('i')
+                    changeStatusIcon.className = "bi bi-" + el.status
+                    changeStatusButton.classList.value = "btn btn-" + el.color + " mx-1"
+                    changeStatusButton.setAttribute('parentId', el.id)
+                    changeStatusButton.appendChild(changeStatusIcon)
+
+                    const inputGroup = document.createElement('div')
+                    const inputGroupMinus = document.createElement('span')
+                    const inputGroupQuantity = document.createElement('input')
+                    const inputGroupPlus = document.createElement('span')
+                    inputGroup.className = "input-group mx-2"
+
+                    inputGroupMinus.className = "input-group-text"
+                    inputGroupMinus.innerText = "-"
+                    inputGroupMinus.setAttribute('parentId', el.id)
+
+                    inputGroupQuantity.className = "align-self-center form-control text-center"
+                    inputGroupQuantity.setAttribute('style', 'width:40px;')
+                    inputGroupQuantity.setAttribute('value', el.quantity)
+                    inputGroupQuantity.setAttribute('path', 'test/' + elIndex)
+                    inputGroupQuantity.setAttribute('parentId', el.id)
+
+                    inputGroupPlus.className = "input-group-text"
+                    inputGroupPlus.innerText = "+"
+                    inputGroupPlus.setAttribute('parentId', el.id)
+
+                    inputGroup.appendChild(inputGroupMinus)
+                    inputGroup.appendChild(inputGroupQuantity)
+                    inputGroup.appendChild(inputGroupPlus)
+
+                    const delButton = document.createElement('button')
+                    const delIcon = document.createElement('i')
+                    delIcon.className = "bi bi-trash"
+                    delButton.classList.value = "btn btn-danger delete-item-button"
+                    delButton.setAttribute('parentId', el.id)
+                    delButton.appendChild(delIcon)
+                    document.getElementById(el.id).firstElementChild.appendChild(inputGroup)
+                    document.getElementById(el.id).firstElementChild.appendChild(changeStatusButton)
+                    document.getElementById(el.id).firstElementChild.appendChild(delButton)
+
+                    inputGroupMinus.addEventListener('click', e => removeQty(
+                        inputGroupMinus.getAttribute('parentId'),
+                        inputGroupQuantity.value
+                    ))
+                    inputGroupPlus.addEventListener('click', e => addQty(
+                        inputGroupPlus.getAttribute('parentId'),
+                        inputGroupQuantity.value
+                    ))
+                    inputGroupQuantity.addEventListener('change', e => setQty(
+                        inputGroupQuantity.getAttribute('parentId'),
+                        inputGroupQuantity.value
+                    ))
+                    changeStatusButton.addEventListener('click', e => changeStatus(
+                        inputGroupQuantity.getAttribute('parentId')
+                    ))
+                    delButton.addEventListener('click', e => removeData(inputGroupQuantity.getAttribute('parentId')))
+                }
+            }
+
+        }
+        function leggiDatiUnaVolta(path) {
+
+            get(riferimento)
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        console.log('Dati letti:', snapshot.val());
+                    } else {
+                        console.log('Nessun dato trovato');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Errore nella lettura:', error);
+                });
+        }
+
+        function leggiDatiRealtime(path) {
+
+            onValue(riferimento, (snapshot) => {
+                const dati = snapshot.val();
+                if (dati) {
+                    updateList(dati)
+                    console.log('Dati letti da', path + ':', dati);
+                    globalData = dati
+                } else {
+                    globalData = []
+                }
+            }, (error) => {
+                console.error('Errore nella lettura:', error);
+            });
+        }
+
+        /* // Scrivere un dato
+        
+
+        // Leggere un dato
+        const userRef = ref(db, 'utenti/utente1');
+        onValue(userRef, (snapshot) => {
+            const data = snapshot.val();
+            console.log(data);
+        });  */
+    </script>
+</body>
+
+</html>
