@@ -11,10 +11,17 @@
 </head>
 
 <body>
-    <div id="login">
-        <input id="emailInput" type="email" placeholder="email">
-        <input id="pwInput" type="password" placeholder="password">
-        <button id="loginButton" class="btn btn-primary">Login</button>
+    <div id="login" class="container " style="height: 100vh;">
+        <div class="w-100 d-flex flex-column justify-content-center" style="height: 50vh;">
+            <input id="emailInput" type="email" placeholder="email" class="form-control mb-2">
+            <input id="pwInput" type="password" placeholder="password" class="form-control mb-2">
+            <button id="loginButton" class="btn btn-primary d-flex justify-content-center">
+                <div>Login</div>
+                <div id="loginSpinner" class="d-none spinner-border spinner-border-sm mx-2 align-self-center" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+            </button>
+        </div>
     </div>
     <div id="app" class="container d-none">
         <div class="row">
@@ -66,6 +73,7 @@
 
         const itemForm = document.getElementById('itemForm');
         /* const readButton = document.getElementById('readButton'); */
+        const loginSpinner = document.getElementById('loginSpinner')
         const emailInput = document.getElementById('emailInput');
         const elementList = document.getElementById('elementList');
         const pwInput = document.getElementById('pwInput');
@@ -80,8 +88,15 @@
         /* readButton.addEventListener('click', e => {
             leggiDatiRealtime('test')
         }) */
+       pwInput.addEventListener('keyup', e => {
+        if(e.keyCode == 13 && pwInput.value != "" && emailInput.value != "") {            
+            login(emailInput.value, pwInput.value)
+            loginSpinner.classList.remove('d-none')
+        }
+       })
         loginButton.addEventListener('click', e => {
             login(emailInput.value, pwInput.value)
+            loginSpinner.classList.remove('d-none')
         })
         logoutButton.addEventListener('click', e => {
             logout()
@@ -99,11 +114,17 @@
                 document.getElementById('app').classList.remove('d-none')
                 document.getElementById('login').classList.add('d-none')
                 leggiDatiRealtime('test')
+                loginSpinner.classList.add('d-none')
+                pwInput.value = ""
+                emailInput.value = ""
                 // Puoi anche usare user.uid, user.displayName, ecc.
             } else {
                 console.log('Nessun utente loggato');
                 document.getElementById('app').classList.add('d-none')
                 document.getElementById('login').classList.remove('d-none')
+                loginSpinner.classList.add('d-none')
+                pwInput.value = ""
+                emailInput.value = ""
             }
         });
 
@@ -264,7 +285,7 @@
             elementList.innerHTML = ""
             for (let [i, cat] of categories.entries()) {
                 elementList.innerHTML += `
-                <h2>${cat}</h2>
+                <h2 class="mt-3">${cat}</h2>
                 <ul class="list-group">`
                 for (let el of globalData.filter(f => f.category == cat).sort((a, b) => a.name.localeCompare(b.name))) {
                     elementList.innerHTML += `
