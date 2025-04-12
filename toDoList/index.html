@@ -17,9 +17,10 @@
             <input id="pwInput" type="password" placeholder="password" class="form-control mb-2">
             <button id="loginButton" class="btn btn-primary d-flex justify-content-center">
                 <div>Login</div>
-                <div id="loginSpinner" class="d-none spinner-border spinner-border-sm mx-2 align-self-center" role="status">
+                <div id="loginSpinner" class="d-none spinner-border spinner-border-sm mx-2 align-self-center"
+                    role="status">
                     <span class="visually-hidden">Loading...</span>
-                  </div>
+                </div>
             </button>
         </div>
     </div>
@@ -82,18 +83,19 @@
         const loginButton = document.getElementById('loginButton');
         const logoutButton = document.getElementById('logoutButton');
         const addItemButton = document.getElementById('addItemButton');
-        const confirmAddItemButton = document.getElementById('confirmAddItemButton');
+        const confirmAddItemButton = document.getElementById('confirmAddItemButton'); 
         let globalData = []
         let editedGlobalData = []
         /* readButton.addEventListener('click', e => {
             leggiDatiRealtime('test')
         }) */
-       pwInput.addEventListener('keyup', e => {
-        if(e.keyCode == 13 && pwInput.value != "" && emailInput.value != "") {            
-            login(emailInput.value, pwInput.value)
-            loginSpinner.classList.remove('d-none')
-        }
-       })
+        pwInput.addEventListener('keyup', e => {
+            if (e.keyCode == 13 && pwInput.value != "" && emailInput.value != "") {
+                login(emailInput.value, pwInput.value)
+                loginSpinner.classList.remove('d-none')
+            }
+        })
+
         loginButton.addEventListener('click', e => {
             login(emailInput.value, pwInput.value)
             loginSpinner.classList.remove('d-none')
@@ -280,12 +282,14 @@
                 });
         }
 
-        function updateList() { 
+        function updateList() {
             let categories = [...new Set(globalData.map(e => e.category))].sort((a, b) => a.localeCompare(b));
             elementList.innerHTML = ""
             for (let [i, cat] of categories.entries()) {
                 elementList.innerHTML += `
-                <h2 class="mt-3">${cat}</h2>
+                <div class="cat_${cat.replaceAll(" ","_")} d-flex justify-content-between w-100 mt-3 mb-1">
+                   <h2>${cat}</h2>
+                </div>
                 <ul class="list-group">`
                 for (let el of globalData.filter(f => f.category == cat).sort((a, b) => a.name.localeCompare(b.name))) {
                     elementList.innerHTML += `
@@ -309,9 +313,14 @@
                  `
             }
             for (let [i, cat] of categories.entries()) {
+                
+                const selectCategoryButton = document.createElement('button') 
+                selectCategoryButton.classList.value = "btn btn-sm btn-primary"  
+                selectCategoryButton.innerText = 'Select category' 
                 for (let el of globalData.filter(f => f.category == cat)) {
 
                     let elIndex = globalData.findIndex(e => e.id == el.id)
+
                     const changeStatusButton = document.createElement('button')
                     const changeStatusIcon = document.createElement('i')
                     changeStatusIcon.className = "bi bi-" + el.status
@@ -369,10 +378,20 @@
                         inputGroupQuantity.getAttribute('parentId')
                     ))
                     delButton.addEventListener('click', e => removeData(inputGroupQuantity.getAttribute('parentId')))
-                }
+                } 
+                        document.getElementsByClassName('cat_'+cat.replaceAll(" ","_"))[0].appendChild(selectCategoryButton)
+                 
+                selectCategoryButton.addEventListener('click', e => selectCategory(cat))
             }
 
         }
+
+        function selectCategory(id) {
+            console.log ("select",id)
+            categoryInput.value = id
+            itemForm.classList.remove('d-none')
+        }
+
         function leggiDatiUnaVolta(path) {
 
             get(riferimento)
