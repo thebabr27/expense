@@ -259,19 +259,14 @@
                 });
         }
 
-        function updateList(dati) {
-            let datiArray = []
-            for (let [i, el] of Object.keys(dati)) {
-                datiArray.push(dati[i])
-            }
-            dati = datiArray
-            let categories = [...new Set(dati.map(e => e.category))].sort((a, b) => a.localeCompare(b));
+        function updateList() { 
+            let categories = [...new Set(globalData.map(e => e.category))].sort((a, b) => a.localeCompare(b));
             elementList.innerHTML = ""
             for (let [i, cat] of categories.entries()) {
                 elementList.innerHTML += `
                 <h2>${cat}</h2>
                 <ul class="list-group">`
-                for (let el of dati.filter(f => f.category == cat).sort((a, b) => a.name.localeCompare(b.name))) {
+                for (let el of globalData.filter(f => f.category == cat).sort((a, b) => a.name.localeCompare(b.name))) {
                     elementList.innerHTML += `
                 <li id="${el.id}" class="border rounded p-2 btn btn-outline-dark align-items-center list-group-item d-flex justify-content-between">
                     ${el.name}
@@ -293,9 +288,9 @@
                  `
             }
             for (let [i, cat] of categories.entries()) {
-                for (let el of dati.filter(f => f.category == cat)) {
+                for (let el of globalData.filter(f => f.category == cat)) {
 
-                    let elIndex = dati.findIndex(e => e.id == el.id)
+                    let elIndex = globalData.findIndex(e => e.id == el.id)
                     const changeStatusButton = document.createElement('button')
                     const changeStatusIcon = document.createElement('i')
                     changeStatusIcon.className = "bi bi-" + el.status
@@ -377,9 +372,9 @@
             onValue(riferimento, (snapshot) => {
                 const dati = snapshot.val();
                 if (dati) {
-                    updateList(dati)
                     console.log('Dati letti da', path + ':', dati);
                     globalData = dati
+                    updateList()
                 } else {
                     globalData = []
                 }
