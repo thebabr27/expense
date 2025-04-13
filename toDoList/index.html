@@ -293,9 +293,11 @@
                 <ul class="list-group">`
                 for (let el of globalData.filter(f => f.category == cat).sort((a, b) => a.name.localeCompare(b.name))) {
                     elementList.innerHTML += `
-                <li id="${el.id}" class="border rounded p-2 btn btn-outline-dark align-items-center list-group-item d-flex justify-content-between">
-                    ${el.name}
-                    <div class="d-flex">  
+                <li id="${el.id}" class="border rounded p-2 btn btn-outline-dark align-items-center list-group-item d-flex">
+                    <div class="col-12 d-flex">
+                        <div class="col-4 col-sm-6 col-md-8 text-start align-self-center">${el.name}</div>
+                        <div class="col-8 col-sm-6 col-md-4 d-flex justify-content-end" ></div>
+                    </div>
                     </div>
 
                 </li>
@@ -333,13 +335,14 @@
                     const inputGroupQuantity = document.createElement('input')
                     const inputGroupPlus = document.createElement('span')
                     inputGroup.className = "input-group mx-2"
+                    inputGroup.setAttribute('style','width: 110px')
 
                     inputGroupMinus.className = "input-group-text"
                     inputGroupMinus.innerText = "-"
                     inputGroupMinus.setAttribute('parentId', el.id)
 
                     inputGroupQuantity.className = "align-self-center form-control text-center"
-                    inputGroupQuantity.setAttribute('style', 'width:40px;')
+                    inputGroupQuantity.setAttribute('style', 'max-width:40px; height:100%;')
                     inputGroupQuantity.setAttribute('value', el.quantity)
                     inputGroupQuantity.setAttribute('path', 'test/' + elIndex)
                     inputGroupQuantity.setAttribute('parentId', el.id)
@@ -358,9 +361,10 @@
                     delButton.classList.value = "btn btn-danger delete-item-button"
                     delButton.setAttribute('parentId', el.id)
                     delButton.appendChild(delIcon)
-                    document.getElementById(el.id).firstElementChild.appendChild(inputGroup)
-                    document.getElementById(el.id).firstElementChild.appendChild(changeStatusButton)
-                    document.getElementById(el.id).firstElementChild.appendChild(delButton)
+                    console.log(document.getElementById(el.id).firstElementChild.firstElementChild.nextElementSibling)
+                    document.getElementById(el.id).firstElementChild.firstElementChild.nextElementSibling.appendChild(inputGroup)
+                    document.getElementById(el.id).firstElementChild.firstElementChild.nextElementSibling.appendChild(changeStatusButton)
+                    document.getElementById(el.id).firstElementChild.firstElementChild.nextElementSibling.appendChild(delButton)
 
                     inputGroupMinus.addEventListener('click', e => removeQty(
                         inputGroupMinus.getAttribute('parentId'),
