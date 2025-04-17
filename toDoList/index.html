@@ -8,6 +8,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        .modal {
+            margin-top: calc(50vh - 110px);
+        }
+    </style>
 </head>
 
 <body>
@@ -25,6 +30,27 @@
         </div>
     </div>
     <div id="app" class="container d-none">
+
+        <!-- Modal -->
+        <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                        <button id="modalCloseButton" type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ...
+                    </div>
+                    <div class="modal-footer">
+                        <button id="modalCancelButton" type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">Annulla</button>
+                        <button id="modalConfirmButton" type="button" class="btn btn-primary">Conferma</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col-12 my-3">
                 <button id="logoutButton" class="btn btn-primary">Logout</button>
@@ -83,12 +109,24 @@
         const loginButton = document.getElementById('loginButton');
         const logoutButton = document.getElementById('logoutButton');
         const addItemButton = document.getElementById('addItemButton');
-        const confirmAddItemButton = document.getElementById('confirmAddItemButton'); 
+        const confirmAddItemButton = document.getElementById('confirmAddItemButton');
+        const modalConfirmButton = document.getElementById('modalConfirmButton');
+        const modalCancelButton = document.getElementById('modalCancelButton');
+        const modalCloseButton = document.getElementById('modalCloseButton');
         let globalData = []
         let editedGlobalData = []
         /* readButton.addEventListener('click', e => {
             leggiDatiRealtime('test')
         }) */
+        modalConfirmButton.addEventListener('click', e => {
+            performConfirmModal()
+        })
+        modalCancelButton.addEventListener('click', e => {
+            closeModal()
+        })
+        modalCloseButton.addEventListener('click', e => {
+            closeModal()
+        })
         pwInput.addEventListener('keyup', e => {
             if (e.keyCode == 13 && pwInput.value != "" && emailInput.value != "") {
                 login(emailInput.value, pwInput.value)
@@ -129,6 +167,42 @@
                 emailInput.value = ""
             }
         });
+
+        function fillModal(operation, itemId) {
+            modalConfirmButton.classList.add('modal-operation-' + operation)
+            modalConfirmButton.classList.add('modal-item-' + itemId)
+        }
+
+        function closeModal() {
+            for (let cl of
+                modalConfirmButton.classList.value.split(" ")
+            ) {
+                if (cl.indexOf('modal-item-') > -1 || cl.indexOf('modal-operation-') > -1) {
+                    modalConfirmButton.classList.remove(cl)
+                }
+            }
+        }
+
+        function performConfirmModal() {
+            let operation = ""
+            let item = undefined
+            for (let cl of
+                modalConfirmButton.classList.value.split(" ")
+            ) {
+                if (cl.indexOf('modal-item-') > -1) {
+                    item = cl.split("modal-item-")[1]
+                } else if (cl.indexOf('modal-operation-') > -1) {
+                    operation = cl.split("modal-operation-")[1]
+                }
+            }
+            switch (operation) {
+                case 'removeData':
+                    removeData(item)
+                    break;
+                default: console.log("unknown", operation)
+            }
+            modalCancelButton.click()
+        }
 
         function login(email, password) {
             const auth = getAuth();
@@ -196,6 +270,10 @@
                     if (editedGlobalData.length < 1
                         && editedGlobalData.map(e => e.id).indexOf(randomId) > -1) {
                         randomId = Math.floor(Math.random() * 100000);
+                        if (editedGlobalData.length < 1
+                            && editedGlobalData.map(e => e.id).indexOf(randomId) > -1) {
+                            randomId = Math.floor(Math.random() * 100000);
+                        }
                     }
 
                     editedGlobalData.push({
@@ -287,13 +365,13 @@
             elementList.innerHTML = ""
             for (let [i, cat] of categories.entries()) {
                 elementList.innerHTML += `
-                <div class="cat_${cat.replaceAll(" ","_")} d-flex justify-content-between w-100 mt-3 mb-1">
+                <div class="cat_${cat.replaceAll(" ", "_")} d-flex justify-content-between w-100 mt-3 mb-1">
                    <h2>${cat}</h2>
                 </div>
                 <ul class="list-group">`
                 for (let el of globalData.filter(f => f.category == cat).sort((a, b) => a.name.localeCompare(b.name))) {
                     elementList.innerHTML += `
-                <li id="${el.id}" class="border rounded p-2 btn btn-outline-dark align-items-center list-group-item d-flex">
+                <li style="margin-right: 45px;" id="${el.id}" class="border rounded p-2 btn btn-outline-dark align-items-center list-group-item d-flex">
                     <div class="col-12 d-flex">
                         <div class="col-4 col-sm-6 col-md-8 text-start align-self-center">${el.name}</div>
                         <div class="col-8 col-sm-6 col-md-4 d-flex justify-content-end" ></div>
@@ -315,10 +393,10 @@
                  `
             }
             for (let [i, cat] of categories.entries()) {
-                
-                const selectCategoryButton = document.createElement('button') 
-                selectCategoryButton.classList.value = "btn btn-sm btn-primary"  
-                selectCategoryButton.innerText = 'Select category' 
+
+                const selectCategoryButton = document.createElement('button')
+                selectCategoryButton.classList.value = "btn btn-sm btn-primary"
+                selectCategoryButton.innerText = 'Select category'
                 for (let el of globalData.filter(f => f.category == cat)) {
 
                     let elIndex = globalData.findIndex(e => e.id == el.id)
@@ -335,7 +413,7 @@
                     const inputGroupQuantity = document.createElement('input')
                     const inputGroupPlus = document.createElement('span')
                     inputGroup.className = "input-group mx-2"
-                    inputGroup.setAttribute('style','width: 110px')
+                    inputGroup.setAttribute('style', 'width: 110px')
 
                     inputGroupMinus.className = "input-group-text"
                     inputGroupMinus.innerText = "-"
@@ -359,12 +437,15 @@
                     const delIcon = document.createElement('i')
                     delIcon.className = "bi bi-trash"
                     delButton.classList.value = "btn btn-danger delete-item-button"
+                    delButton.setAttribute('style', "margin-left: 15px;")
                     delButton.setAttribute('parentId', el.id)
+                    delButton.setAttribute('data-bs-toggle', "modal")
+                    delButton.setAttribute('data-bs-target', "#confirmModal")
                     delButton.appendChild(delIcon)
-                    console.log(document.getElementById(el.id).firstElementChild.firstElementChild.nextElementSibling)
+                    //console.log(document.getElementById(el.id).firstElementChild.firstElementChild.nextElementSibling)
                     document.getElementById(el.id).firstElementChild.firstElementChild.nextElementSibling.appendChild(inputGroup)
                     document.getElementById(el.id).firstElementChild.firstElementChild.nextElementSibling.appendChild(changeStatusButton)
-                    document.getElementById(el.id).firstElementChild.firstElementChild.nextElementSibling.appendChild(delButton)
+                    document.getElementById(el.id).firstElementChild.firstElementChild.nextElementSibling.parentNode.appendChild(delButton)
 
                     inputGroupMinus.addEventListener('click', e => removeQty(
                         inputGroupMinus.getAttribute('parentId'),
@@ -381,17 +462,17 @@
                     changeStatusButton.addEventListener('click', e => changeStatus(
                         inputGroupQuantity.getAttribute('parentId')
                     ))
-                    delButton.addEventListener('click', e => removeData(inputGroupQuantity.getAttribute('parentId')))
-                } 
-                        document.getElementsByClassName('cat_'+cat.replaceAll(" ","_"))[0].appendChild(selectCategoryButton)
-                 
+                    delButton.addEventListener('click', e => fillModal('removeData', inputGroupQuantity.getAttribute('parentId')))
+                }
+                document.getElementsByClassName('cat_' + cat.replaceAll(" ", "_"))[0].appendChild(selectCategoryButton)
+
                 selectCategoryButton.addEventListener('click', e => selectCategory(cat))
             }
 
         }
 
         function selectCategory(id) {
-            console.log ("select",id)
+            console.log("select", id)
             categoryInput.value = id
             itemForm.classList.remove('d-none')
         }
