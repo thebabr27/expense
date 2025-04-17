@@ -16,6 +16,9 @@
 </head>
 
 <body>
+    <div class="position-absolute me-1" style="right: 0">
+        version: 2.0
+    </div>
     <div id="login" class="container " style="height: 100vh;">
         <div class="w-100 d-flex flex-column justify-content-center" style="height: 50vh;">
             <input id="emailInput" type="email" placeholder="email" class="form-control mb-2">
@@ -36,11 +39,11 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                        <h1 id="modalTitle"   class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
                         <button id="modalCloseButton" type="button" class="btn-close" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                    <div id="modalBody"  class="modal-body">
                         ...
                     </div>
                     <div class="modal-footer">
@@ -113,6 +116,8 @@
         const modalConfirmButton = document.getElementById('modalConfirmButton');
         const modalCancelButton = document.getElementById('modalCancelButton');
         const modalCloseButton = document.getElementById('modalCloseButton');
+        const modalBody = document.getElementById('modalBody');
+        const modalTitle = document.getElementById('modalTitle');
         let globalData = []
         let editedGlobalData = []
         /* readButton.addEventListener('click', e => {
@@ -171,6 +176,13 @@
         function fillModal(operation, itemId) {
             modalConfirmButton.classList.add('modal-operation-' + operation)
             modalConfirmButton.classList.add('modal-item-' + itemId)
+            switch (operation) {
+                case 'removeData':
+                    modalBody.innerHTML = "Vuoi davvero eliminare quest'elemento?"
+                    modalTitle.innerHTML = "Elimina elemento"
+                    break;
+                default: console.log("unknown", operation)
+            }
         }
 
         function closeModal() {
@@ -179,6 +191,8 @@
             ) {
                 if (cl.indexOf('modal-item-') > -1 || cl.indexOf('modal-operation-') > -1) {
                     modalConfirmButton.classList.remove(cl)
+                    modalBody.innerHTML = "..."
+                    modalTitle.innerHTML = "-"
                 }
             }
         }
