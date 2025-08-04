@@ -453,14 +453,14 @@
 
                 const deleteCategoryButton = document.createElement('button')
                 deleteCategoryButton.classList.value = "btn btn-sm btn-danger delete-item-button ms-2 "
-                deleteCategoryButton.innerText = 'Delete category'
+                deleteCategoryButton.innerText = 'Delete'
                 deleteCategoryButton.setAttribute('data-bs-toggle', "modal")
                 deleteCategoryButton.setAttribute('data-bs-target', "#confirmModal")
                 deleteCategoryButton.addEventListener('click', e => fillModal('removeCat', cat.replaceAll(" ", "_")))
 
                 const selectCategoryButton = document.createElement('button')
                 selectCategoryButton.classList.value = "btn btn-sm btn-primary"
-                selectCategoryButton.innerText = 'Select category'
+                selectCategoryButton.innerText = 'Select'
                 for (let el of globalData.filter(f => f.category == cat)) {
 
                     let elIndex = globalData.findIndex(e => e.id == el.id)
