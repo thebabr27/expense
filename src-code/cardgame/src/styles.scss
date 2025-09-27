@@ -1,0 +1,12 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~bootstrap-icons/font/bootstrap-icons.css";
+
+.container-fluid {
+    background: linear-gradient(180deg, #A80077 0%, #7F9F2D 100%);
+    height: 100vh;
+    width: 100%;
+    margin: 0;
+} 
+.btn-primary {
+    background-color: #75C015;
+}

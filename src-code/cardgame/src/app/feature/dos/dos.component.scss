@@ -1,0 +1,142 @@
+.player-list,
+.player-list .card-body,
+.list-group-item {
+    background: transparent;
+}
+
+.list-group-item {
+    cursor: pointer;
+    transition: .2s;
+}
+
+.list-group-item:hover {
+    background-color: rgba(#FFF, .5);
+}
+
+.card-wrapper {
+    min-height: 150px;
+}
+
+.left-wrapper,
+.center-wrapper,
+.right-wrapper {
+    display: flex;
+    justify-content: center;
+    min-width: 150px;
+}
+
+.deck-card {
+    min-width: 100px;
+    width: 100px;
+    height: 135px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: center;
+    margin: 5px;
+    transition: transform 0.2s;
+    position: absolute;
+    cursor: pointer;
+}
+
+
+.deck-card:hover {
+    transform: translateY(-20px);
+}
+
+.card-body {
+    padding: 10px;
+}
+
+.change-color-icon,
+.plus-four-icon {
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+
+}
+
+.plus-four-icon {
+    background-image: url('../../../assets/icons/plus-four-icon.svg');
+}
+
+.change-color-icon {
+    background-image: url('../../../assets/icons/change-color.svg'); 
+}
+
+/* Colori UNO */
+.deck-red {
+    background-color: #e74c3c;
+}
+
+.deck-green {
+    background-color: #27ae60;
+}
+
+.deck-blue {
+    background-color: #3498db;
+}
+
+.deck-yellow {
+    background-color: #f1c40f;
+    color: black;
+}
+
+/* testo scuro per contrasto */
+.deck-wild {
+    background: linear-gradient(135deg, #000000, #333333, #555555, #000000);
+    background-size: 400% 400%;
+    animation: wildGradientBlack 5s ease infinite;
+    color: white;
+    /* testo leggibile sul gradiente */
+}
+
+.center-value {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.small-value {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.center-icon {
+    transform: scale(2.5);
+}
+
+
+@keyframes wildGradientBlack {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+
+.dos-deck-card {
+    background-color: transparent;
+}
+
+.dos-deck-card .card-body {
+    background-image: url("../../../assets/images/dos-deck-card.svg");
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+}

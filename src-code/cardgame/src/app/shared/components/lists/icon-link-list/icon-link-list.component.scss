@@ -1,0 +1,28 @@
+
+.link-card, .link-card .card-body {
+    background: transparent;
+}
+.link-card {
+    margin: 15px;
+    padding: 30px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.link-card:hover {
+    background-color: rgba($color: #FFF, $alpha: .1);
+    transition: .2s;
+}
+.gamepad, .dos-icon {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 90px;
+    height: 90px;
+}
+.gamepad {
+    background-image: url('../../../../../assets/icons/gamepad.svg');
+}
+.dos-icon {
+    background-image: url('../../../../../assets/icons/dos_icon.svg'); 
+}
