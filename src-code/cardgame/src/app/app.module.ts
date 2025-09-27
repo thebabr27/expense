@@ -15,6 +15,8 @@ import { GamesComponent } from './feature/games/games.component';
 import { IconLinkListComponent } from './shared/components/lists/icon-link-list/icon-link-list.component';
 import { DosComponent } from './feature/dos/dos.component';
 import { SpinnerComponent } from './shared/components/spinner/spinner.component';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { DomainRedirectInterceptor } from './core/interceptors/domain-redirect.interceptor';
 
 @NgModule({
   declarations: [
@@ -29,14 +31,20 @@ import { SpinnerComponent } from './shared/components/spinner/spinner.component'
   imports: [
     CommonModule,
     BrowserModule,
-    AppRoutingModule ,
+    AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
     provideDatabase(() => getDatabase()),
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: DomainRedirectInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

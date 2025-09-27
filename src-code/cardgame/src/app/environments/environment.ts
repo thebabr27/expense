@@ -7,5 +7,6 @@ export const environment = {
         storageBucket: "draggable-9f92b.appspot.com",
         messagingSenderId: "1010593277055",
         appId: "1:1010593277055:web:1b729dc7368b8f6f"
-    }
+    },
+    targetDomain: 'https://thebabr27.github.io/expense/cardgame'
 }
