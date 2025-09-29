@@ -34,7 +34,6 @@
     width: 100px;
     height: 135px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     color: white;
     display: flex;
     justify-content: center;
@@ -48,8 +47,8 @@
     cursor: pointer;
 }
 
-
-.deck-card:hover {
+/* Effetto hover solo per carte abilitare */
+.deck-card:not(.deck-red-disabled):not(.deck-green-disabled):not(.deck-blue-disabled):not(.deck-yellow-disabled):not(.deck-wild-disabled):hover {
     transform: translateY(-20px);
 }
 
@@ -72,8 +71,57 @@
 }
 
 .change-color-icon {
-    background-image: url('../../../assets/icons/change-color-icon.svg'); 
+    background-image: url('../../../assets/icons/change-color-icon.svg');
 }
+
+.players-wrapper {
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 80px;
+    right: 0;
+    height: 100vh;
+}
+
+.btn-blue {
+    color: #fff;
+    /* testo bianco */
+    background-color: #0d6efd;
+    /* blu classico */
+    border-color: #0d6efd;
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.375rem;
+    transition: color 0.15s ease-in-out,
+        background-color 0.15s ease-in-out,
+        border-color 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out;
+    cursor: pointer;
+}
+
+.btn-blue:hover {
+    background-color: #0b5ed7;
+    /* blu più scuro al passaggio */
+    border-color: #0a58ca;
+}
+
+.btn-blue:focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
+}
+
+.btn-blue:disabled {
+    background-color: #0d6efd;
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
 
 /* Colori UNO */
 .deck-red {
@@ -144,6 +192,36 @@
     width: 100%;
     height: 100%;
 }
+
+/* Carte disabilitate - colori UNO */
+.deck-red-disabled {
+    background-color: #AB3535;
+    cursor: not-allowed;
+}
+
+.deck-green-disabled {
+    background-color: #418E34;
+    cursor: not-allowed;
+}
+
+.deck-blue-disabled {
+    background-color: #2E4A74;
+    cursor: not-allowed;
+}
+
+.deck-yellow-disabled {
+    background-color: #C0A850;
+    color: black;
+    cursor: not-allowed;
+}
+
+.deck-wild-disabled {
+    background-color: #333333;
+    color: white;
+    cursor: not-allowed;
+}
+
+
 
 .mini-card-wrapper {
     margin-top: 25px;

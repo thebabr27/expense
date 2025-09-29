@@ -8,7 +8,7 @@ import { AlertMessage, AlertService } from 'src/app/core/service/alert.service';
 })
 export class AlertComponent implements OnInit {
   alertText: string = '';
-  alertType: AlertMessage['type'] = 'info';
+  alertType: 'success' | 'error' | 'warning' | 'info' = 'info';
   alertIcon: string = 'info-circle';
   show: boolean = false;
 
@@ -17,7 +17,14 @@ export class AlertComponent implements OnInit {
   ngOnInit(): void {
     this.alertService.showAlert$.subscribe(() => {
       const msg = this.alertService.currentMessage;
-      this.alertText = msg.text;
+
+      // Usa solo tag inline per innerHTML
+      if (msg.color) {
+        this.alertText = `${msg.text} <span class="color-box" style="background-color: ${msg.color}"></span>`;
+      } else {
+        this.alertText = msg.text;
+      }
+
       this.alertType = msg.type;
       this.alertIcon = msg.icon;
       this.show = true;

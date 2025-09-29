@@ -1,7 +1,7 @@
 <div class="alert-container">
   <div *ngIf="show" [ngClass]="'alert alert-' + alertType + ' show'" role="alert">
       <i [class]="'bi bi-' + alertIcon"></i>
-      <span>{{ alertText }}</span>
+      <span [innerHTML]="alertText"> </span>
       <button type="button" class="btn-close ms-auto" (click)="show=false"></button>
   </div>
 </div>

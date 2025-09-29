@@ -1,11 +1,31 @@
+<!-- Button trigger modal -->
+<button #modalTrigger type="button" style="width: 0; position: absolute; height: 0; opacity: 0;" data-bs-toggle="modal"
+    data-bs-target="#exampleModal"></button>
 
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body d-flex justify-content-around">
+                <h5 class="modal-title" id="colorModalLabel">Scegli il colore:</h5>
+                <button class="btn btn-danger color-btn" data-bs-dismiss="modal"
+                    (click)="chooseColor('rosso')">Rosso</button>
+                <button class="btn btn-warning color-btn" data-bs-dismiss="modal"
+                    (click)="chooseColor('giallo')">Giallo</button>
+                <button class="btn btn-blue color-btn" data-bs-dismiss="modal"
+                    (click)="chooseColor('blu')">Blu</button>
+                <button class="btn btn-success color-btn" data-bs-dismiss="modal"
+                    (click)="chooseColor('verde')">Verde</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="container-fluid ">
-    <div class="position-absolute" style="
-    overflow-y: auto;
-    overflow-x: hidden;
-    width: 60px;  
-    right: 0;
-    height: 100vh;">
+    <div class="position-absolute players-wrapper" >
         <div class="d-flex flex-column">
             <!-- Cicla su tutti i giocatori tranne me -->
             <div *ngFor="let player of gameForm.get('users')?.value; let pi = index"
@@ -13,8 +33,13 @@
                 <div *ngIf="player.name !== gameForm.get('userName')?.value" class="d-flex flex-column text-end">
 
                     <!-- Nome e numero di carte -->
-                    <p class="mb-1">{{ player.name }}</p>
+                    <div class="d-flex align-items-center">
+                        <i *ngIf="gameForm.get('peopleInTurn')?.value === player.name"
+                            class="bi bi-arrow-right-square-fill text-warning mx-1"></i>
+                        <p class="mb-1">{{ player.name }}</p>
+                    </div>
                     <p class="mb-1">Carte {{ player.deck?.length || 0 }}</p>
+
 
                     <!-- Mini deck -->
                     <div class="mini-card-wrapper d-flex flex-column">
@@ -54,7 +79,8 @@
 
             <div class="d-flex justify-content-between card-wrapper">
                 <div class="left-wrapper">
-                    <div class="card dos-deck-card deck-card" (click)="drawCard(gameForm.get('userName')?.value)">
+                    <div class="card dos-deck-card deck-card shadow"
+                        (click)="playerDrawCard(gameForm.get('userName')?.value)">
                         <div class="card-body"> </div>
                     </div>
                 </div>
@@ -68,7 +94,8 @@
                             'deck-green': card.color === 'Verde',
                             'deck-blue': card.color === 'Blu',
                             'deck-yellow': card.color === 'Giallo',
-                            'deck-wild': !card.color
+                            'deck-wild': !card.color,
+       'shadow': i === 0 || i === (gameForm.get('centerDeck')?.value?.length - 1)
                         }" [ngStyle]="{'margin-left': calculateMargin(i, gameForm.get('user')?.value?.deck?.length)}"
                             (click)="moveCardToCenterDeck(i, gameForm.get('userName')?.value)">
                             <div class="card-body w-100 d-flex flex-column justify-content-between">
@@ -148,30 +175,28 @@
                 <div class="deck-container" style="position: relative; height: 135px;"
                     [ngStyle]="{'margin-left': calculateMarginForDeckContainer(getMyUserDeck().length)}">
 
-                    <div *ngFor="let card of getMyUserDeck(); let i = index" class="card deck-card" [ngClass]="{
-         'deck-red': card.color === 'Rosso',
-         'deck-green': card.color === 'Verde',
-         'deck-blue': card.color === 'Blu',
-         'deck-yellow': card.color === 'Giallo',
-         'deck-wild': !card.color
-       }" [ngStyle]="{'margin-left': calculateMargin(i, getMyUserDeck().length)}"
-                        (click)="moveCardToCenterDeck(i, gameForm.get('userName')?.value)">
+                    <div *ngFor="let card of getMyUserDeck(); let i = index" class="card deck-card shadow" [ngClass]="{
+       'deck-red': card.color === 'Rosso' && isCardPlayable(card),
+       'deck-green': card.color === 'Verde' && isCardPlayable(card),
+       'deck-blue': card.color === 'Blu' && isCardPlayable(card),
+       'deck-yellow': card.color === 'Giallo' && isCardPlayable(card),
+       'deck-wild': !card.color && isCardPlayable(card),
+       'deck-red-disabled': card.color === 'Rosso' && !isCardPlayable(card),
+       'deck-green-disabled': card.color === 'Verde' && !isCardPlayable(card),
+       'deck-blue-disabled': card.color === 'Blu' && !isCardPlayable(card),
+       'deck-yellow-disabled': card.color === 'Giallo' && !isCardPlayable(card),
+       'deck-wild-disabled': !card.color && !isCardPlayable(card)
+     }" [ngStyle]="{'margin-left': calculateMargin(i, getMyUserDeck().length)}"
+                        (click)="isCardPlayable(card) && moveCardToCenterDeck(i, gameForm.get('userName')?.value)">
+
                         <div class="card-body w-100 d-flex flex-column justify-content-between">
                             <!-- Valore piccolo in alto a sinistra -->
                             <div class="d-flex justify-content-start">
                                 <span *ngIf="card.type" class="small-value">
-                                    <div *ngIf="card.type == 'reverse'">
-                                        <i class="bi bi-arrow-repeat"></i>
-                                    </div>
-                                    <div *ngIf="card.type == 'skip'">
-                                        <i class="bi bi-x-circle"></i>
-                                    </div>
-                                    <div *ngIf="card.type == 'draw-two'">
-                                        <i class="bi bi-plus-lg"></i>2
-                                    </div>
-                                    <div *ngIf="card.type == 'wild-draw-four'">
-                                        <i class="bi bi-plus-lg"></i>4
-                                    </div>
+                                    <div *ngIf="card.type == 'reverse'"><i class="bi bi-arrow-repeat"></i></div>
+                                    <div *ngIf="card.type == 'skip'"><i class="bi bi-x-circle"></i></div>
+                                    <div *ngIf="card.type == 'draw-two'"><i class="bi bi-plus-lg"></i>2</div>
+                                    <div *ngIf="card.type == 'wild-draw-four'"><i class="bi bi-plus-lg"></i>4</div>
                                     <div *ngIf="card.type == 'wild'">
                                         <div class="change-color-icon"></div>
                                     </div>
@@ -182,15 +207,9 @@
                             <!-- Valore grande al centro -->
                             <div class="d-flex justify-content-center align-items-center flex-grow-1">
                                 <h1 *ngIf="card.type" class="center-value m-0">
-                                    <div *ngIf="card.type == 'reverse'">
-                                        <i class="bi bi-arrow-repeat"></i>
-                                    </div>
-                                    <div *ngIf="card.type == 'skip'">
-                                        <i class="bi bi-x-circle"></i>
-                                    </div>
-                                    <div *ngIf="card.type == 'draw-two'">
-                                        <i class="bi bi-plus-lg"></i>2
-                                    </div>
+                                    <div *ngIf="card.type == 'reverse'"><i class="bi bi-arrow-repeat"></i></div>
+                                    <div *ngIf="card.type == 'skip'"><i class="bi bi-x-circle"></i></div>
+                                    <div *ngIf="card.type == 'draw-two'"><i class="bi bi-plus-lg"></i>2</div>
                                     <div *ngIf="card.type == 'wild-draw-four'">
                                         <div class="plus-four-icon center-icon"></div>
                                     </div>
@@ -204,18 +223,10 @@
                             <!-- Valore piccolo in basso a destra -->
                             <div class="d-flex justify-content-end">
                                 <span *ngIf="card.type" class="small-value">
-                                    <div *ngIf="card.type == 'reverse'">
-                                        <i class="bi bi-arrow-repeat"></i>
-                                    </div>
-                                    <div *ngIf="card.type == 'skip'">
-                                        <i class="bi bi-x-circle"></i>
-                                    </div>
-                                    <div *ngIf="card.type == 'draw-two'">
-                                        <i class="bi bi-plus-lg"></i>2
-                                    </div>
-                                    <div *ngIf="card.type == 'wild-draw-four'">
-                                        <i class="bi bi-plus-lg"></i>4
-                                    </div>
+                                    <div *ngIf="card.type == 'reverse'"><i class="bi bi-arrow-repeat"></i></div>
+                                    <div *ngIf="card.type == 'skip'"><i class="bi bi-x-circle"></i></div>
+                                    <div *ngIf="card.type == 'draw-two'"><i class="bi bi-plus-lg"></i>2</div>
+                                    <div *ngIf="card.type == 'wild-draw-four'"><i class="bi bi-plus-lg"></i>4</div>
                                     <div *ngIf="card.type == 'wild'">
                                         <div class="change-color-icon"></div>
                                     </div>
@@ -223,8 +234,8 @@
                                 <span *ngIf="!card.type" class="small-value">{{ card.value }}</span>
                             </div>
                         </div>
-
                     </div>
+
                 </div>
 
             </div>
