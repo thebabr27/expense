@@ -19,6 +19,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { DomainRedirectInterceptor } from './core/interceptors/domain-redirect.interceptor';
 import { ToastComponent } from './core/components/toast/toast.component';
 import { AlertComponent } from './shared/components/alert/alert.component';
+import { BaseComponent } from './feature/base/base.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { AlertComponent } from './shared/components/alert/alert.component';
     DosComponent,
     SpinnerComponent,
     ToastComponent,
-    AlertComponent
+    AlertComponent,
+    BaseComponent
   ],
   imports: [
     CommonModule,
