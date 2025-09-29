@@ -37,7 +37,8 @@ export class DosComponent implements OnInit {
       users: [[]],
       phase: [''],
       peopleInTurn: [''],
-      currentColor: ['']
+      currentColor: [''],
+      direction: [1]
     });
 
     this.gameForm.valueChanges.subscribe(value => {
@@ -50,8 +51,10 @@ export class DosComponent implements OnInit {
           name: p.name,
           playerType: p.playerType,
           deck: [],
-          played: false
+          played: false,
+          drawed: false
         }));
+
 
         this.gameForm.patchValue({
           people: data,
@@ -208,66 +211,136 @@ export class DosComponent implements OnInit {
     return (currentIndex + 1) % totalPlayers;
   }
 
-  // Applica la regola della carta giocata (skip / reverse / default)
-  private applyCardRule(card: any, currentIndex: number, totalPlayers: number): number {
-    if (card.type === 'skip') {
-      return (currentIndex + 2) % totalPlayers;
-    }
-    if (card.type === 'reverse') {
-      return (currentIndex - 1 + totalPlayers) % totalPlayers;
-    }
-    return this.getNextPlayerIndex(currentIndex, totalPlayers);
-  }
+  // ===================
+  // APPLICA REGOLE + CALCOLO PROSSIMO GIOCATORE
+  // ===================
+  applyCardRule = (card: any, currentIndex: number, peopleLength: number): number => {
+    // Leggi la direzione corrente: 1 = avanti, -1 = indietro
+    let direction = this.gameForm.get('direction')?.value || 1;
 
-  // Metodo principale aggiornato con toast
-  moveCardToCenterDeck(index: number, sourceUserName: string) {
+    let nextIndex = currentIndex;
+
+    switch (card.type) {
+      case 'skip':
+        // Salta il prossimo giocatore
+        nextIndex = (currentIndex + direction * 2 + peopleLength) % peopleLength;
+        this.alertService.triggerAlert('info', 'Carta SKIP: il turno del prossimo giocatore salta!', 'forward');
+        break;
+
+      case 'reverse':
+        // Inverti la direzione del gioco
+        direction *= -1;
+        this.gameForm.patchValue({ direction });
+        this.alertService.triggerAlert('info', 'Carta REVERSE: il giro del turno invertito!', 'repeat');
+        // Calcola il prossimo in base alla nuova direzione
+        nextIndex = (currentIndex + direction + peopleLength) % peopleLength;
+        break;
+
+      default:
+        // Carta normale → prossimo giocatore secondo direzione
+        nextIndex = (currentIndex + direction + peopleLength) % peopleLength;
+        break;
+    }
+
+    return nextIndex;
+  };
+
+  // ===================
+  // METODO PRINCIPALE
+  // ===================
+  moveCardToCenterDeck = (index: number, sourceUserName: string) => {
     const users = this.gameForm.get('users')?.value || [];
     const centerDeck = this.gameForm.get('centerDeck')?.value || [];
     const people = this.gameForm.get('people')?.value || [];
-
     const myName = this.gameForm.get('userName')?.value;
     if (!myName) return;
 
-    // Trova l'utente
-    const userIndex = users.findIndex((u: any) => u.name === sourceUserName);
+    const userIndex = users.findIndex((p: any) => p.name === sourceUserName);
     if (userIndex === -1) return;
     const user = users[userIndex];
 
-    // Carta selezionata
     const card = user.deck[index];
     if (!card) return;
 
-    // ✅ Controllo regole UNO (usando currentColor se esiste)
-    let activeColor = card.color;
-    if (centerDeck.length > 0) {
-      const topCard = centerDeck[centerDeck.length - 1];
-      activeColor = this.gameForm.get('currentColor')?.value || topCard.color;
-      const isValid =
-        card.color === activeColor ||
-        card.value === topCard.value ||
-        card.type === 'wild' ||
-        card.type === 'wild-draw-four';
+    // Determina colore attivo
+    const topCard = centerDeck[centerDeck.length - 1];
+    const activeColor = this.gameForm.get('currentColor')?.value || topCard?.color;
 
-      if (!isValid) {
-        this.alertService.triggerAlert(
-          'error',
-          `Carta non valida: ${card.name} non può essere giocata sopra ${topCard.name}`,
-          'x-circle'
-        );
-        return;
-      }
+    // ✅ Controllo validità carta
+    const isValid =
+      centerDeck.length < 1 || // mazzo vuoto
+      card.color === activeColor ||
+      card.type === 'wild' ||
+      card.type === 'wild-draw-four' ||
+      card.value === topCard?.value;
+
+    if (!isValid) {
+      this.alertService.triggerAlert(
+        'error',
+        `Carta non valida: ${card.name} non può essere giocata sopra ${topCard?.name || 'null'}`,
+        'x-circle'
+      );
+      return;
     }
 
-    // 🔹 Aggiorna deck dell’utente
+    // 🔹 Gestione +2/+4
+    if (
+      topCard &&
+      (topCard.type === 'draw-two' || topCard.type === 'wild-draw-four') &&
+      card.type !== 'draw-two' &&
+      card.type !== 'wild-draw-four' &&
+      !user.drawed
+    ) {
+      const drawCount = topCard.type === 'draw-two' ? 2 : 4;
+      const deck = this.gameForm.get('deck')?.value || [];
+      const drawnCards = deck.splice(0, drawCount);
+      const updatedDeck = [...user.deck, ...drawnCards];
+
+      const newUsers = [...users];
+      newUsers[userIndex] = { ...user, deck: updatedDeck, drawed: true };
+
+      this.gameForm.patchValue({ users: newUsers, deck });
+
+      this.alertService.triggerAlert(
+        'warning',
+        `${sourceUserName} pesca ${drawnCards.length} carte per effetto di ${topCard.name}`,
+        'exclamation-circle'
+      );
+
+      if (user.playerType === 'cpu') setTimeout(() => this.cpuPlay(sourceUserName), 500);
+
+      return;
+    }
+
+    // 🔹 Aggiorna deck dell'utente e centro mazzo
     const newUserDeck = [...user.deck];
     newUserDeck.splice(index, 1);
-
     const newUsers = [...users];
-    newUsers[userIndex] = { ...user, deck: newUserDeck, played: true }; // ✅ ha giocato
+    newUsers[userIndex] = { ...user, deck: newUserDeck, played: true, drawed: false };
 
     const newCenterDeck = [...centerDeck, card];
 
-    // 🔹 Calcola prossimo giocatore con regola applicata
+    // 🔹 Cambio colore se Wild giocata da avversario
+    if (sourceUserName !== myName && (card.type === 'wild' || card.type === 'wild-draw-four')) {
+      const colorCounts: { [key: string]: number } = {};
+      newUserDeck.forEach((c: any) => {
+        if (c.color) colorCounts[c.color] = (colorCounts[c.color] || 0) + 1;
+      });
+      const newColor = Object.keys(colorCounts).reduce((a, b) =>
+        colorCounts[a] > colorCounts[b] ? a : b,
+        'Rosso'
+      );
+      this.gameForm.patchValue({ currentColor: newColor });
+      this.alertService.triggerAlert(
+        'info',
+        `${sourceUserName} ha cambiato colore della Wild a ${newColor}!`,
+        'palette'
+      );
+    } else if (card.color) {
+      this.gameForm.patchValue({ currentColor: card.color });
+    }
+
+    // 🔹 Calcola prossimo giocatore con regola skip/reverse
     let nextPlayerName: string | null = null;
     if (people.length > 0) {
       const currentIndex = people.findIndex((p: any) => p.name === sourceUserName);
@@ -275,15 +348,15 @@ export class DosComponent implements OnInit {
       nextPlayerName = people[nextIndex]?.name || null;
     }
 
-    // 🔹 Reset stato played al prossimo giocatore
+    // 🔹 Reset stato played/drawed al prossimo giocatore
     if (nextPlayerName) {
-      const nextUserIndex = newUsers.findIndex((u: any) => u.name === nextPlayerName);
+      const nextUserIndex = newUsers.findIndex((p: any) => p.name === nextPlayerName);
       if (nextUserIndex !== -1) {
-        newUsers[nextUserIndex] = { ...newUsers[nextUserIndex], played: false };
+        newUsers[nextUserIndex] = { ...newUsers[nextUserIndex], played: false, drawed: false };
       }
     }
 
-    // 🔹 Aggiorna stato globale
+    // 🔹 Aggiorna form
     this.gameForm.patchValue({
       users: newUsers,
       user: myName === sourceUserName ? newUsers[userIndex] : this.gameForm.get('user')?.value,
@@ -291,54 +364,41 @@ export class DosComponent implements OnInit {
       peopleInTurn: nextPlayerName
     });
 
-    // 🔹 Cambio colore se Wild giocata da avversario
-    if (sourceUserName !== myName && (card.type === 'wild' || card.type === 'wild-draw-four')) {
-      const colorCounts: { [key: string]: number } = {};
-      newUserDeck.forEach(c => {
-        if (c.color) colorCounts[c.color] = (colorCounts[c.color] || 0) + 1;
-      });
-      const newColor = Object.keys(colorCounts).reduce((a, b) => colorCounts[a] > colorCounts[b] ? a : b, 'Rosso');
-
-      this.gameForm.patchValue({ currentColor: newColor });
-
-      this.alertService.triggerAlert(
-        'info',
-        `${sourceUserName} ha cambiato colore della Wild a ${newColor}!`,
-        'palette'
-      );
-    }
-
     // 🔹 Se il prossimo è CPU → fallo giocare
     if (nextPlayerName) {
-      const nextPlayer = newUsers.find((u: any) => u.name === nextPlayerName);
+      const nextPlayer = newUsers.find((p: any) => p.name === nextPlayerName);
       if (nextPlayer?.playerType === 'cpu') {
-        setTimeout(() => this.cpuPlay(nextPlayerName!), 500);
+        setTimeout(() => this.cpuPlay(nextPlayerName as string), 500);
       }
     }
-  }
 
-  private cpuPlay(cpuName: string) {
+    console.log('Form aggiornato:', this.gameForm.value);
+  };
+
+  // ===================
+  // METODO CPU
+  // ===================
+  private cpuPlay = (cpuName: string) => {
     const users = this.gameForm.get('users')?.value || [];
     const centerDeck = this.gameForm.get('centerDeck')?.value || [];
-
-    const cpu = users.find((u: any) => u.name === cpuName);
+    const cpu = users.find((p: any) => p.name === cpuName);
     if (!cpu) return;
 
     const topCard = centerDeck[centerDeck.length - 1];
-    const currentColor = this.gameForm.get('currentColor')?.value || topCard.color;
+    const currentColor = this.gameForm.get('currentColor')?.value || topCard?.color;
 
+    // Trova carta giocabile
     const playableIndex = cpu.deck.findIndex((c: any) =>
       c.color === currentColor ||
-      c.value === topCard.value ||
+      c.value === topCard?.value ||
       c.type === 'wild' ||
       c.type === 'wild-draw-four'
     );
 
     if (playableIndex !== -1) {
-      // ✅ ha una carta giocabile
       this.moveCardToCenterDeck(playableIndex, cpuName);
     } else {
-      // 🚨 pesca
+      // CPU pesca
       const deck = this.gameForm.get('deck')?.value || [];
       if (deck.length > 0) {
         const drawnCard = deck[0];
@@ -346,7 +406,7 @@ export class DosComponent implements OnInit {
         const newCpuDeck = [...cpu.deck, drawnCard];
 
         const newUsers = [...users];
-        const cpuIndex = newUsers.findIndex((u: any) => u.name === cpuName);
+        const cpuIndex = newUsers.findIndex((p: any) => p.name === cpuName);
         if (cpuIndex !== -1) newUsers[cpuIndex] = { ...cpu, deck: newCpuDeck };
 
         this.gameForm.patchValue({ deck: newDeck, users: newUsers });
@@ -356,7 +416,7 @@ export class DosComponent implements OnInit {
         // Se la carta pescata è giocabile → la gioca
         if (
           drawnCard.color === currentColor ||
-          drawnCard.value === topCard.value ||
+          drawnCard.value === topCard?.value ||
           drawnCard.type === 'wild' ||
           drawnCard.type === 'wild-draw-four'
         ) {
@@ -364,7 +424,8 @@ export class DosComponent implements OnInit {
         }
       }
     }
-  }
+  };
+
 
   calculateMargin(index: number, length: number): string {
     if (!length) return '0px';
