@@ -1,0 +1,55 @@
+.alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 3000;
+}
+
+.alert {
+    position: absolute;
+    margin-top: 10px;
+    right: 30px;
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-radius: 8px;
+    min-width: 250px;
+    font-size: 16px;
+
+    /* Animazione */
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* Classe da applicare quando l’alert diventa visibile */
+.alert.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Colori dinamici (Bootstrap) */
+.alert-success {
+    background-color: #198754;
+    color: white;
+}
+
+.alert-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.alert-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.alert-info {
+    background-color: #0dcaf0;
+    color: white;
+}
+
+/* Icona + testo */
+.alert i {
+    margin-right: 8px;
+}

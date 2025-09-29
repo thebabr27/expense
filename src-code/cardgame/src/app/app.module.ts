@@ -17,6 +17,8 @@ import { DosComponent } from './feature/dos/dos.component';
 import { SpinnerComponent } from './shared/components/spinner/spinner.component';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { DomainRedirectInterceptor } from './core/interceptors/domain-redirect.interceptor';
+import { ToastComponent } from './core/components/toast/toast.component';
+import { AlertComponent } from './shared/components/alert/alert.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +28,9 @@ import { DomainRedirectInterceptor } from './core/interceptors/domain-redirect.i
     GamesComponent,
     IconLinkListComponent,
     DosComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    ToastComponent,
+    AlertComponent
   ],
   imports: [
     CommonModule,

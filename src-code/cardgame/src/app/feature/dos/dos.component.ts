@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { user } from '@angular/fire/auth';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { AuthService } from 'src/app/core/service/auth.service';
+import { AlertService } from 'src/app/core/service/alert.service';
 import { DosDeckService } from 'src/app/core/service/dos-deck.service';
 import { DosGameService } from 'src/app/core/service/dos-game.service';
 import { DosPeopleService } from 'src/app/core/service/dos-people.service';
-import { DosUsersService } from 'src/app/core/service/dos-users.service';
 
 @Component({
   selector: 'app-dos',
@@ -14,7 +12,7 @@ import { DosUsersService } from 'src/app/core/service/dos-users.service';
 })
 export class DosComponent implements OnInit {
   gamePhase: string = '';
-  deck: any = null;
+  myDeck: any = null;
   nickname: string = '';
   people: any[] = [];
   data: any;
@@ -27,24 +25,39 @@ export class DosComponent implements OnInit {
     private dosGameService: DosGameService,
     private dosPeopleService: DosPeopleService,
     private dosDeckService: DosDeckService,
-    private authService: AuthService,
-    private userService: DosUsersService
+    private alertService: AlertService
   ) { }
 
   ngOnInit(): void {
     this.gameForm = this.fb.group({
-      deck: [''],
-      centerDeck: [''],
-      people: [''],
-      user: [''],
-      phase: ['']
+      deck: [[]],
+      centerDeck: [[]],
+      people: [[]],
+      userName: ['Marco'],
+      users: [[]],
+      phase: [''],
+      peopleInTurn: [''],
+      currentColor: ['']
     });
+
     this.gameForm.valueChanges.subscribe(value => {
-      console.log(value, this.gameForm.value)
+
+      this.calculateMarginForDeckContainer(this.gameForm.value.deck.length);
     })
     this.dosPeopleService.listenPeople().subscribe(async data => {
       if (data) {
-        this.gameForm.patchValue({ people: data })
+        const users = data.map((p: any) => ({
+          name: p.name,
+          playerType: p.playerType,
+          deck: [],
+          played: false
+        }));
+
+        this.gameForm.patchValue({
+          people: data,
+          users: users,
+          peopleInTurn: data[0].name // 🔹 di default parte il primo
+        });
       }
     });
     this.dosGameService.listenGames().subscribe(async data => {
@@ -69,7 +82,7 @@ export class DosComponent implements OnInit {
           return;
         }
 
-        // 🔹 Shuffle Fisher–Yates
+        // Shuffle Fisher–Yates
         for (let i = deck.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [deck[i], deck[j]] = [deck[j], deck[i]];
@@ -87,14 +100,56 @@ export class DosComponent implements OnInit {
         console.log('Deck già presente');
         const user = this.gameForm.get('user')?.value;
         const deck = this.gameForm.get('deck')?.value || [];
+        // Controllo nella fase start-waiting
+        if (this.gameForm.get('phase')?.value === 'start-waiting') {
+          const users = this.gameForm.get('users')?.value || [];
+          const deck = this.gameForm.get('deck')?.value || [];
 
-        if (!user?.deck || user.deck.length === 0) {
-          console.log('Assegno 7 carte iniziali all’utente');
-          this.assignCardsToUser(7);
+          if (users.length && deck.length) {
+            // Assegna 7 carte a ciascun giocatore
+            const newUsers = users.map((user: any) => {
+              const userDeck = deck.splice(0, 7); // prende 7 carte dal deck
+              return { ...user, deck: userDeck };
+            });
+
+            this.gameForm.patchValue({
+              users: newUsers,
+              deck: deck,                  // rimasto nel mazzo principale
+              phase: 'start-playing'       // cambio fase
+            });
+
+            console.log('Carte iniziali assegnate a tutti i giocatori, fase aggiornata a start-playing');
+          }
         }
+
       }
     });
   }
+
+  getMyUserDeck(): any[] {
+    const users = this.gameForm.get('users')?.value || [];
+    const myName = this.gameForm.get('userName')?.value
+
+    const me = users.find((u: any) => u.name === myName);
+    return me?.deck || [];
+  }
+
+  getCurrentUserDeck(): any[] {
+    const users = this.gameForm.get('users')?.value || [];
+    const currentTurn = this.gameForm.get('peopleInTurn')?.value;
+
+    const user = users.find((u: any) => u.name === currentTurn);
+    return user?.deck || [];
+  }
+
+  getCurrentUser(): any {
+    const users = this.gameForm.get('users')?.value || [];
+    const currentTurn = this.gameForm.get('peopleInTurn')?.value;
+
+    return users.find((u: any) => u.name === currentTurn) || null;
+  }
+
+
 
   /**
  * Calcola il margin-left da applicare al container del deck
@@ -111,27 +166,205 @@ export class DosComponent implements OnInit {
     return `${margin}px`;
   }
 
-  moveCardToCenterDeck(index: number) {
-    const userDeck = (this.gameForm.get('user')?.value).deck || [];
-    const centerDeck = this.gameForm.get('centerDeck')?.value || [];
+  private setUserPlayed(userName: string, value: boolean) {
+    const users = this.gameForm.get('users')?.value || [];
+    const userIndex = users.findIndex((u: any) => u.name === userName);
+    if (userIndex === -1) return;
 
-    // Prendi la carta cliccata
-    const card = userDeck[index];
+    const user = users[userIndex];
+    const newUsers = [...users];
+    newUsers[userIndex] = { ...user, played: value };
 
-    // Rimuovi dal deck dell'utente
-    userDeck.splice(index, 1);
-
-    // Aggiungi al centerDeck
-    centerDeck.push(card);
-
-    // Aggiorna il form
-    this.gameForm.patchValue({
-      user: { deck: userDeck },
-      centerDeck: centerDeck
-    });
+    this.gameForm.patchValue({ users: newUsers });
   }
 
+  drawCard(userName: string) {
+    const deck = this.gameForm.get('deck')?.value || [];
+    const users = this.gameForm.get('users')?.value || [];
+    if (!deck.length) return;
 
+    const userIndex = users.findIndex((u: any) => u.name === userName);
+    if (userIndex === -1) return;
+
+    const user = users[userIndex];
+    const drawnCard = deck[0];
+    const newDeck = deck.slice(1);
+
+    const newUserDeck = [...user.deck, drawnCard];
+
+    const newUsers = [...users];
+    newUsers[userIndex] = { ...user, deck: newUserDeck, played: false }; // 👈 ha pescato, non ancora giocato
+
+    this.gameForm.patchValue({
+      deck: newDeck,
+      users: newUsers
+    });
+
+    console.log(`${userName} pesca una carta: ${drawnCard.name}`);
+  }
+
+  // Calcola il prossimo giocatore standard
+  private getNextPlayerIndex(currentIndex: number, totalPlayers: number): number {
+    return (currentIndex + 1) % totalPlayers;
+  }
+
+  // Applica la regola della carta giocata (skip / reverse / default)
+  private applyCardRule(card: any, currentIndex: number, totalPlayers: number): number {
+    if (card.type === 'skip') {
+      return (currentIndex + 2) % totalPlayers;
+    }
+    if (card.type === 'reverse') {
+      return (currentIndex - 1 + totalPlayers) % totalPlayers;
+    }
+    return this.getNextPlayerIndex(currentIndex, totalPlayers);
+  }
+
+  // Metodo principale aggiornato con toast
+  moveCardToCenterDeck(index: number, sourceUserName: string) {
+    const users = this.gameForm.get('users')?.value || [];
+    const centerDeck = this.gameForm.get('centerDeck')?.value || [];
+    const people = this.gameForm.get('people')?.value || [];
+
+    const myName = this.gameForm.get('userName')?.value;
+    if (!myName) return;
+
+    // Trova l'utente
+    const userIndex = users.findIndex((u: any) => u.name === sourceUserName);
+    if (userIndex === -1) return;
+    const user = users[userIndex];
+
+    // Carta selezionata
+    const card = user.deck[index];
+    if (!card) return;
+
+    // ✅ Controllo regole UNO (usando currentColor se esiste)
+    let activeColor = card.color;
+    if (centerDeck.length > 0) {
+      const topCard = centerDeck[centerDeck.length - 1];
+      activeColor = this.gameForm.get('currentColor')?.value || topCard.color;
+      const isValid =
+        card.color === activeColor ||
+        card.value === topCard.value ||
+        card.type === 'wild' ||
+        card.type === 'wild-draw-four';
+
+      if (!isValid) {
+        this.alertService.triggerAlert(
+          'error',
+          `Carta non valida: ${card.name} non può essere giocata sopra ${topCard.name}`,
+          'x-circle'
+        );
+        return;
+      }
+    }
+
+    // 🔹 Aggiorna deck dell’utente
+    const newUserDeck = [...user.deck];
+    newUserDeck.splice(index, 1);
+
+    const newUsers = [...users];
+    newUsers[userIndex] = { ...user, deck: newUserDeck, played: true }; // ✅ ha giocato
+
+    const newCenterDeck = [...centerDeck, card];
+
+    // 🔹 Calcola prossimo giocatore con regola applicata
+    let nextPlayerName: string | null = null;
+    if (people.length > 0) {
+      const currentIndex = people.findIndex((p: any) => p.name === sourceUserName);
+      const nextIndex = this.applyCardRule(card, currentIndex, people.length);
+      nextPlayerName = people[nextIndex]?.name || null;
+    }
+
+    // 🔹 Reset stato played al prossimo giocatore
+    if (nextPlayerName) {
+      const nextUserIndex = newUsers.findIndex((u: any) => u.name === nextPlayerName);
+      if (nextUserIndex !== -1) {
+        newUsers[nextUserIndex] = { ...newUsers[nextUserIndex], played: false };
+      }
+    }
+
+    // 🔹 Aggiorna stato globale
+    this.gameForm.patchValue({
+      users: newUsers,
+      user: myName === sourceUserName ? newUsers[userIndex] : this.gameForm.get('user')?.value,
+      centerDeck: newCenterDeck,
+      peopleInTurn: nextPlayerName
+    });
+
+    // 🔹 Cambio colore se Wild giocata da avversario
+    if (sourceUserName !== myName && (card.type === 'wild' || card.type === 'wild-draw-four')) {
+      const colorCounts: { [key: string]: number } = {};
+      newUserDeck.forEach(c => {
+        if (c.color) colorCounts[c.color] = (colorCounts[c.color] || 0) + 1;
+      });
+      const newColor = Object.keys(colorCounts).reduce((a, b) => colorCounts[a] > colorCounts[b] ? a : b, 'Rosso');
+
+      this.gameForm.patchValue({ currentColor: newColor });
+
+      this.alertService.triggerAlert(
+        'info',
+        `${sourceUserName} ha cambiato colore della Wild a ${newColor}!`,
+        'palette'
+      );
+    }
+
+    // 🔹 Se il prossimo è CPU → fallo giocare
+    if (nextPlayerName) {
+      const nextPlayer = newUsers.find((u: any) => u.name === nextPlayerName);
+      if (nextPlayer?.playerType === 'cpu') {
+        setTimeout(() => this.cpuPlay(nextPlayerName!), 500);
+      }
+    }
+  }
+
+  private cpuPlay(cpuName: string) {
+    const users = this.gameForm.get('users')?.value || [];
+    const centerDeck = this.gameForm.get('centerDeck')?.value || [];
+
+    const cpu = users.find((u: any) => u.name === cpuName);
+    if (!cpu) return;
+
+    const topCard = centerDeck[centerDeck.length - 1];
+    const currentColor = this.gameForm.get('currentColor')?.value || topCard.color;
+
+    const playableIndex = cpu.deck.findIndex((c: any) =>
+      c.color === currentColor ||
+      c.value === topCard.value ||
+      c.type === 'wild' ||
+      c.type === 'wild-draw-four'
+    );
+
+    if (playableIndex !== -1) {
+      // ✅ ha una carta giocabile
+      this.moveCardToCenterDeck(playableIndex, cpuName);
+    } else {
+      // 🚨 pesca
+      const deck = this.gameForm.get('deck')?.value || [];
+      if (deck.length > 0) {
+        const drawnCard = deck[0];
+        const newDeck = deck.slice(1);
+        const newCpuDeck = [...cpu.deck, drawnCard];
+
+        const newUsers = [...users];
+        const cpuIndex = newUsers.findIndex((u: any) => u.name === cpuName);
+        if (cpuIndex !== -1) newUsers[cpuIndex] = { ...cpu, deck: newCpuDeck };
+
+        this.gameForm.patchValue({ deck: newDeck, users: newUsers });
+
+        this.alertService.triggerAlert('warning', `${cpuName} pesca una carta`, 'card');
+
+        // Se la carta pescata è giocabile → la gioca
+        if (
+          drawnCard.color === currentColor ||
+          drawnCard.value === topCard.value ||
+          drawnCard.type === 'wild' ||
+          drawnCard.type === 'wild-draw-four'
+        ) {
+          setTimeout(() => this.moveCardToCenterDeck(newCpuDeck.length - 1, cpuName), 500);
+        }
+      }
+    }
+  }
 
   calculateMargin(index: number, length: number): string {
     if (!length) return '0px';
@@ -147,93 +380,38 @@ export class DosComponent implements OnInit {
     }
   }
 
-
-  /**
-  * Assegna `count` carte dal deck al user.deck nel form.
-  * Gestisce 3 shape di `deck`:
-  *  - Array:                deck = [{...}, {...}, ...]
-  *  - Wrapped array:        deck = { deck: [{...}, ...], ... }
-  *  - Map/object:           deck = { key1: {...}, key2: {...}, ... }
-  *
-  * Restituisce true se l'assegnazione è andata a buon fine, false altrimenti.
-  */
-  assignCardsToUser(count = 7): boolean {
+  assignCardsToUser(count = 7, userName: string): boolean {
     try {
       const deckCtrl = this.gameForm.get('deck');
-      const userCtrl = this.gameForm.get('user');
+      const usersCtrl = this.gameForm.get('users');
 
-      if (!deckCtrl) {
-        console.warn('FormControl "deck" non trovato.');
+      if (!deckCtrl || !usersCtrl) return false;
+
+      const deck = [...deckCtrl.value];
+      const users = [...usersCtrl.value];
+
+      const userIndex = users.findIndex((u: any) => u.name === userName);
+      if (userIndex === -1) return false;
+
+      if (deck.length < count) {
+        console.warn('Non ci sono abbastanza carte nel deck.');
         return false;
       }
 
-      const rawDeck = deckCtrl.value;
-      const rawUser = userCtrl?.value ?? {};
+      const cardsToGive = deck.slice(0, count);
+      const newDeck = deck.slice(count);
 
-      // 1) nessun deck
-      if (!rawDeck || (typeof rawDeck === 'object' && Object.keys(rawDeck).length === 0)) {
-        console.warn('Deck vuoto o non definito.');
-        return false;
-      }
+      users[userIndex] = {
+        ...users[userIndex],
+        deck: [...(users[userIndex].deck || []), ...cardsToGive]
+      };
 
-      // 2) se è un array semplice
-      if (Array.isArray(rawDeck)) {
-        const deckArray = [...rawDeck]; // copia
-        if (deckArray.length < count) {
-          console.warn('Non ci sono abbastanza carte nel deck.');
-          return false;
-        }
-        const cardsToGive = deckArray.slice(0, count);
-        const newDeck = deckArray.slice(count);
+      this.gameForm.patchValue({
+        deck: newDeck,
+        users: users
+      });
 
-        const newUser = { ...rawUser, deck: cardsToGive };
-        this.gameForm.patchValue({ deck: newDeck, user: newUser });
-        return true;
-      }
-
-      // 3) se è wrapped: { deck: [...] , ... }
-      if (rawDeck && Array.isArray(rawDeck.deck)) {
-        const deckArray = [...rawDeck.deck];
-        if (deckArray.length < count) {
-          console.warn('Non ci sono abbastanza carte nel deck (wrapped).');
-          return false;
-        }
-        const cardsToGive = deckArray.slice(0, count);
-        const newDeckArray = deckArray.slice(count);
-        const newDeckObj = { ...rawDeck, deck: newDeckArray };
-
-        const newUser = { ...rawUser, deck: cardsToGive };
-        this.gameForm.patchValue({ deck: newDeckObj, user: newUser });
-        return true;
-      }
-
-      // 4) se è una mappa/object con chiavi Firebase: { key1: card, key2: card, ... }
-      if (typeof rawDeck === 'object') {
-        const entries = Object.entries(rawDeck); // [ [key, card], ... ]
-        if (entries.length < count) {
-          console.warn('Non ci sono abbastanza carte nel deck (map).');
-          return false;
-        }
-
-        const toGiveEntries = entries.slice(0, count);
-        const remainingEntries = entries.slice(count);
-
-        // ricava le carte da assegnare aggiungendo eventualmente l'id originale
-        const cardsToGive = toGiveEntries.map(([key, card]) => {
-          // se la carta già ha un id lo preserviamo, altrimenti aggiungiamo la chiave
-          return { ...(card as any), id: (card as any).id ?? key };
-        });
-
-        // ricostruisce la mappa rimanente
-        const newDeckMap = Object.fromEntries(remainingEntries);
-
-        const newUser = { ...rawUser, deck: cardsToGive };
-        this.gameForm.patchValue({ deck: newDeckMap, user: newUser });
-        return true;
-      }
-
-      console.warn('Formato deck non riconosciuto.');
-      return false;
+      return true;
     } catch (err) {
       console.error('Errore in assignCardsToUser:', err);
       return false;
@@ -297,17 +475,6 @@ export class DosComponent implements OnInit {
 
   addPeople() {
     this.people.push(this.nickname)
-  }
-
-  async checkGamePhase(phase: string) {
-    const uid = (await this.authService.getCurrentUser() as any).uid
-    this.currentUser = await this.userService.getUser(uid);
-    switch (phase) {
-      case 'start':
-        this.gamePhase = 'start';
-        break;
-      default: console.log(phase)
-    }
   }
 
   selectPlayer(player: any) {

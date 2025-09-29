@@ -1,0 +1,15 @@
+<div class="toast-container position-fixed top-0 end-0 p-3" style="transform: translateY(90px);">
+  <div id="liveToast" [ngClass]="toastType" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-body">
+      <div class="w-100 d-flex justify-content-between">
+        <div class="d-flex">
+          <i [class]="'bi bi-' + toastIcon"></i>
+          <div class="align-self-center ms-2">
+            <h6 class="my-0">{{ toastText }}</h6>
+          </div>
+        </div>
+        <button type="button" class="align-self-center btn-close btn-close-white" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+</div>
