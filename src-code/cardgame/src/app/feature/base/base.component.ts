@@ -188,7 +188,7 @@ export class BaseComponent implements OnInit, AfterViewInit {
           // Toast con nome giocatore in turno
           this.alertService.triggerAlert(
             'success',
-            `${playerInTurn.name} ha preso le carte con ${playedValue}`,
+            `${playerInTurn.name} ha preso con ${playedValue}`,
             'check-circle',
             7000
           );
@@ -223,31 +223,18 @@ export class BaseComponent implements OnInit, AfterViewInit {
 
         if (gameName === 'scopa') {
           this.playedCard = card;
-          if (centerDeck.length === 0) {
-            console.log('Centro vuoto, carta messa al centro:', card);
-            this.moveCards(playerInTurn.deck, centerDeck, [cardIndex])
-            // Calcola il prossimo giocatore
-            const nextIndex = (playerInTurnIndex + 1) % users.length;
-            const nextPlayer = users[nextIndex];
 
-            // Aggiorna peopleInTurn nel form
-            this.gameForm.patchValue({ peopleInTurn: nextPlayer.name });
+          // Controlla se il centro è vuoto prima di giocare la carta
+          const isCenterEmpty = centerDeck.length === 0;
 
-            // Se il prossimo giocatore è CPU, gioca la carta
-            if (nextPlayer.playerType === 'cpu' && nextPlayer.deck.length > 0) {
-              setTimeout(() => {
-                this.action('cpuPlayCard');
-              }, 3000)
-            }
-            return;
-          }
-
+          // Trova le carte catturabili
           const validCaptureCards: any[] = this.getScopaCardsForValue(this.getCardNumericValue(card))
             .filter((c: any) => c !== card && centerDeck.includes(c));
 
           if (validCaptureCards.length > 0) {
             console.log(`${currentUserName} può catturare con ${card.rank} di ${card.suit}:`,
-              validCaptureCards.map((c: any) => `${c.rank} di ${c.suit}`).join(', '));
+              validCaptureCards.map((c: any) => `${c.rank} di ${c.suit}`).join(', ')
+            );
             this.hasSelectableCards = true;
             centerDeck.forEach((c: any) => c.selectable = validCaptureCards.includes(c));
 
@@ -260,7 +247,38 @@ export class BaseComponent implements OnInit, AfterViewInit {
 
           } else {
             console.log(`${currentUserName} non può catturare con ${card.rank} di ${card.suit}`);
-            this.moveCards(playerInTurn.deck, centerDeck, [cardIndex])
+
+            // Sposta la carta nel centerDeck
+            this.moveCards(playerInTurn.deck, centerDeck, [cardIndex]);
+
+            // Toast SCOPA se il centro era vuoto prima di giocare
+            const scopaText = isCenterEmpty ? ' …e ha fatto SCOPA!' : '';
+            this.alertService.triggerAlert(
+              'success',
+              `${currentUserName} ha giocato ${card.rank} di ${card.suit}${scopaText}`,
+              'check-circle',
+              7000
+            );
+
+            // Dopo aver spostato la carta e gestito eventuali catture
+            const allEmpty = users.every((u: any) => u.deck.length === 0);
+            const mainDeckEmpty = (this.gameForm.get('mainDeck')?.value || []).length === 0;
+
+            if (allEmpty && mainDeckEmpty && centerDeck.length > 0) {
+              // Tutti i giocatori e il maindeck vuoti → il giocatore in turno prende tutto
+              const playerDeck = playerInTurn.deck || [];
+              this.moveCards(centerDeck, playerDeck, centerDeck.map((_, i) => i));
+              this.alertService.triggerAlert(
+                'success',
+                `${playerInTurn.name} prende tutte le carte rimaste nel centro!`,
+                'check-circle',
+                7000
+              );
+
+              this.gameForm.patchValue({ users, centerDeck });
+              break
+            }
+
             // Calcola il prossimo giocatore
             const nextIndex = (playerInTurnIndex + 1) % users.length;
             const nextPlayer = users[nextIndex];
@@ -272,11 +290,9 @@ export class BaseComponent implements OnInit, AfterViewInit {
             if (nextPlayer.playerType === 'cpu' && nextPlayer.deck.length > 0) {
               setTimeout(() => {
                 this.action('cpuPlayCard');
-              }, 3000)
+              }, 3000);
             }
           }
-        } else if (gameName === 'uno') {
-          /* this.newMoveCardToCenterDeck(cardIndex); */
         }
 
         break;
@@ -294,7 +310,7 @@ export class BaseComponent implements OnInit, AfterViewInit {
     const users: any[] = this.gameForm.get('users')?.value || [];
     const centerDeck: any[] = this.gameForm.get('centerDeck')?.value || [];
     const playerInTurnName: string = this.gameForm.get('peopleInTurn')?.value;
-    const playerInTurn: any = users.find(u => u.name === playerInTurnName);
+    const playerInTurn: any = users.find((u: any) => u.name === playerInTurnName);
 
     if (!playerInTurn || playerInTurn.playerType !== 'cpu' || playerInTurn.deck.length === 0) return;
 
@@ -339,17 +355,49 @@ export class BaseComponent implements OnInit, AfterViewInit {
       this.gameForm.patchValue({ users, centerDeck });
 
       const capturedText = bestOption.capturedCards.map((c: any) => `${c.rank} di ${c.suit}`).join(', ');
+
+      // Controlla se dopo la presa il centerDeck è vuoto
+      const scopaText = centerDeck.length === 0 ? ' …e ha fatto SCOPA!' : '';
+
       this.alertService.triggerAlert(
         'success',
-        `${playerInTurn.name} ha preso: ${capturedText} con ${playedCard.rank} di ${playedCard.suit}`,
+        `${playerInTurn.name} ha preso: ${capturedText} con ${playedCard.rank} di ${playedCard.suit}${scopaText}`,
         'check-circle',
         7000
       );
     }
 
+    // Controlla se tutti i giocatori hanno 0 carte nel deck
+    // Controlla se tutti i giocatori hanno 0 carte
+    const allEmpty = users.every(u => u.deck.length === 0);
+    const mainDeck: any[] = this.gameForm.get('mainDeck')?.value || [];
+
+    if (allEmpty) {
+      if (mainDeck.length > 0) {
+        // Ridistribuisci carte ai giocatori (3 per ciascuno o quante ne restano)
+        const cardsPerPlayer = 3;
+        const updatedUsers = this.dealCardsToPlayers(users, mainDeck, cardsPerPlayer);
+        console.log('Ridistribuite carte a tutti i giocatori:', updatedUsers.map(u => `${u.name}: ${u.deck.length} carte`));
+        this.gameForm.patchValue({ users: updatedUsers, mainDeck });
+      } else if (centerDeck.length > 0) {
+        // Il maindeck è vuoto → il giocatore in turno prende tutto il centro
+        const pointsDeck = playerInTurn.pointsDeck || (playerInTurn.pointsDeck = []);
+        this.moveCards(centerDeck, pointsDeck, centerDeck.map((_, i) => i));
+        this.alertService.triggerAlert(
+          'success',
+          `${playerInTurn.name} prende tutte le carte rimaste nel centro! Partita FINITA!`,
+          'check-circle',
+          7000
+        );
+        this.gameForm.patchValue({ users, centerDeck });
+        return; // termina il turno
+      }
+    }
+
+
 
     // Passa al prossimo giocatore
-    const currentIndex = users.findIndex(u => u.name === playerInTurnName);
+    const currentIndex = users.findIndex((u: any) => u.name === playerInTurnName);
     const nextIndex = (currentIndex + 1) % users.length;
     this.gameForm.patchValue({ peopleInTurn: users[nextIndex].name });
 
@@ -475,15 +523,15 @@ export class BaseComponent implements OnInit, AfterViewInit {
     mainDeck = this.shuffleDeck([...mainDeck]);
 
     // Distribuzione carte
-    const updatedUsers = (this.gameForm.get('users')?.value || []).map((player: any) => {
-      const playerDeck: any[] = [];
-      for (let i = 0; i < cardsPerPlayer; i++) {
-        const card = mainDeck.shift();
-        if (card) playerDeck.push(card);
-      }
-      return { ...player, deck: playerDeck };
-    });
+    const updatedUsers = this.dealCardsToPlayers(this.gameForm.get('users')?.value || [], mainDeck, cardsPerPlayer);
+    // Ottieni o crea il centerDeck
+    const centerDeck: any[] = this.gameForm.get('centerDeck')?.value || [];
 
+    // Distribuzione carte nel centro
+    this.dealCardsToCenter(mainDeck, centerDeck, 4); // 4 carte nel centerDeck
+
+    this.gameForm.patchValue({ centerDeck });
+    console.log(mainDeck, updatedUsers)
     // Inizializza peopleInTurn e primo giocatore
     const peopleInTurn = updatedUsers.map((u: any) => u.name);
     const firstPlayer = updatedUsers[0]?.name || null;
@@ -491,11 +539,41 @@ export class BaseComponent implements OnInit, AfterViewInit {
     this.gameForm.patchValue({
       users: updatedUsers,
       mainDeck,
+      centerDeck,
       phase: 'start-playing',
       peopleInTurn: firstPlayer
     });
 
     console.log(`Gioco "${gameName}" iniziato, carte distribuite:`, updatedUsers);
+  }
+
+  private dealCardsToPlayers(users: any[], mainDeck: any[], cardsPerPlayer: number): any[] {
+    // Controlla se ci sono abbastanza carte nel mazzo principale
+    if ((mainDeck?.length || 0) < users.length * cardsPerPlayer) {
+      this.alertService.triggerAlert(
+        'warning',
+        'Partita finita: non ci sono abbastanza carte nel mazzo principale!',
+        'info-circle',
+        7000
+      );
+      return users; // restituisci lo stato attuale dei giocatori senza modifiche
+    }
+
+    // Distribuisci le carte
+    return users.map((player: any) => {
+      const playerDeck: any[] = [];
+      for (let i = 0; i < cardsPerPlayer; i++) {
+        const card = mainDeck.shift();
+        if (card) playerDeck.push(card);
+      }
+      return { ...player, deck: playerDeck };
+    });
+  }
+
+
+  dealCardsToCenter(mainDeck: any[], centerDeck: any[], cardsToDeal: number = 4) {
+    const movedCards = this.moveCards(mainDeck, centerDeck, Array.from({ length: cardsToDeal }, (_, i) => i));
+    console.log('Carte distribuite al centro:', movedCards.map(c => `${c.rank} di ${c.suit}`));
   }
 
 
