@@ -15,15 +15,16 @@ export class BaseComponent implements OnInit, AfterViewInit {
   people: any[] = [];
   minPlayers: number = 4;   // numero minimo per abilitare Start
   maxPlayers: number = 4;
+  hoveredCard: any = null;
 
   constructor(private fb: FormBuilder,
     private alertService: AlertService,
-  private route: ActivatedRoute) { }
+    private route: ActivatedRoute) { }
 
   ngOnInit(): void {
-    
-  const gameNameFromRoute = this.route.snapshot.data['gameName'] || 'uno';
-   
+
+    const gameNameFromRoute = this.route.snapshot.data['gameName'] || 'uno';
+
     this.gameForm = this.fb.group({
       gameName: [gameNameFromRoute],
       phase: ['player-input'],
@@ -35,15 +36,20 @@ export class BaseComponent implements OnInit, AfterViewInit {
       currentColor: [''],
       direction: [1]
     });
-  } 
-  
+  }
+
   ngAfterViewInit(): void {
     // Focus automatico
     this.nicknameInput.nativeElement.focus();
   }
 
-  onHover(el: any) {
-    console.log(el)
+
+  onHover(card: any) {
+    this.hoveredCard = card; // carta in primo piano
+  }
+
+  onLeave() {
+    this.hoveredCard = null; // reset z-index
   }
 
   getCardBackground(card: any): any {
@@ -78,10 +84,7 @@ export class BaseComponent implements OnInit, AfterViewInit {
     }
 
     if (gameName === 'scopa' && card.suit && card.rank) {
-      // restituisce seme + classe valore
-      console.log(
-        `${card.suit.toLowerCase()} ${card.suit.toLowerCase()}-${card.rank.toLowerCase()}`
-      )
+      // restituisce seme + classe valore 
       return `${card.suit.toLowerCase()} ${card.suit.toLowerCase()}-${card.rank.toLowerCase()}`;
     }
 
