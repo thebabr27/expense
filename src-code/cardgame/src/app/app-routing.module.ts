@@ -7,12 +7,23 @@ import { GamesComponent } from './feature/games/games.component';
 import { DosComponent } from './feature/dos/dos.component';
 import { BaseComponent } from './feature/base/base.component';
 
-const routes: Routes = [ 
+const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
   { path: 'games', component: GamesComponent, canActivate: [AuthGuard] },
-  { path: 'dos', component: BaseComponent, canActivate: [AuthGuard] },
-  { path: '', redirectTo: '/home', pathMatch: 'full' }, 
+  {
+    path: 'uno',
+    component: BaseComponent,
+    canActivate: [AuthGuard],
+    data: { gameName: 'uno' }
+  },
+  {
+    path: 'scopa',
+    component: BaseComponent,
+    canActivate: [AuthGuard],
+    data: { gameName: 'scopa' }
+  },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', redirectTo: '/home' },
 ];
 

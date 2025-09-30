@@ -1,31 +1,37 @@
 .player-input-container {
     max-width: 750px;
 }
+
 .player-input-inner-container {
     max-width: 550px;
 }
+
 /* Card trasparente */
 .waiting-room {
-  background-color: transparent !important;
-  border: 2px dashed #ccc; /* opzionale, per dare un contorno */
-  box-shadow: none; /* rimuove ombra bootstrap */
+    background-color: transparent !important;
+    border: 2px dashed #ccc;
+    /* opzionale, per dare un contorno */
+    box-shadow: none;
+    /* rimuove ombra bootstrap */
 }
 
 /* Body trasparente */
 .waiting-room .card-body {
-  background-color: transparent !important;
+    background-color: transparent !important;
 }
 
 /* Lista trasparente */
 .waiting-room .list-group {
-  background-color: transparent !important;
+    background-color: transparent !important;
 }
 
 /* Singolo item trasparente */
 .waiting-room .list-group-item {
-  background-color: transparent !important;
-  border: none; /* rimuove la riga */
-  padding: 0.5rem 0; /* più compatto */
+    background-color: transparent !important;
+    border: none;
+    /* rimuove la riga */
+    padding: 0.5rem 0;
+    /* più compatto */
 }
 
 .player-list,
@@ -80,21 +86,188 @@
 /* Effetto hover solo per carte abilitare */
 .deck-card:not(.deck-red-disabled):not(.deck-green-disabled):not(.deck-blue-disabled):not(.deck-yellow-disabled):not(.deck-wild-disabled):hover {
     transform: translateY(-20px);
-}
-
+} 
 .card-body {
     padding: 10px;
 }
 
 .change-color-icon,
-.plus-four-icon {
+.plus-four-icon,
+.denari,
+.spade,
+.bastoni,
+.coppe {
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
     width: 20px;
     height: 20px;
-
 }
+
+/* === DENARI === */
+.denari-1 {
+    background-image: url('../../../assets/images/Denari_1.svg');
+}
+
+.denari-2 {
+    background-image: url('../../../assets/images/Denari_2.svg');
+}
+
+.denari-3 {
+    background-image: url('../../../assets/images/Denari_3.svg');
+}
+
+.denari-4 {
+    background-image: url('../../../assets/images/Denari_4.svg');
+}
+
+.denari-5 {
+    background-image: url('../../../assets/images/Denari_5.svg');
+}
+
+.denari-6 {
+    background-image: url('../../../assets/images/Denari_6.svg');
+}
+
+.denari-7 {
+    background-image: url('../../../assets/images/Denari_7.svg');
+}
+
+.denari-fante {
+    background-image: url('../../../assets/images/Denari_8.svg');
+}
+
+.denari-cavallo {
+    background-image: url('../../../assets/images/Denari_9.svg');
+}
+
+.denari-re {
+    background-image: url('../../../assets/images/Denari_10.svg');
+}
+
+/* === COPPE === */
+.coppe-1 {
+    background-image: url('../../../assets/images/Coppe_1.svg');
+}
+
+.coppe-2 {
+    background-image: url('../../../assets/images/Coppe_2.svg');
+}
+
+.coppe-3 {
+    background-image: url('../../../assets/images/Coppe_3.svg');
+}
+
+.coppe-4 {
+    background-image: url('../../../assets/images/Coppe_4.svg');
+}
+
+.coppe-5 {
+    background-image: url('../../../assets/images/Coppe_5.svg');
+}
+
+.coppe-6 {
+    background-image: url('../../../assets/images/Coppe_6.svg');
+}
+
+.coppe-7 {
+    background-image: url('../../../assets/images/Coppe_7.svg');
+}
+
+.coppe-fante {
+    background-image: url('../../../assets/images/Coppe_8.svg');
+}
+
+.coppe-cavallo {
+    background-image: url('../../../assets/images/Coppe_9.svg');
+}
+
+.coppe-re {
+    background-image: url('../../../assets/images/Coppe_10.svg');
+}
+
+/* === SPADE === */
+.spade-1 {
+    background-image: url('../../../assets/images/Spade_1.svg');
+}
+
+.spade-2 {
+    background-image: url('../../../assets/images/Spade_2.svg');
+}
+
+.spade-3 {
+    background-image: url('../../../assets/images/Spade_3.svg');
+}
+
+.spade-4 {
+    background-image: url('../../../assets/images/Spade_4.svg');
+}
+
+.spade-5 {
+    background-image: url('../../../assets/images/Spade_5.svg');
+}
+
+.spade-6 {
+    background-image: url('../../../assets/images/Spade_6.svg');
+}
+
+.spade-7 {
+    background-image: url('../../../assets/images/Spade_7.svg');
+}
+
+.spade-fante {
+    background-image: url('../../../assets/images/Spade_8.svg');
+}
+
+.spade-cavallo {
+    background-image: url('../../../assets/images/Spade_9.svg');
+}
+
+.spade-re {
+    background-image: url('../../../assets/images/Spade_10.svg');
+}
+
+/* === BASTONI === */
+.bastoni-1 {
+    background-image: url('../../../assets/images/Bastoni_1.svg');
+}
+
+.bastoni-2 {
+    background-image: url('../../../assets/images/Bastoni_2.svg');
+}
+
+.bastoni-3 {
+    background-image: url('../../../assets/images/Bastoni_3.svg');
+}
+
+.bastoni-4 {
+    background-image: url('../../../assets/images/Bastoni_4.svg');
+}
+
+.bastoni-5 {
+    background-image: url('../../../assets/images/Bastoni_5.svg');
+}
+
+.bastoni-6 {
+    background-image: url('../../../assets/images/Bastoni_6.svg');
+}
+
+.bastoni-7 {
+    background-image: url('../../../assets/images/Bastoni_7.svg');
+}
+
+.bastoni-fante {
+    background-image: url('../../../assets/images/Bastoni_8.svg');
+}
+
+.bastoni-cavallo {
+    background-image: url('../../../assets/images/Bastoni_9.svg');
+}
+
+.bastoni-re {
+    background-image: url('../../../assets/images/Bastoni_10.svg');
+}
+
 
 .plus-four-icon {
     background-image: url('../../../assets/icons/plus-four-icon.svg');
@@ -153,6 +326,14 @@
 }
 
 
+/* Colori Scopa */
+.deck-denari,
+.deck-spade,
+.deck-bastoni,
+.deck-coppe {
+    background-color: #FFF;
+}
+
 /* Colori UNO */
 .deck-red {
     background-color: #e74c3c;
@@ -192,6 +373,10 @@
 
 .center-icon {
     transform: scale(2.5);
+}
+
+.center-icon-scopa {
+    transform: scale(6.2) !important;
 }
 
 
