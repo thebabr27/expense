@@ -1,0 +1,25 @@
+.scopa-game {
+  .deck-card {
+    width: 80px;
+    height: 120px;
+    margin: 5px;
+    border-radius: 10px;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .center-icon-scopa {
+    width: 60px;
+    height: 90px;
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+
+  /* esempi, da collegare agli sprite reali */
+  .denari { background-image: url('/assets/images/Denari_1.svg'); }
+  .spade { background-image: url('/assets/images/Spade_1.svg'); }
+  .coppe { background-image: url('/assets/images/Coppe_1.svg'); }
+  .bastoni { background-image: url('/assets/images/Bastoni_1.svg'); }
+}

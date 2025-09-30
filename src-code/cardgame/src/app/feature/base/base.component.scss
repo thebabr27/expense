@@ -57,6 +57,10 @@
     width: 100%;
 }
 
+.center-wrapper-scopa {
+    flex-wrap: wrap;
+}
+
 .left-wrapper,
 .center-wrapper,
 .right-wrapper {
@@ -79,7 +83,7 @@
     text-align: center;
     margin: 5px;
     transition: transform 0.2s;
-    position: absolute;
+    /* position: absolute; */
     cursor: pointer;
 }
 
@@ -325,6 +329,9 @@
     cursor: not-allowed;
 }
 
+.center-deck-wrapper {
+    min-height: 300px;
+}
 
 /* Colori Scopa */
 .deck-denari,
@@ -395,8 +402,22 @@
 }
 
 
-.dos-deck-card {
+.uno-deck-card {
     background-color: transparent;
+}
+
+.scopa-center-wrapper .deck-container {
+    flex-direction: row;
+    display: flex; 
+    justify-content: center;
+    width: 400px;
+    flex-wrap: wrap;
+    overflow: auto;
+}
+
+.not-selectable {
+    opacity: .5;
+    pointer-events: none;
 }
 
 
@@ -409,7 +430,7 @@
     height: 100px;
 }
 
-.dos-deck-card .card-body {
+.uno-deck-card .card-body {
     background-image: url("../../../assets/images/dos-deck-card.svg");
     background-position: center;
     background-size: contain;

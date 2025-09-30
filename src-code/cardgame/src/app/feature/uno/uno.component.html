@@ -1,0 +1,23 @@
+<app-game-layout [gameForm]="gameForm">
+  <div header>
+   -
+  </div>
+
+  <div board>
+    <div class="uno-board">
+      <div *ngFor="let card of gameForm.get('mainDeck')?.value"
+           class="card"
+           [ngClass]="card.color?.toLowerCase()">
+        {{ card.value }}
+      </div>
+    </div>
+  </div>
+
+  <div sidebar>
+    <p>Giocatori: {{ gameForm.get('users')?.value.length }}</p>
+  </div>
+
+  <div footer>
+    <button class="btn btn-primary">Pesca</button>
+  </div>
+</app-game-layout>

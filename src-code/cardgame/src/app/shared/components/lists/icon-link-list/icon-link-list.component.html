@@ -1,10 +1,13 @@
 <div class="d-flex justify-content-center">
-        <div class="d-flex flex-wrap">
-            <div *ngFor="let icon of iconList" class="card link-card" [routerLink]="icon.link">
-                <div class="card-body">
-                    <div [class]="icon.name" class="game-icon"></div>
+    <div class="d-flex flex-wrap">
+        <div *ngFor="let icon of iconList" class="card link-card" [routerLink]="icon.link">
+            <div class="card-body">
+                <div [class]="icon.name" class="game-icon"></div>
+                <div class="d-flex justify-content-center">
+                    <h4 class="text-light" [innerText]='icon.name == "gamepad" ? "games" : icon.name.split("-")[0]'> </h4>
                 </div>
-            </div> 
-
+            </div>
         </div>
+
     </div>
+</div>

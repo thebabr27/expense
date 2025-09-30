@@ -1,4 +1,29 @@
-<div class="container-fluid ">
+<!-- Button trigger modal -->
+<button #modalTrigger type="button" style="width: 0; position: absolute; height: 0; opacity: 0;" data-bs-toggle="modal"
+    data-bs-target="#exampleModal"></button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body d-flex justify-content-around">
+                <h5 class="modal-title" id="colorModalLabel">Scegli il colore:</h5>
+                <button class="btn btn-danger color-btn" data-bs-dismiss="modal"
+                    (click)="chooseColor('rosso')">Rosso</button>
+                <button class="btn btn-warning color-btn" data-bs-dismiss="modal"
+                    (click)="chooseColor('giallo')">Giallo</button>
+                <button class="btn btn-blue color-btn" data-bs-dismiss="modal" (click)="chooseColor('blu')">Blu</button>
+                <button class="btn btn-success color-btn" data-bs-dismiss="modal"
+                    (click)="chooseColor('verde')">Verde</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid pt-5 ">
     <!-- PLAYER INPUT -->
     <div *ngIf="gameForm.get('phase')?.value === 'player-input'"
         class="container d-flex justify-content-center player-input-container h-100 px-0">
@@ -16,7 +41,13 @@
         <div class="card w-100 waiting-room" style="max-width: 500px;">
             <div class="card-body text-center">
                 <h5 class="card-title">Sala d'attesa</h5>
-                <p class="text-muted">In attesa di altri giocatori...</p>
+                <p class="text-light" *ngIf="(gameForm.get('users')?.value?.length || 0) < minPlayers">
+                    In attesa di altri giocatori...
+                </p>
+                <p class="text-light" *ngIf="(gameForm.get('users')?.value?.length || 0) >= minPlayers">
+                    Pronti per giocare
+                </p>
+
 
                 <!-- Lista giocatori -->
                 <ul class="list-group list-group-flush mb-3">
@@ -83,33 +114,34 @@
 
 
         </div>
-        <div class="d-flex justify-content-between card-wrapper">
+        <div class="d-flex justify-content-between card-wrapper center-deck-wrapper">
             <div class="left-wrapper">
-                <div class="card scopa-deck-card deck-card shadow"
+                <div [class]="gameForm.get('gameName')?.value?.toLowerCase() +'-deck-card'" class="card deck-card position-absolute  shadow"
                     (click)="playerDrawCard(gameForm.get('userName')?.value)">
                     <div class="card-body"> </div>
                 </div>
             </div>
 
-            <div class="center-wrapper">
-                <div class="deck-container" style="position: relative; height: 135px;"
-                    [ngStyle]="{'margin-left': calculateMarginForDeckContainer(gameForm.get('centerDeck')?.value?.length)}">
+            <div class="center-wrapper"
+                [ngClass]="{'scopa-center-wrapper': gameForm.get('gameName')?.value?.toLowerCase() === 'scopa'}">
+                <div class="deck-container" style="position: relative; "
+                    [class]="gameForm.get('gameName')?.value?.toLowerCase() === 'scopa' ? 'position-absolute' : ''"
+                    [ngStyle]="gameForm.get('gameName')?.value?.toLowerCase() === 'scopa' ? {} : {'margin-left': calculateMarginForDeckContainer(gameForm.get('centerDeck')?.value?.length)}">
 
                     <div *ngFor="let card of gameForm.get('centerDeck')?.value; let i = index"
-                        class="card deck-card shadow" [ngClass]="getCardBackground(card)"
-                        [ngStyle]="{'margin-left': calculateMargin(i, gameForm.get('centerDeck')?.value?.length)}"
-                        (click)="moveCardToCenterDeck(i, gameForm.get('userName')?.value)">
+                        class="card deck-card shadow" [ngClass]="{
+       'not-selectable': hasSelectableCards && !card.selectable,
+       'selected-card': selectedCaptureCards.includes(card)
+     }" (click)="action('humanSelectCard', card)">
 
                         <div class="card-body w-100 d-flex flex-column justify-content-center align-items-center">
-
-                            <!-- Contenuto centrale della carta (UNO o SCOPA) -->
                             <h1 class="center-value m-0 center-icon-scopa" [ngClass]="getCardCenterClass(card)"></h1>
-
                         </div>
+
                     </div>
+
                 </div>
             </div>
-
 
 
             <div class="right-wrapper"> </div>
@@ -118,12 +150,12 @@
             <div class="deck-container" style="position: relative; height: 135px;"
                 [ngStyle]="{'margin-left': calculateMarginForDeckContainer(getMyUserDeck().length)}">
 
-                <div *ngFor="let card of getMyUserDeck(); let i = index" class="card deck-card shadow"
-                    [ngClass]="getCardBackground(card)" [ngStyle]="{
+                <div *ngFor="let card of getMyUserDeck(); let i = index"
+                    class="card deck-card position-absolute  shadow" [ngClass]="getCardBackground(card)" [ngStyle]="{
        'margin-left': calculateMargin(i, getMyUserDeck().length),
        'z-index': hoveredCard === card ? 100 : 1
      }" (mouseenter)="onHover(card)" (mouseleave)="onLeave()"
-                    (click)="isCardPlayable(card) && moveCardToCenterDeck(i, gameForm.get('userName')?.value)">
+                    (click)="action('humanPlayCard', card)">
 
                     <div class="card-body w-100 d-flex flex-column justify-content-between">
                         <!-- Valore piccolo in alto a sinistra -->

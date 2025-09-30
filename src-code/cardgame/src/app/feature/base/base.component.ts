@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angula
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { AlertService } from 'src/app/core/service/alert.service';
+import { ScopaService } from 'src/app/core/service/scopa.service';
 
 @Component({
   selector: 'app-base',
@@ -9,22 +10,40 @@ import { AlertService } from 'src/app/core/service/alert.service';
   styleUrls: ['./base.component.scss']
 })
 export class BaseComponent implements OnInit, AfterViewInit {
+  @ViewChild('modalTrigger', { static: false }) modalTrigger!: ElementRef<HTMLElement>;
   @ViewChild('nicknameInput') nicknameInput!: ElementRef;
   gameForm!: FormGroup;
   nickname: string = '';
   people: any[] = [];
   minPlayers: number = 4;   // numero minimo per abilitare Start
   maxPlayers: number = 4;
-  hoveredCard: any = null;
+  hoveredCard: any = null;// Carte attualmente selezionate dall'utente
+  selectedCaptureCards: any[] = [];
+  hasSelectableCards: boolean = false;
+  selectedFirst: any[] = [];
+  selectedSecond: any[] = [];
+  playedCard: any;
+
+  // Carte del centro che l'utente può effettivamente prendere
+  validCaptureCards: any[] = [];
+
 
   constructor(private fb: FormBuilder,
     private alertService: AlertService,
-    private route: ActivatedRoute) { }
+    private route: ActivatedRoute,
+    private scopaService: ScopaService) { }
 
   ngOnInit(): void {
 
-    const gameNameFromRoute = this.route.snapshot.data['gameName'] || 'uno';
-
+    const gameNameFromRoute = this.route.snapshot.params['gameName'];
+    if (!gameNameFromRoute) {
+      // Mostra toast / alert
+      this.alertService.triggerAlert(
+        'warning',
+        'Nessun gioco selezionato! Verrai reindirizzato.',
+        'exclamation-circle'
+      ); return
+    }
     this.gameForm = this.fb.group({
       gameName: [gameNameFromRoute],
       phase: ['player-input'],
@@ -91,6 +110,105 @@ export class BaseComponent implements OnInit, AfterViewInit {
     return '';
   }
 
+  getCardIndexInDeck(card: any): number {
+    const users: any = this.gameForm.get('users')?.value || [];
+    const currentUserName = this.gameForm.get('userName')?.value;
+    const player: any = users.find((u: any) => u.name === currentUserName);
+    if (!player || !player.deck) return -1;
+    return player.deck.findIndex((c: any) => c === card);
+  }
+
+  action(action: string, card: any, i?: number) {
+    const users: any = this.gameForm.get('users')?.value || [];
+    const centerDeck: any[] = this.gameForm.get('centerDeck')?.value || [];
+    const currentUserName = this.gameForm.get('userName')?.value;
+    const gameName: string = this.gameForm.get('gameName')?.value?.toLowerCase();
+    const player: any = users.find((u: any) => u.name === currentUserName);
+    const cardIndex = this.getCardIndexInDeck(card); 
+
+    if (!player || !player.deck || cardIndex >= player.deck.length) return;
+
+    switch (action) {
+      case 'humanSelectCard':
+        if (gameName !== 'scopa') {
+          console.warn('humanSelectCard è usato solo in Scopa.');
+          return;
+        }
+
+
+        if (!this.playedCard) {
+          console.warn('Nessuna carta giocata dal mazzo umano, impossibile selezionare catture.');
+          return;
+        }
+
+        // Se la carta è già selezionata → la deseleziono
+        const idx = this.selectedCaptureCards.findIndex((c: any) => c === card);
+        if (idx > -1) {
+          this.selectedCaptureCards.splice(idx, 1);
+          card.selected = false;
+        } else {
+          // Altrimenti la seleziono
+          this.selectedCaptureCards.push(card);
+          card.selected = true;
+        }
+
+        console.log(
+          `Carte selezionate per cattura con ${this.playedCard.rank} di ${this.playedCard.suit}:`,
+          this.selectedCaptureCards.map((c: any) => `${c.rank} di ${c.suit}`).join(', ')
+        );
+
+        break;
+
+      case 'humanPlayCard':
+        if (gameName === 'uno') {
+          if (!this.isCardPlayable(card)) {
+            console.log('Carta non giocabile:', card);
+            return;
+          }
+        }
+
+        const cardIndex = this.getCardIndexInDeck(card);
+        if (cardIndex === -1) return;
+
+        if (gameName === 'scopa') {
+          this.playedCard = card;
+          if (centerDeck.length === 0) {
+            console.log('Centro vuoto, carta messa al centro:', card);
+            this.moveCardToCenterDeck(cardIndex);
+            return;
+          }
+
+          const validCaptureCards: any[] = this.getScopaCardsForValue(this.getCardNumericValue(card))
+            .filter(c => c !== card && centerDeck.includes(c));
+
+          if (validCaptureCards.length > 0) {
+            console.log(`${currentUserName} può catturare con ${card.rank} di ${card.suit}:`,
+              validCaptureCards.map(c => `${c.rank} di ${c.suit}`).join(', '));
+            this.hasSelectableCards = true;
+            centerDeck.forEach((c: any) => c.selectable = validCaptureCards.includes(c));
+
+            this.alertService.triggerAlert(
+              'info',
+              `Seleziona le carte da catturare con ${card.rank} di ${card.suit} e conferma.`,
+              'info-circle',
+              5000
+            );
+
+          } else {
+            console.log(`${currentUserName} non può catturare con ${card.rank} di ${card.suit}`);
+            this.moveCardToCenterDeck(cardIndex);
+          }
+        } else if (gameName === 'uno') {
+          this.moveCardToCenterDeck(cardIndex);
+        }
+
+        break;
+
+      default:
+        console.log('Azione non gestita:', action, card);
+    }
+  }
+
 
   getMyUserDeck() {
 
@@ -136,6 +254,7 @@ export class BaseComponent implements OnInit, AfterViewInit {
     const newPlayer = {
       name: formattedName,
       deck: [],
+      pointsDeck: [],
       played: false,
       drawed: false,
       playerType: 'human'
@@ -144,7 +263,13 @@ export class BaseComponent implements OnInit, AfterViewInit {
     this.people.push(newPlayer);
     this.gameForm.patchValue({ users: [...users, newPlayer], phase: 'waiting-room' });
     this.nickname = '';
+
+    // Salvataggio tramite ScopaService
+    this.scopaService.saveForm(this.gameForm.value)
+      .then(() => console.log('Form salvato correttamente'))
+      .catch(err => console.error('Errore nel salvataggio del form', err));
   }
+
 
   addBots() {
     const users = this.gameForm.get('users')?.value || [];
@@ -293,69 +418,299 @@ export class BaseComponent implements OnInit, AfterViewInit {
     return cardsToMove;
   }
 
-  // Sposta una carta specifica dal giocatore al centro
-  // Sposta una carta specifica dal giocatore al mazzo centrale
-  moveCardToCenterDeck(cardIndex: number, playerName?: string) {
-    const users = this.gameForm.get('users')?.value || [];
-    const centerDeck = this.gameForm.get('centerDeck')?.value || [];
-    const name = playerName || this.gameForm.get('userName')?.value;
-    const player = users.find((u: any) => u.name === name);
+  chooseColor(e: any) {
+
+  }
+
+  moveCardToCenterDeck(cardIndex: number, playerName?: any) {
+    const users: any = this.gameForm.get('users')?.value || [];
+    const centerDeck: any = this.gameForm.get('centerDeck')?.value || [];
+    const mainDeck: any = this.gameForm.get('mainDeck')?.value || [];
+    const name: any = playerName || this.gameForm.get('userName')?.value;
+    const player: any = users.find((u: any) => u.name === name);
 
     if (!player || !player.deck || cardIndex >= player.deck.length) return;
 
-    // Preleva la carta scelta dal mazzo del giocatore
-    const playedCard = player.deck.splice(cardIndex, 1)[0];
-    if (!playedCard) return;
+    // Prendi la carta giocata senza rimuoverla
+    const playedCard: any = player.deck[cardIndex];
+    if (!this.playedCard) return;
 
-    // Aggiorna il currentColor se serve (per UNO)
-    if (this.gameForm.get('gameName')?.value?.toLowerCase() === 'uno') {
-      if (playedCard.color) {
-        this.gameForm.patchValue({ currentColor: playedCard.color });
-      }
+    const gameName: any = this.gameForm.get('gameName')?.value?.toLowerCase();
+
+    switch (gameName) {
+      case 'uno':
+        if (playedCard.color) this.gameForm.patchValue({ currentColor: playedCard.color });
+        break;
+
+      case 'scopa':
+        // CPU
+        if (player.playerType === 'cpu') {
+          // Mostra subito la carta giocata nel centro
+          centerDeck.push(playedCard);
+          this.gameForm.patchValue({ centerDeck });
+
+          // Trova le carte catturabili dal centerDeck (escludendo la carta giocata)
+          let captureCards: any[] = this.getScopaCardsForValue(this.getCardNumericValue(playedCard)) || [];
+          captureCards = captureCards.filter((c: any) => c !== playedCard && centerDeck.includes(c));
+
+          if (captureCards.length > 0) {
+            // Alert: CPU potrebbe catturare
+            const capturedText = captureCards.map((c: any) => `${c.rank} di ${c.suit}`).join(', ');
+            const playedText = `${this.playedCard.rank} di ${this.playedCard.suit}`;
+            this.alertService.triggerAlert(
+              'info',
+              `${player.name} potrebbe prendere le carte: ${capturedText} con ${playedText}`,
+              'info-circle',
+              5000
+            );
+
+            setTimeout(() => {
+              // Rimuovi carte catturate dal centerDeck
+              captureCards.forEach((c: any) => {
+                const idx = centerDeck.findIndex((cd: any) => cd === c);
+                if (idx > -1) centerDeck.splice(idx, 1);
+              });
+
+              // Rimuovi carta giocata dal centerDeck
+              const playedIndex = centerDeck.findIndex((cd: any) => cd === playedCard);
+              if (playedIndex > -1) centerDeck.splice(playedIndex, 1);
+
+              // Aggiorna pointsDeck CPU
+              if (!player.pointsDeck) player.pointsDeck = [];
+              player.pointsDeck.push(playedCard, ...captureCards);
+
+              // Rimuovi la carta dal deck della CPU **dopo** la cattura
+              const cardDeckIndex = player.deck.findIndex((c: any) => c === playedCard);
+              if (cardDeckIndex > -1) player.deck.splice(cardDeckIndex, 1);
+
+              // Toast cattura
+              const capturedTextFinal = captureCards.map((c: any) => `${c.rank} di ${c.suit}`).join(', ');
+              const message = capturedTextFinal
+                ? `${player.name} ha preso: ${capturedTextFinal} con ${this.playedCard.rank} di ${this.playedCard.suit}`
+                : `${player.name} ha preso: ${this.playedCard.rank} di ${this.playedCard.suit}`;
+              this.alertService.triggerAlert('success', message, 'check-circle', 7000);
+
+              // Aggiorna stato
+              this.gameForm.patchValue({ users, centerDeck });
+
+              // Chiamata CPU successiva
+              this.playNextCPU(users, name);
+            }, 2500);
+
+          } else {
+            // Caso: nessuna cattura possibile → togli carta dal deck e push normale
+            const cardDeckIndex = player.deck.findIndex((c: any) => c === playedCard);
+            if (cardDeckIndex > -1) player.deck.splice(cardDeckIndex, 1);
+
+            this.playNextCPU(users, name);
+          }
+        }
+
+
+        // Giocatore umano
+        if (player.playerType === 'human') {
+          // Calcola le carte catturabili (escludendo la carta giocata)
+          let validCaptureCards: any[] = this.getScopaCardsForValue(this.getCardNumericValue(playedCard));
+          validCaptureCards = validCaptureCards.filter((c: any) => c !== playedCard && centerDeck.includes(c));
+
+          if (validCaptureCards.length > 0) {
+            // Log per debug: carte catturabili
+            console.log(`${player.name} può catturare con ${this.playedCard.rank} di ${this.playedCard.suit}:`,
+              validCaptureCards.map(c => `${c.rank} di ${c.suit}`).join(', '));
+            this.hasSelectableCards = true;  // <- aggiorna quando ci sono carte catturabili
+            centerDeck.forEach((c: any) => c.selectable = validCaptureCards.includes(c));
+
+
+            this.alertService.triggerAlert(
+              'info',
+              `Seleziona le carte da catturare con ${this.playedCard.rank} di ${this.playedCard.suit} e conferma.`,
+              'info-circle',
+              5000
+            );
+
+            // La UI gestirà toggleSelectCaptureCard() e conferma con confirmCapture()
+          } else {
+            this.hasSelectableCards = false;
+            // Nessuna cattura possibile, push normale della carta nel centerDeck
+            console.log(`${player.name} non può catturare con ${this.playedCard.rank} di ${this.playedCard.suit}`);
+            centerDeck.push(playedCard);
+            player.deck.splice(cardIndex, 1);
+
+            // Aggiorna lo stato dell'utente e del centro
+            this.gameForm.patchValue({ centerDeck, users });
+            const currentIndex = users.findIndex((u: any) => u.name === name);
+            const nextIndex = (currentIndex + 1) % users.length;
+            const nextPlayer: any = users[nextIndex];
+
+            if (nextPlayer.playerType === 'cpu' && nextPlayer.deck.length > 0) {
+              setTimeout(() => {
+                this.moveCardToCenterDeck(0, nextPlayer.name);
+              }, 2000);
+            }
+          }
+        }
+
+
+        break;
+
+      default:
+        console.warn(`Gioco non gestito: ${gameName}`);
+        return;
     }
 
-    // ✅ Aggiungi la carta al mazzo centrale (NON al mainDeck)
-    centerDeck.push(playedCard);
+    // Imposta played = true per il giocatore corrente
+    users.forEach((u: any) => u.played = u.name === name);
 
-    // Aggiorna il form con il nuovo stato
-    this.gameForm.patchValue({ users, centerDeck });
+    this.gameForm.patchValue({ users, centerDeck, mainDeck });
 
-    // Mostra alert
+    // Alert carta giocata
     this.alertService.triggerAlert(
       'info',
-      `${name} ha giocato: ${playedCard.name}`,
+      `${name} ha giocato: ${this.playedCard.name || playedCard.rank + ' di ' + playedCard.suit}`,
       'check-circle'
     );
+
+    // CPU successiva
+    /* if (gameName === 'scopa') {
+      const currentIndex = users.findIndex((u: any) => u.name === name);
+      const nextIndex = (currentIndex + 1) % users.length;
+      const nextPlayer: any = users[nextIndex];
+
+      // Se chi sta giocando è umano, blocca l'autoplay
+      if (player.playerType === 'human') return;
+
+      if (nextPlayer.playerType === 'cpu' && nextPlayer.deck.length > 0) {
+        setTimeout(() => {
+          this.moveCardToCenterDeck(0, nextPlayer.name);
+        }, 2000);
+      }
+    } */
+  }
+
+  // Metodo separato per far giocare la prossima CPU
+  private playNextCPU(users: any[], currentPlayerName: any) {
+    const currentIndex = users.findIndex((u: any) => u.name === currentPlayerName);
+    const nextIndex = (currentIndex + 1) % users.length;
+    const nextPlayer: any = users[nextIndex];
+
+    if (nextPlayer.playerType === 'cpu' && nextPlayer.deck.length > 0) {
+      setTimeout(() => {
+        this.moveCardToCenterDeck(0, nextPlayer.name);
+      }, 2000);
+    }
+  }
+
+  toggleSelectCaptureCard(card: any) {
+
+  }
+
+  /**
+  * Trova nel centerDeck le carte che possono essere raccolte per fare punti.
+  * @param targetValue Il valore della carta giocata (numero intero da 1 a 10)
+  * @returns Array di carte dal centerDeck che formano combinazioni con il targetValue
+  */
+  getScopaCardsForValue(targetValue: number): any[] {
+    const centerDeck: any[] = this.gameForm.get('centerDeck')?.value || [];
+
+    // Prima verifica se c'è una carta esatta uguale a targetValue
+    const exactMatch = centerDeck.filter(c => this.getCardNumericValue(c) === targetValue);
+    if (exactMatch.length > 0) return exactMatch;
+
+    // Altrimenti cerca combinazioni di carte che sommano al valore target
+    const results: any[] = [];
+
+    const findCombinations = (arr: any[], combo: any[] = [], sum: number = 0, start: number = 0) => {
+      if (sum === targetValue) {
+        results.push([...combo]);
+        return;
+      }
+      for (let i = start; i < arr.length; i++) {
+        const cardValue = this.getCardNumericValue(arr[i]);
+        if (sum + cardValue <= targetValue) {
+          combo.push(arr[i]);
+          findCombinations(arr, combo, sum + cardValue, i + 1);
+          combo.pop();
+        }
+      }
+    };
+
+    findCombinations(centerDeck);
+
+    // Restituisci la prima combinazione trovata, se ce n'è più di una
+    return results.length > 0 ? results[0] : [];
+  }
+
+  /**
+   * Restituisce il valore numerico di una carta SCOPA
+   */
+
+  getCardNumericValue(card: any): number {
+    switch (card.rank.toLowerCase()) {
+      case '1':
+      case 'asso': return 1;
+      case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': case '10':
+        return parseInt(card.rank, 10);
+      case 'fante':
+        return 8; // oppure 8/9/10 se vuoi la scala italiana
+      case 'cavallo':
+        return 9; // oppure 8/9/10 se vuoi la scala italiana
+      case 're':
+        return 10; // oppure 8/9/10 se vuoi la scala italiana
+      default:
+        return 0;
+    }
   }
 
 
-  // Pesca una carta dal mazzo principale o dal mazzo specificato
-  playerDrawCard(userName?: string, count: number = 1, fromDeckName: string = 'mainDeck') {
-    const deck = this.gameForm.get(fromDeckName)?.value || [];
-    const users = this.gameForm.get('users')?.value || [];
-    const name = userName || this.gameForm.get('userName')?.value;
-    const player = users.find((u: any) => u.name === name);
+  playerDrawCard(userName?: any, count: any = 1, fromDeckName: any = 'mainDeck'): any[] {
+    const gameName: any = this.gameForm.get('gameName')?.value?.toLowerCase();
+    const users: any = this.gameForm.get('users')?.value || [];
+    const name: any = userName || this.gameForm.get('userName')?.value;
+    const player: any = users.find((u: any) => u.name === name);
+    const deck: any = this.gameForm.get(fromDeckName)?.value || [];
 
-    if (!player || !deck || deck.length === 0) return;
+    if (!player || !deck || deck.length === 0) return [];
 
     const drawnCards: any[] = [];
-    for (let i = 0; i < count && deck.length > 0; i++) {
-      drawnCards.push(deck.shift());
+
+    switch (gameName) {
+      case 'uno':
+        for (let i = 0; i < count && deck.length > 0; i++) {
+          drawnCards.push(deck.shift());
+        }
+        break;
+
+      case 'scopa':
+        for (let i = 0; i < count && deck.length > 0; i++) {
+          drawnCards.push(deck.shift());
+        }
+        break;
+
+      default:
+        // fallback generico
+        for (let i = 0; i < count && deck.length > 0; i++) {
+          drawnCards.push(deck.shift());
+        }
     }
 
     player.deck.push(...drawnCards);
+
+    // Imposta played = true per questo utente e false per gli altri
+    users.forEach((u: any) => u.played = u.name === name);
+
     this.gameForm.patchValue({ users, [fromDeckName]: deck });
 
     if (drawnCards.length > 0) {
       this.alertService.triggerAlert(
         'warning',
-        `${name} pesca ${drawnCards.length} carte${count > 1 ? 's' : ''}: ${drawnCards.map(c => c.name).join(', ')}`,
+        `${name} pesca ${drawnCards.length} carte${count > 1 ? 's' : ''}: ${drawnCards.map((c: any) => c.name).join(', ')}`,
         'exclamation-circle'
       );
     }
 
     return drawnCards;
   }
+
 
   // Controlla se una carta è giocabile
   isCardPlayable(card: any, topCard?: any): boolean {

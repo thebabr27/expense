@@ -1,0 +1,21 @@
+<app-game-layout [gameForm]="gameForm">
+  <div header>
+    <h2>Gioco Scopa</h2>
+  </div>
+
+  <div deckContainer1> 
+    aaa
+  </div>
+
+  <div deckContainer2> 
+    bbb
+  </div>
+
+  <div sidebar>
+    <p>Giocatori: {{ gameForm.get('users')?.value.length }}</p>
+  </div>
+
+  <div footer>
+    <button class="btn btn-success">Gioca</button>
+  </div>
+</app-game-layout>

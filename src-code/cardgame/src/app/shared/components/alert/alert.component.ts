@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { AlertMessage, AlertService } from 'src/app/core/service/alert.service';
+import { Component, OnInit } from "@angular/core";
+import { AlertService } from "src/app/core/service/alert.service";
 
 @Component({
   selector: 'app-alert',
@@ -12,13 +12,14 @@ export class AlertComponent implements OnInit {
   alertIcon: string = 'info-circle';
   show: boolean = false;
 
+  private hideTimeout: any;
+
   constructor(private alertService: AlertService) { }
 
   ngOnInit(): void {
     this.alertService.showAlert$.subscribe(() => {
       const msg = this.alertService.currentMessage;
 
-      // Usa solo tag inline per innerHTML
       if (msg.color) {
         this.alertText = `${msg.text} <span class="color-box" style="background-color: ${msg.color}"></span>`;
       } else {
@@ -29,8 +30,14 @@ export class AlertComponent implements OnInit {
       this.alertIcon = msg.icon;
       this.show = true;
 
-      // Nascondi automaticamente dopo 3 secondi
-      setTimeout(() => this.show = false, 3000);
+      // Cancella eventuale timeout precedente
+      if (this.hideTimeout) clearTimeout(this.hideTimeout);
+
+      // Nascondi dopo msg.duration
+      this.hideTimeout = setTimeout(() => {
+        this.show = false;
+        this.hideTimeout = null;
+      }, msg.duration);
     });
   }
 }

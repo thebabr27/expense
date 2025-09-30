@@ -1,0 +1,22 @@
+<!-- game.component.html -->
+<ng-container [ngSwitch]="gameForm.get('gameName')?.value">
+  <app-uno *ngSwitchCase="'uno'"
+           [gameForm]="gameForm"
+           [minPlayers]="minPlayers"
+           [nickname]="nickname"
+           (nicknameChange)="nickname=$event"
+           (addPlayer)="addPlayer()"
+           (addBots)="addBots()"
+           (startGame)="startGame()">
+  </app-uno>
+
+  <app-scopa *ngSwitchCase="'scopa'"
+             [gameForm]="gameForm"
+             [minPlayers]="minPlayers"
+             [nickname]="nickname"
+             (nicknameChange)="nickname=$event"
+             (addPlayer)="addPlayer()"
+             (addBots)="addBots()"
+             (startGame)="startGame()">
+  </app-scopa>
+</ng-container>

@@ -1,0 +1,53 @@
+<div class="game-layout container-fluid pt-5">
+
+    <!-- Header -->
+    <header class="game-header">
+        <ng-content select="[header]"></ng-content>
+    </header>
+
+    <!-- Row superiore: mazzo a sinistra e deck centrale -->
+    <main class="game-board d-flex justify-content-between align-items-center">
+        <!-- Left: mazzo (mazzo utente) -->
+        <div class="deck-left">
+            <div *ngFor="let card of getMyUserDeck()" class="card deck-card" [ngClass]="getCardBackground(card)">
+                <div class="card-body">
+                    <div [ngClass]="getCardCenterClass(card)"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center: mazzo centrale -->
+        <div class="deck-container text-center" style="position: relative; height: 135px;">
+            <div *ngFor="let card of gameForm.get('centerDeck')?.value" class="card deck-card"
+                [ngClass]="getCardCenterClass(card)">
+                <div class="card-body"></div>
+            </div>
+        </div>
+
+        <!-- Right: div vuoto della stessa larghezza -->
+        <div class="deck-right" style="width: 100px;"></div>
+    </main>
+
+    <!-- Row inferiore: solo mazzo centrale (utente) -->
+    <main class="game-board d-flex justify-content-center mt-3">
+        <div class="deck-container" style="position: relative; height: 135px;">
+            <div *ngFor="let card of getMyUserDeck()" class="card deck-card" [ngClass]="getCardBackground(card)">
+                <div class="card-body">
+                    <div [ngClass]="getCardCenterClass(card)"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- Sidebar: giocatori laterali -->
+    <aside class="game-sidebar position-absolute">
+        <ng-content select="[sidebar]"></ng-content>
+    </aside>
+
+    <!-- Footer -->
+    <footer class="game-footer">
+        <ng-content select="[footer]"></ng-content>
+    </footer>
+
+</div>

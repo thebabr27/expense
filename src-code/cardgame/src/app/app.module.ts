@@ -20,6 +20,10 @@ import { DomainRedirectInterceptor } from './core/interceptors/domain-redirect.i
 import { ToastComponent } from './core/components/toast/toast.component';
 import { AlertComponent } from './shared/components/alert/alert.component';
 import { BaseComponent } from './feature/base/base.component';
+import { GameComponent } from './feature/game/game.component';
+import { UnoComponent } from './feature/uno/uno.component';
+import { ScopaComponent } from './feature/scopa/scopa.component';
+import { GameLayoutComponent } from './shared/components/game-layout/game-layout.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +36,11 @@ import { BaseComponent } from './feature/base/base.component';
     SpinnerComponent,
     ToastComponent,
     AlertComponent,
-    BaseComponent
+    BaseComponent,
+    GameComponent,
+    UnoComponent,
+    ScopaComponent,
+    GameLayoutComponent
   ],
   imports: [
     CommonModule,
