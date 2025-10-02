@@ -416,10 +416,26 @@
 }
 
 .not-selectable {
-    opacity: .5;
+    background-color: #E4CFD5;
     pointer-events: none;
 }
+.not-selectable .center-icon-scopa {
+    opacity: 0.5;
+    filter: brightness(.8) contrast(1.2);
+} 
 
+.selected-card-icon {    
+    width: 10px;
+    height: 10px;
+    z-index: 2000;
+    top: 0;
+    right: 19px;
+    transform: scale(1.5);
+}
+
+.text-green {
+    color: #45BB32!important;
+}
 
 .scopa-deck-card .card-body {
     background-image: url("../../../assets/images/scopa-deck-card.svg");

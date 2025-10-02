@@ -20,9 +20,10 @@ export class BaseComponent implements OnInit, AfterViewInit {
   hoveredCard: any = null;// Carte attualmente selezionate dall'utente
   selectedCaptureCards: any[] = [];
   hasSelectableCards: boolean = false;
-  selectedFirst: any[] = [];
-  selectedSecond: any[] = [];
+  toCapture: any[] = [];
+  toCenter: any[] = [];
   playedCard: any;
+
 
   // Carte del centro che l'utente può effettivamente prendere
   validCaptureCards: any[] = [];
@@ -34,10 +35,9 @@ export class BaseComponent implements OnInit, AfterViewInit {
     private scopaService: ScopaService) { }
 
   ngOnInit(): void {
-
     const gameNameFromRoute = this.route.snapshot.params['gameName'];
     if (!gameNameFromRoute) {
-      // Mostra toast / alert
+      // Mostra toast / alert 
       this.alertService.triggerAlert(
         'warning',
         'Nessun gioco selezionato! Verrai reindirizzato.',
@@ -49,7 +49,9 @@ export class BaseComponent implements OnInit, AfterViewInit {
       phase: ['player-input'],
       users: [[]],
       peopleInTurn: [''],
+      lastTaker: [''],
       mainDeck: [[]],
+      originalDeck: [[]],
       centerDeck: [[]],
       userName: ['Mimmo'],
       currentColor: [''],
@@ -61,6 +63,89 @@ export class BaseComponent implements OnInit, AfterViewInit {
     // Focus automatico
     this.nicknameInput.nativeElement.focus();
   }
+
+  getUserScores() {
+  const users = this.gameForm.get('users')?.value || [];
+
+  // Conteggio carte e denari
+  const deckLengths = users.map((u: any) => (u.pointsDeck?.deck?.length || 0));
+  const maxCarte = Math.max(...deckLengths);
+  const denariCounts = users.map((u: any) => (u.pointsDeck?.deck?.filter((c: any) => c.suit.toLowerCase() === 'denari').length || 0));
+  const maxDenari = Math.max(...denariCounts);
+
+  // Controllo se ci sono pareggi per carte e denari
+  const maxCarteCount = deckLengths.filter((l: any) => l === maxCarte).length;
+  const maxDenariCount = denariCounts.filter((l: any) => l === maxDenari).length;
+
+  // Calcolo primiera di tutti i giocatori e massimo
+  const primiereScores = users.map((u: any) => this.calcPrimiera(u.pointsDeck?.deck || []));
+  const maxPrimiera = Math.max(...primiereScores);
+  const maxPrimieraCount = primiereScores.filter((p: any) => p === maxPrimiera).length;
+
+  return users.map((u: any, index: number) => {
+    const deckObj = u.pointsDeck || { deck: [], scopa: 0 };
+    const deck = deckObj.deck || [];
+    const scope = deckObj.scopa || 0;
+
+    const carte = deck.length;
+    const denari = deck.filter((c: any) => c.suit.toLowerCase() === 'denari').length;
+    const settebello = deck.some((c: any) => c.suit.toLowerCase() === 'denari' && c.rank === '7') ? 1 : 0;
+    const primiera = primiereScores[index];
+
+    // Totale punti
+    let total = 0;
+    total += scope;                                           // punti per scopa
+    total += (carte === maxCarte && maxCarteCount === 1 ? 1 : 0);     // più carte, solo se unico
+    total += (denari === maxDenari && maxDenariCount === 1 ? 1 : 0);   // più denari, solo se unico
+    total += settebello;                                      // settebello
+    total += (primiera === maxPrimiera && maxPrimieraCount === 1 ? 1 : 0); // primiera, solo se unico
+
+    console.log({
+      name: u.name,
+      scope,
+      carte,
+      denari,
+      settebello,
+      primiera,
+      total,
+      pointsDeck: deck
+    });
+
+    return {
+      name: u.name,
+      scope,
+      carte,
+      denari,
+      settebello,
+      primiera,
+      total
+    };
+  });
+}
+
+
+  // Calcolo primiera corretto
+  calcPrimiera(deck: any[]): number {
+    const valoriPrimiera: any = {
+      '7': 21, '6': 18, '1': 16, 'Asso': 16,
+      '5': 15, '4': 14, '3': 13, '2': 12,
+      'Re': 10, 'Cavallo': 10, 'Fante': 10
+    };
+    const semi = ['denari', 'coppe', 'spade', 'bastoni'];
+
+    let score = 0;
+    for (let seme of semi) {
+      const carteSeme = deck.filter((c: any) => c.suit.toLowerCase() === seme);
+      if (carteSeme.length > 0) {
+        // usa rank della carta per valoriPrimiera
+        const max = Math.max(...carteSeme.map((c: any) => valoriPrimiera[c.rank] || 0));
+        score += max;
+      }
+    }
+
+    return score;
+  }
+
 
 
   onHover(card: any) {
@@ -118,187 +203,385 @@ export class BaseComponent implements OnInit, AfterViewInit {
     return player.deck.findIndex((c: any) => c === card);
   }
 
-  action(action: string, card?: any, i?: number) {
-    const users: any = this.gameForm.get('users')?.value || [];
+  private endGame() {
+    const users = this.gameForm.get('users')?.value || [];
+    // Calcolo punteggi finali
+    const scores = this.getUserScores();
+
+
+    // Mostro un alert per l’utente
+    console.log('💾 Stato pointsDeck:', users.map((e: any) => e.pointsDeck));
+
+    // Mostro i punteggi in console (debug)
+    console.log('🏁 Fine partita - punteggi finali:', scores);
+
+    // Aggiorna il phase del gameForm
+    this.gameForm.patchValue({ phase: 'finish-playing' });
+
+    // Mostra alert dopo 2 secondi
+    setTimeout(() => {
+      this.alertService.triggerAlert(
+        'success',
+        'La partita è terminata! Ecco i punteggi finali.',
+        'check-circle',
+        7000
+      );
+    }, 2000);
+
+
+    // Salvo lo stato finale nel gameForm
+    this.gameForm.patchValue({
+      users,
+      gameOver: true,   // puoi usare questa flag nel template per bloccare azioni
+      finalScores: scores
+    });
+  }
+
+  cpuPlay() {
+    const users = this.gameForm.get('users')?.value || [];
+    let centerDeck = this.gameForm.value.centerDeck;
+    let mainDeck = this.gameForm.value.mainDeck || [];
+    let lastTaker = this.gameForm.value.lastTaker;
+
+    let currentIndex = users.findIndex((u: any) => u.name === this.gameForm.value.peopleInTurn);
+    if (currentIndex === -1) currentIndex = 0;
+    const playerInTurn = users[currentIndex];
+    let cpuDeck = playerInTurn.deck;
+    let cpuPoints = playerInTurn.pointsDeck;
+
+    if (!cpuPoints) {
+      cpuPoints = { deck: [], scopa: 0 };
+      playerInTurn.pointsDeck = cpuPoints;
+    }
+    if (!cpuPoints.deck) cpuPoints.deck = [];
+
+    const cpu = this.suggestBestCard(cpuDeck, centerDeck);
+
+    // Caso 1️⃣: CPU non cattura nulla
+    if (!cpu.capturedCards || cpu.capturedCards.length === 0) {
+      this.moveCards(cpuDeck, centerDeck, [cpu.handCardIndex]);
+      this.alertService.triggerAlert(
+        'info',
+        `🤖 ${playerInTurn.name} gioca ${cpu.handCard.rank} di ${cpu.handCard.suit}.`,
+        'info-circle',
+        5000
+      );
+    }
+    // Caso 2️⃣: CPU cattura
+    else {
+      const playedCard = cpu.handCard;
+      const capturedCards = cpu.capturedCards || [];
+      const capturedIndices = this.findMatchingIndices(capturedCards, centerDeck);
+
+      this.moveCards(cpuDeck, cpuPoints.deck, [cpu.handCardIndex]);
+      if (capturedIndices.length > 0) {
+        this.moveCards(centerDeck, cpuPoints.deck, capturedIndices);
+      }
+
+      // Aggiorno lastTaker
+      lastTaker = playerInTurn.name;
+
+      // Costruisco testo alert
+      let alertText = `🤖 ${playerInTurn.name} prende ${capturedCards.map(c => `${c?.rank ?? '?'} di ${c?.suit ?? '?'}`).join(', ')} con ${playedCard?.rank ?? '?'} di ${playedCard?.suit ?? '?'}`;
+
+      if (centerDeck.length === 0) {
+        cpuPoints.scopa += 1;
+        alertText += ' ...e fa scopa!';
+      }
+
+      if (capturedCards.some(c => c.rank === '7' && c.suit === 'denari')) {
+        alertText = `🤖 ${playerInTurn.name} prende il Settebello!`;
+      }
+
+      this.alertService.triggerAlert('success', alertText, 'check-circle', 5000);
+      console.log("💻 CPU played:", playedCard);
+      console.log("💻 CPU captured:", capturedCards);
+    }
+
+    // 🔹 Controllo se tutti i deck sono vuoti
+    const allEmpty = users.every((u: any) => u.deck.length === 0);
+
+    if (allEmpty) {
+      if (mainDeck.length > 0) {
+        // Distribuisci nuove carte
+        const updatedUsers = this.dealCardsToPlayers(users, mainDeck, 3);
+        users.splice(0, users.length, ...updatedUsers);
+        console.log('💾 Nuove carte distribuite dal mazzo principale');
+      } else {
+        // Fine partita: assegna centerDeck al lastTaker
+        if (lastTaker) {
+          const takerPoints = users.find((u: any) => u.name === lastTaker).pointsDeck;
+          if (takerPoints) {
+            takerPoints.deck.push(...centerDeck);
+          }
+        }
+        centerDeck = [];
+        this.gameForm.patchValue({ centerDeck });
+        console.log('🏁 Fine partita, carte rimanenti assegnate al lastTaker');
+        this.endGame();
+        return; // esco per non passare il turno successivo
+      }
+    }
+
+    // Passa al prossimo giocatore
+    const nextIndex = (currentIndex + 1) % users.length;
+    const nextPlayer = users[nextIndex];
+    this.gameForm.patchValue({ peopleInTurn: nextPlayer.name, users, centerDeck, mainDeck, lastTaker });
+    console.log(`🔄 Turno passato a: ${nextPlayer.name}`);
+
+    if (nextPlayer.playerType !== 'human') {
+      console.log(`🤖 ${nextPlayer.name} è CPU, rilancio cpuPlay()`);
+      setTimeout(() => this.cpuPlay(), 2000);
+    }
+  }
+
+  private sortCardsByImportance(deck: any[]): any[] {
+    // Funzione per ottenere un valore numerico ordinabile per rank standard
+    const rankValue = (card: any): number => {
+      switch (card.rank.toLowerCase()) {
+        case 'asso': return 1;
+        case '2': return 2;
+        case '3': return 3;
+        case '4': return 4;
+        case '5': return 5;
+        case '6': return 6;
+        case '7': return 7;
+        case 'fante': return 8;
+        case 'cavallo': return 9;
+        case 're': return 10;
+        default: return 0;
+      }
+    };
+
+    return deck.slice().sort((a, b) => {
+      // Primo posto: 7 di denari
+      if (a.rank === '7' && a.suit === 'denari') return -1;
+      if (b.rank === '7' && b.suit === 'denari') return 1;
+
+      // Poi tutti i 6 in denari
+      if (a.rank === '6' && a.suit === 'denari') return -1;
+      if (b.rank === '6' && b.suit === 'denari') return 1;
+
+      // Poi gli altri 7
+      if (a.rank === '7' && a.suit !== 'denari') return -1;
+      if (b.rank === '7' && b.suit !== 'denari') return 1;
+
+      // Poi gli altri 6
+      if (a.rank === '6' && a.suit !== 'denari') return -1;
+      if (b.rank === '6' && b.suit !== 'denari') return 1;
+
+      // Tutte le altre carte in ordine di rank crescente
+      return rankValue(a) - rankValue(b);
+    });
+  }
+
+  private suggestBestCard(
+    handCards: any[],
+    centerDeck: any[]
+  ): { handCardIndex: number, handCard: any, capturedCards: any[] } {
+
+    // Funzione di supporto: valore numerico della carta
+    const cardValue = (card: any) => {
+      const rankStr = String(card.rank).toLowerCase();
+      switch (rankStr) {
+        case 'asso': case '1': return 1;
+        case '2': return 2;
+        case '3': return 3;
+        case '4': return 4;
+        case '5': return 5;
+        case '6': return 6;
+        case '7': return 7;
+        case 'fante': return 8;
+        case 'cavallo': return 9;
+        case 're': return 10;
+        default: return 0;
+      }
+    };
+
+    // Ordina le carte in mano per importanza minore → maggiore
+    const sortedHand = this.sortCardsByImportance(handCards);
+
+    for (const card of sortedHand) {
+      const combos = this.findCaptureCombinationsFlat(card, centerDeck);
+
+      // 1️⃣ 7 di denari cattura un altro 7
+      if (card.rank === '7' && card.suit === 'denari') {
+        const capture = combos.find(c => c.rank === '7' && c.suit !== 'denari');
+        if (capture) {
+          return {
+            handCardIndex: handCards.indexOf(card),
+            handCard: card,
+            capturedCards: [capture]
+          };
+        }
+      }
+
+      // 2️⃣ Possibile scopa
+      if (centerDeck.length > 0 && combos.length > 0) {
+        const totalComboValue = combos.reduce((sum, c) => sum + cardValue(c), 0);
+        if (totalComboValue === cardValue(card) && centerDeck.length === 1) {
+          return {
+            handCardIndex: handCards.indexOf(card),
+            handCard: card,
+            capturedCards: [...combos[0]]
+          };
+        }
+      }
+
+      // 3️⃣ Prendere un 6
+      const sixCapture = combos.find(c => c.rank === '6');
+      if (sixCapture) {
+        return {
+          handCardIndex: handCards.indexOf(card),
+          handCard: card,
+          capturedCards: [sixCapture]
+        };
+      }
+
+      // 4️⃣ Prendere più carte
+      if (combos.length > 1) {
+        return {
+          handCardIndex: handCards.indexOf(card),
+          handCard: card,
+          capturedCards: [...combos[0]]
+        };
+      }
+
+      // 5️⃣ Prendere almeno una carta
+      if (combos.length > 0) {
+        return {
+          handCardIndex: handCards.indexOf(card),
+          handCard: card,
+          capturedCards: [...combos[0]]
+        };
+      }
+    }
+
+    // 6️⃣ Nessuna priorità: carta random
+    const randomIndex = Math.floor(Math.random() * handCards.length);
+    return {
+      handCardIndex: randomIndex,
+      handCard: handCards[randomIndex],
+      capturedCards: []
+    };
+  }
+
+  private passToNextPlayer() {
+    const users: any[] = this.gameForm.get('users')?.value || [];
+    const currentPlayerName = this.gameForm.value.peopleInTurn;
+    let currentIndex = users.findIndex(u => u.name === currentPlayerName);
+    const nextIndex = (currentIndex + 1) % users.length;
+    const nextPlayer = users[nextIndex];
+
+    this.gameForm.patchValue({ peopleInTurn: nextPlayer.name });
+
+    if (nextPlayer.playerType !== 'human') {
+      setTimeout(() => this.cpuPlay(), 2000); // piccola pausa per vedere le mosse
+    }
+  }
+
+
+  action(action: string, card?: any) {
+    const users: any[] = this.gameForm.get('users')?.value || [];
     const centerDeck: any[] = this.gameForm.get('centerDeck')?.value || [];
-    const currentUserName = this.gameForm.get('userName')?.value;
+    const currentUserName: string = this.gameForm.get('userName')?.value;
     const gameName: string = this.gameForm.get('gameName')?.value?.toLowerCase();
     const currentPlayer: any = users.find((u: any) => u.name === currentUserName);
     const playerInTurnName: string = this.gameForm.get('peopleInTurn')?.value;
-    const playerInTurn: any = users.find((e: any) => e.name == playerInTurnName);
-    const playerInTurnIndex: number = users.findIndex((e: any) => e.name == playerInTurnName); // Calcola l’indice del prossimo giocatore (ciclo circolare)
+    const playerInTurn: any = users.find((u: any) => u.name === playerInTurnName);
+    const playerInTurnIndex: number = users.findIndex((u: any) => u.name === playerInTurnName);
 
-    const cardIndex = this.getCardIndexInDeck(card);
+    let cardIndex = this.gameForm.value.users[playerInTurnIndex].deck.
+      findIndex((e: any) => e.name == card.name);
 
-    if (!currentPlayer || !currentPlayer.deck || cardIndex >= currentPlayer.deck.length) return;
+    if (!currentPlayer || !currentPlayer.deck) return;
 
     switch (action) {
-      case 'humanSelectCard':
-        if (gameName !== 'scopa') {
-          console.warn('humanSelectCard è usato solo in Scopa.');
-          return;
-        }
 
+      case 'userDeckCard':
+        const possibleCaptures = this.findCaptureCombinationsFlat(card, centerDeck, true);
 
-        if (!this.playedCard) {
-          console.warn('Nessuna carta giocata dal mazzo umano, impossibile selezionare catture.');
-          return;
-        }
-
-        // Se la carta è già selezionata → la deseleziono
-        const idx = this.selectedCaptureCards.findIndex((c: any) => c === card);
-        if (idx > -1) {
-          this.selectedCaptureCards.splice(idx, 1);
-          card.selected = false;
+        if (possibleCaptures && possibleCaptures.length > 0) {
+          this.playedCard = card;
+          this.toggleSelectableCards(this.gameForm.value.centerDeck, possibleCaptures);
         } else {
-          // Altrimenti la seleziono
-          this.selectedCaptureCards.push(card);
-          card.selected = true;
+          // Muovo la carta giocata → centerDeck
+          this.moveCards(
+            this.gameForm.value.users[playerInTurnIndex].deck,
+            this.gameForm.value.centerDeck,
+            [cardIndex]
+          );
+
+          // Alert per giocata senza presa
+          this.alertService.triggerAlert(
+            'info',
+            `Hai giocato ${card.rank} di ${card.suit}.`,
+            'info-circle',
+            5000
+          );
+
+          // Aggiorna turno e controlla se prossimo è CPU
+          this.passToNextPlayer();
         }
+        break;
 
-        const selectedSum = this.selectedCaptureCards
-          .map((c: any) => this.getCardNumericValue(c))
-          .reduce((a: number, b: number) => a + b, 0);
+      case 'centerDeckCard':
+        this.selectedCaptureCards.push(card);
 
-        const playedValue = this.getCardNumericValue(this.playedCard);
+        const userIndices = this.findMatchingIndices(
+          [this.playedCard],
+          this.gameForm.value.users[playerInTurnIndex].deck
+        );
+        const centerIndices = this.findMatchingIndices(
+          this.selectedCaptureCards,
+          this.gameForm.value.centerDeck
+        );
 
-        if (selectedSum === playedValue) {
-          console.log(`✅ Cattura valida! ${this.playedCard.rank} di ${this.playedCard.suit} prende le carte selezionate.`);
+        if (this.compareCardSums([this.playedCard], this.selectedCaptureCards) === 'equal') {
+          // Muovo la carta giocata → pointsDeck
+          this.moveCards(
+            this.gameForm.value.users[playerInTurnIndex].deck,
+            this.gameForm.value.users[playerInTurnIndex].pointsDeck.deck,
+            userIndices
+          );
 
-          // Sposta le carte selezionate dal centerDeck al pointsDeck del giocatore in turno
-          if (!playerInTurn.pointsDeck) playerInTurn.pointsDeck = [];
+          // Muovo le carte catturate → pointsDeck
+          this.moveCards(
+            this.gameForm.value.centerDeck,
+            this.gameForm.value.users[playerInTurnIndex].pointsDeck.deck,
+            centerIndices
+          );
 
-          // Usa moveCards: centerDeck → pointsDeck del giocatore in turno
-          this.moveCards(centerDeck, playerInTurn.pointsDeck, this.selectedCaptureCards.map((c: any) => centerDeck.indexOf(c)));
+          // Aggiorno lastTaker
+          this.gameForm.patchValue({ lastTaker: this.gameForm.value.peopleInTurn });
 
-          // Sposta la carta giocata nel pointsDeck del giocatore in turno
-          const playedCardIndex = playerInTurn.deck.findIndex((c: any) => c === this.playedCard);
-          if (playedCardIndex > -1) {
-            this.moveCards(playerInTurn.deck, playerInTurn.pointsDeck, [playedCardIndex]);
+          // Alert per cattura
+          let alertText = `Hai preso ${this.selectedCaptureCards.map(c => `${c.rank} di ${c.suit}`).join(', ')} con ${this.playedCard.rank} di ${this.playedCard.suit}!`;
+
+          // Controllo scopa
+          if (this.gameForm.value.centerDeck.length === 0) {
+            this.gameForm.value.users[playerInTurnIndex].pointsDeck.scopa += 1;
+            alertText += ' ...e fai scopa!';
           }
 
-          // Aggiorna lo stato
-          this.gameForm.patchValue({ users, centerDeck });
+          // Controllo Settebello
+          if (this.selectedCaptureCards.some(c => c.rank === '7' && c.suit === 'denari')) {
+            alertText = 'Hai preso il Settebello!';
+          }
+
+          this.alertService.triggerAlert('success', alertText, 'check-circle', 5000);
 
           // Reset selezioni
           this.selectedCaptureCards = [];
           this.playedCard = null;
           this.hasSelectableCards = false;
 
-          // Toast con nome giocatore in turno
-          this.alertService.triggerAlert(
-            'success',
-            `${playerInTurn.name} ha preso con ${playedValue}`,
-            'check-circle',
-            7000
-          );
+          // Aggiorna turno e verifica CPU
+          this.passToNextPlayer();
 
-          // Calcola il prossimo giocatore
-          const nextIndex = (playerInTurnIndex + 1) % users.length;
-          const nextPlayer = users[nextIndex];
-
-          // Aggiorna peopleInTurn nel form
-          this.gameForm.patchValue({ peopleInTurn: nextPlayer.name });
-
-          // Se il prossimo giocatore è CPU, gioca la carta
-          if (nextPlayer.playerType === 'cpu' && nextPlayer.deck.length > 0) {
-            setTimeout(() => {
-              this.action('cpuPlayCard');
-            }, 3000)
-          }
+        } else {
+          console.log("Somma non raggiunta");
         }
-
-        break;
-
-      case 'humanPlayCard':
-        if (gameName === 'uno') {
-          if (!this.isCardPlayable(card)) {
-            console.log('Carta non giocabile:', card);
-            return;
-          }
-        }
-
-        const cardIndex = this.getCardIndexInDeck(card);
-        if (cardIndex === -1) return;
-
-        if (gameName === 'scopa') {
-          this.playedCard = card;
-
-          // Controlla se il centro è vuoto prima di giocare la carta
-          const isCenterEmpty = centerDeck.length === 0;
-
-          // Trova le carte catturabili
-          const validCaptureCards: any[] = this.getScopaCardsForValue(this.getCardNumericValue(card))
-            .filter((c: any) => c !== card && centerDeck.includes(c));
-
-          if (validCaptureCards.length > 0) {
-            console.log(`${currentUserName} può catturare con ${card.rank} di ${card.suit}:`,
-              validCaptureCards.map((c: any) => `${c.rank} di ${c.suit}`).join(', ')
-            );
-            this.hasSelectableCards = true;
-            centerDeck.forEach((c: any) => c.selectable = validCaptureCards.includes(c));
-
-            this.alertService.triggerAlert(
-              'info',
-              `Seleziona le carte da catturare con ${card.rank} di ${card.suit} e conferma.`,
-              'info-circle',
-              5000
-            );
-
-          } else {
-            console.log(`${currentUserName} non può catturare con ${card.rank} di ${card.suit}`);
-
-            // Sposta la carta nel centerDeck
-            this.moveCards(playerInTurn.deck, centerDeck, [cardIndex]);
-
-            // Toast SCOPA se il centro era vuoto prima di giocare
-            const scopaText = isCenterEmpty ? ' …e ha fatto SCOPA!' : '';
-            this.alertService.triggerAlert(
-              'success',
-              `${currentUserName} ha giocato ${card.rank} di ${card.suit}${scopaText}`,
-              'check-circle',
-              7000
-            );
-
-            // Dopo aver spostato la carta e gestito eventuali catture
-            const allEmpty = users.every((u: any) => u.deck.length === 0);
-            const mainDeckEmpty = (this.gameForm.get('mainDeck')?.value || []).length === 0;
-
-            if (allEmpty && mainDeckEmpty && centerDeck.length > 0) {
-              // Tutti i giocatori e il maindeck vuoti → il giocatore in turno prende tutto
-              const playerDeck = playerInTurn.deck || [];
-              this.moveCards(centerDeck, playerDeck, centerDeck.map((_, i) => i));
-              this.alertService.triggerAlert(
-                'success',
-                `${playerInTurn.name} prende tutte le carte rimaste nel centro!`,
-                'check-circle',
-                7000
-              );
-
-              this.gameForm.patchValue({ users, centerDeck });
-              break
-            }
-
-            // Calcola il prossimo giocatore
-            const nextIndex = (playerInTurnIndex + 1) % users.length;
-            const nextPlayer = users[nextIndex];
-
-            // Aggiorna peopleInTurn nel form
-            this.gameForm.patchValue({ peopleInTurn: nextPlayer.name });
-
-            // Se il prossimo giocatore è CPU, gioca la carta
-            if (nextPlayer.playerType === 'cpu' && nextPlayer.deck.length > 0) {
-              setTimeout(() => {
-                this.action('cpuPlayCard');
-              }, 3000);
-            }
-          }
-        }
-
-        break;
-
-      case 'cpuPlayCard':
-        this.playCpu()
         break;
 
       default:
@@ -306,112 +589,62 @@ export class BaseComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private playCpu() {
-    const users: any[] = this.gameForm.get('users')?.value || [];
-    const centerDeck: any[] = this.gameForm.get('centerDeck')?.value || [];
-    const playerInTurnName: string = this.gameForm.get('peopleInTurn')?.value;
-    const playerInTurn: any = users.find((u: any) => u.name === playerInTurnName);
+  private assignPointsToPlayer(player: any, capturedCards: any[], playedCard: any, centerDeck: any[]) {
+    const users = this.gameForm.get('users')?.value || [];
+    const playedCardIndexInCenter = centerDeck.findIndex(
+      (c: any) => c.rank === playedCard.rank && c.suit === playedCard.suit
+    );
+    if (!player.pointsDeck) player.pointsDeck = { deck: [], scopa: 0 };
+    const pointsDeckObj = player.pointsDeck;
 
-    if (!playerInTurn || playerInTurn.playerType !== 'cpu' || playerInTurn.deck.length === 0) return;
+    const centerCountBefore = centerDeck.length;
 
-    console.log(`Centro prima che ${playerInTurn.name} giochi:`, centerDeck);
-    console.log(`${playerInTurn.name} ha nel deck:`, playerInTurn.deck.map((c: any) => `${c.rank} di ${c.suit}`));
+    // 🔹 Sposta le carte catturate dal centro al pointsDeck
+    capturedCards.forEach((c: any) => {
+      const idx = centerDeck.findIndex((d: any) => d.rank === c.rank && d.suit === c.suit);
+      if (idx > -1) {
+        this.moveCards(centerDeck, pointsDeckObj.deck, [idx]);
+      }
+    });
 
-    // Trova la migliore cattura o la carta meno importante
-    const bestOption = this.findBestCaptureOrLowestCard(playerInTurn.deck, centerDeck);
-    if (!bestOption || !bestOption.handCard) return;
+    // 🔹 Aggiungi la carta giocata direttamente al pointsDeck
+    pointsDeckObj.deck.push(playedCard);
 
-    const cardIndex = bestOption.handCardIndex!;
-    const playedCard = bestOption.handCard;
+    // 🔹 Rimuovi la carta dal centro se presente
 
-    // Gioca la carta nel centerDeck
-    this.moveCards(playerInTurn.deck, centerDeck, [cardIndex]);
-    this.playedCard = playedCard;
+    if (playedCardIndexInCenter > -1) {
+      centerDeck.splice(playedCardIndexInCenter, 1);
+    }
 
-    // Aggiorna lo stato prima dei toast
-    this.gameForm.patchValue({ users, centerDeck });
+    // 🔹 Aggiungi la carta giocata al pointsDeck
+    pointsDeckObj.deck.push(playedCard);
 
-    // Toast carta giocata
+    // 🔹 Rimuovi la carta giocata dal centro se era stata messa
+
+    if (playedCardIndexInCenter > -1) {
+      centerDeck.splice(playedCardIndexInCenter, 1);
+    }
+
+    // 🔹 SCOPA: se il centro era pieno e ora è vuoto
+    if (centerCountBefore === capturedCards.length + 1) {
+      pointsDeckObj.scopa = (pointsDeckObj.scopa || 0) + 1;
+    }
+
+    // Messaggio cattura
+    const capturedText = capturedCards.map((c: any) => `${c.rank} di ${c.suit}`).join(', ');
+    const scopaText = centerDeck.length === 0 ? ' …e ha fatto SCOPA!' : '';
+    const hasSettebello = capturedCards.some((c: any) => c.suit === 'denari' && c.value === 7);
+
+    console.log('💾 Stato pointsDeck:', users.map((e: any) => e.pointsDeck));
     this.alertService.triggerAlert(
-      'info',
-      `${playerInTurn.name} ha giocato: ${playedCard.rank} di ${playedCard.suit}`,
+      'success',
+      `${player.name} ha preso ${capturedText} con ${playedCard.rank} di ${playedCard.suit}${scopaText}${hasSettebello ? ' …e ha preso Settebello!' : ''}`,
       'check-circle',
-      4000
+      7000
     );
 
-    // Se ci sono catture possibili 
-    if (bestOption.capturedCards && bestOption.capturedCards.length > 0) {
-      const pointsDeck = playerInTurn.pointsDeck || (playerInTurn.pointsDeck = []);
-
-      // Indici delle carte catturate + carta giocata nel centerDeck
-      const capturedIndices = bestOption.capturedCards.map(c => centerDeck.indexOf(c));
-      const playedCardIndexInCenter = centerDeck.indexOf(playedCard);
-      if (playedCardIndexInCenter > -1) capturedIndices.push(playedCardIndexInCenter);
-
-      // Sposta tutte le carte nel pointsDeck della CPU
-      this.moveCards(centerDeck, pointsDeck, capturedIndices);
-
-      this.playedCard = null; // resetta la carta giocata
-      this.gameForm.patchValue({ users, centerDeck });
-
-      const capturedText = bestOption.capturedCards.map((c: any) => `${c.rank} di ${c.suit}`).join(', ');
-
-      // Controlla se dopo la presa il centerDeck è vuoto
-      const scopaText = centerDeck.length === 0 ? ' …e ha fatto SCOPA!' : '';
-
-      this.alertService.triggerAlert(
-        'success',
-        `${playerInTurn.name} ha preso: ${capturedText} con ${playedCard.rank} di ${playedCard.suit}${scopaText}`,
-        'check-circle',
-        7000
-      );
-    }
-
-    // Controlla se tutti i giocatori hanno 0 carte nel deck
-    // Controlla se tutti i giocatori hanno 0 carte
-    const allEmpty = users.every(u => u.deck.length === 0);
-    const mainDeck: any[] = this.gameForm.get('mainDeck')?.value || [];
-
-    if (allEmpty) {
-      if (mainDeck.length > 0) {
-        // Ridistribuisci carte ai giocatori (3 per ciascuno o quante ne restano)
-        const cardsPerPlayer = 3;
-        const updatedUsers = this.dealCardsToPlayers(users, mainDeck, cardsPerPlayer);
-        console.log('Ridistribuite carte a tutti i giocatori:', updatedUsers.map(u => `${u.name}: ${u.deck.length} carte`));
-        this.gameForm.patchValue({ users: updatedUsers, mainDeck });
-      } else if (centerDeck.length > 0) {
-        // Il maindeck è vuoto → il giocatore in turno prende tutto il centro
-        const pointsDeck = playerInTurn.pointsDeck || (playerInTurn.pointsDeck = []);
-        this.moveCards(centerDeck, pointsDeck, centerDeck.map((_, i) => i));
-        this.alertService.triggerAlert(
-          'success',
-          `${playerInTurn.name} prende tutte le carte rimaste nel centro! Partita FINITA!`,
-          'check-circle',
-          7000
-        );
-        this.gameForm.patchValue({ users, centerDeck });
-        return; // termina il turno
-      }
-    }
-
-
-
-    // Passa al prossimo giocatore
-    const currentIndex = users.findIndex((u: any) => u.name === playerInTurnName);
-    const nextIndex = (currentIndex + 1) % users.length;
-    this.gameForm.patchValue({ peopleInTurn: users[nextIndex].name });
-
-    // Se il prossimo è CPU, richiama playCpu con timeout corretto
-    const nextPlayer = users[nextIndex];
-    if (nextPlayer.playerType === 'cpu' && nextPlayer.deck.length > 0) {
-      setTimeout(() => {
-        console.log(`--- Ora gioca CPU: ${nextPlayer.name} ---`);
-        console.log('Centro attuale:', this.gameForm.get('centerDeck')?.value || []);
-        this.playCpu();
-      }, 1500); // timeout breve per non sovrapporre toast
-    }
+    this.gameForm.patchValue({ lastTaker: player.name, users, centerDeck });
   }
-
 
 
   getMyUserDeck() {
@@ -437,6 +670,93 @@ export class BaseComponent implements OnInit, AfterViewInit {
     }
   }
 
+  private findMatchingIndices(arr1: any[], arr2: any[]): number[] {
+    const indices: number[] = [];
+
+    arr2.forEach((item, index) => {
+      const exists = arr1.some(
+        other => other.rank === item.rank && other.suit === item.suit
+      );
+      if (exists) {
+        indices.push(index); // 👈 qui spingo l'indice di arr2
+      }
+    });
+
+    return indices;
+  }
+
+  private compareCardSums(arr1: any[], arr2: any[]): "equal" | "greater" | "less" {
+    const sum1 = arr1.reduce((acc, card) => acc + this.getCardNumericValue(card), 0);
+    const sum2 = arr2.reduce((acc, card) => acc + this.getCardNumericValue(card), 0);
+
+    if (sum1 === sum2) return "equal";
+    return sum1 > sum2 ? "greater" : "less";
+  }
+
+
+  /* Trova tutte le combinazioni di carte nel deck che possono essere catturate
+ * da una carta giocata (in base al suo valore numerico). */
+  private findCaptureCombinationsFlat(
+    playedCard: any,
+    deck: any[],
+    flat?: boolean
+  ): any[] {
+    const targetValue = this.getCardNumericValue(playedCard);
+    const results: any[][] = [];
+
+    const findCombos = (remaining: any[], combo: any[] = [], sum: number = 0, start: number = 0) => {
+      if (sum === targetValue) {
+        results.push([...combo]);
+        return;
+      }
+      if (sum > targetValue) return;
+
+      for (let i = start; i < remaining.length; i++) {
+        const cardValue = this.getCardNumericValue(remaining[i]);
+        combo.push(remaining[i]);
+        findCombos(remaining, combo, sum + cardValue, i + 1);
+        combo.pop();
+      }
+    };
+
+    // Trova tutte le combinazioni possibili
+    findCombos(deck);
+
+    if (flat) {
+      // "appiattisci" tutte le combinazioni in un unico array
+      const flatArray = results.flat();
+
+      // Rimuovi duplicati (controllando rank + suit)
+      const unique = flatArray.filter((card, index, self) =>
+        index === self.findIndex(c => c.rank === card.rank && c.suit === card.suit)
+      );
+
+      // 🔹 Restituisci gli indici rispetto al deck
+      return this.findMatchingIndices(unique, deck);
+    } else {
+      // 🔹 Restituisci le combinazioni come array di array senza flatten
+      return results;
+    }
+  }
+
+
+  private toggleSelectableCards(deck: any[], selectIndices: any[]) {
+
+    this.hasSelectableCards = true
+    this.toggleCards(deck, deck.map((_, i) => i), false);
+    this.toggleCards(deck, selectIndices, true);
+  }
+
+  /* Abilita o disabilita determinate carte in un mazzo. */
+  private toggleCards(deck: any[], indices: number[], selectable: boolean): void {
+    indices.forEach(index => {
+      if (deck[index]) {
+        deck[index].selectable = selectable;
+      }
+    });
+  }
+
+
   calculateMarginForDeckContainer(deckLength: number): string {
     if (!deckLength || deckLength <= 1) return '0px';
 
@@ -458,7 +778,8 @@ export class BaseComponent implements OnInit, AfterViewInit {
     const newPlayer = {
       name: formattedName,
       deck: [],
-      pointsDeck: [],
+      pointsDeck: { deck: [], scopa: 0 },
+      scopa: 0,
       played: false,
       drawed: false,
       playerType: 'human'
@@ -513,6 +834,7 @@ export class BaseComponent implements OnInit, AfterViewInit {
       default:
         console.log(gameName);
     }
+    this.gameForm.value.originalDeck = mainDeck;
 
     if (!mainDeck || mainDeck.length === 0) {
       console.error('Errore: mazzo non creato!');
@@ -524,11 +846,14 @@ export class BaseComponent implements OnInit, AfterViewInit {
 
     // Distribuzione carte
     const updatedUsers = this.dealCardsToPlayers(this.gameForm.get('users')?.value || [], mainDeck, cardsPerPlayer);
-    // Ottieni o crea il centerDeck
+    // Ottieni o crea il centerDeck   
     const centerDeck: any[] = this.gameForm.get('centerDeck')?.value || [];
 
-    // Distribuzione carte nel centro
-    this.dealCardsToCenter(mainDeck, centerDeck, 4); // 4 carte nel centerDeck
+    // Distribuzione carte nel centro SOLO se il gioco è 'scopa'
+    if (gameName === 'scopa') {
+      this.dealCardsToCenter(mainDeck, centerDeck, 4); // 4 carte nel centerDeck
+      this.gameForm.patchValue({ centerDeck, mainDeck });
+    }
 
     this.gameForm.patchValue({ centerDeck });
     console.log(mainDeck, updatedUsers)
@@ -545,11 +870,20 @@ export class BaseComponent implements OnInit, AfterViewInit {
     });
 
     console.log(`Gioco "${gameName}" iniziato, carte distribuite:`, updatedUsers);
+
+    // Controllo se il primo giocatore è CPU
+    const firstPlayerObj = updatedUsers.find(u => u.name === firstPlayer);
+    if (firstPlayerObj?.playerType === 'cpu') {
+      setTimeout(() => {
+        this.cpuPlay();
+      }, 2000); // piccola pausa per vedere la mossa
+    }
   }
 
   private dealCardsToPlayers(users: any[], mainDeck: any[], cardsPerPlayer: number): any[] {
     // Controlla se ci sono abbastanza carte nel mazzo principale
     if ((mainDeck?.length || 0) < users.length * cardsPerPlayer) {
+      console.log('💾 Stato pointsDeck:', users.map((e: any) => e.pointsDeck));
       this.alertService.triggerAlert(
         'warning',
         'Partita finita: non ci sono abbastanza carte nel mazzo principale!',
@@ -570,10 +904,9 @@ export class BaseComponent implements OnInit, AfterViewInit {
     });
   }
 
-
   dealCardsToCenter(mainDeck: any[], centerDeck: any[], cardsToDeal: number = 4) {
     const movedCards = this.moveCards(mainDeck, centerDeck, Array.from({ length: cardsToDeal }, (_, i) => i));
-    console.log('Carte distribuite al centro:', movedCards.map(c => `${c.rank} di ${c.suit}`));
+    console.log('Carte distribuite al centro:', movedCards.map((c: any) => `${c.rank} di ${c.suit}`));
   }
 
 
@@ -665,67 +998,6 @@ export class BaseComponent implements OnInit, AfterViewInit {
 
   }
 
-  private playNextCPU(users: any[], currentPlayerName: any) {
-    const currentIndex = users.findIndex((u: any) => u.name === currentPlayerName);
-    const nextIndex = (currentIndex + 1) % users.length;
-    const nextPlayer: any = users[nextIndex];
-
-    if (nextPlayer.playerType === 'cpu' && nextPlayer.deck.length > 0) {
-      setTimeout(() => {
-        const centerDeck: any[] = this.gameForm.get('centerDeck')?.value || [];
-
-        // Debug: stampa il centro prima di qualsiasi mossa
-        console.log(`Centro prima che ${nextPlayer.name} giochi:`, centerDeck);
-        // Stampa le carte attuali della CPU (prime tre)
-        console.log(`${nextPlayer.name} ha nel deck:`,
-          nextPlayer.deck.slice(0, 3).map((c: any) => `${c.rank} di ${c.suit}`)
-        );
-        // Trova la migliore presa possibile
-        const bestCapture = this.findBestCaptureOrLowestCard(nextPlayer.deck, centerDeck);
-        if (bestCapture && bestCapture.capturedCards) {
-          console.log(this.findBestCaptureOrLowestCard(nextPlayer.deck, centerDeck));
-        } else {
-          console.log(`${nextPlayer.name} non ha catture possibili con le prime carte.`,
-            this.findBestCaptureOrLowestCard(nextPlayer.deck, centerDeck)
-          );
-        }
-        // Sposta la prima carta del deck CPU nel centerDeck
-        // const movedCards = this.moveCards(nextPlayer.deck, centerDeck, [0]);
-        // this.gameForm.patchValue({ users, centerDeck });
-
-        // Imposta playedCard della CPU
-        // this.playedCard = movedCards[0];
-
-        // Toast con la carta giocata
-        // if (this.playedCard) {
-        //   this.alertService.triggerAlert(
-        //     'info',
-        //     `${nextPlayer.name} ha giocato: ${this.playedCard.rank} di ${this.playedCard.suit}`,
-        //     'check-circle',
-        //     4000
-        //   );
-        // }
-
-        // Controlla catture possibili solo per Scopa
-        const gameName = this.gameForm.get('gameName')?.value?.toLowerCase();
-        if (gameName === 'scopa') {
-          // const captureCards = this.getScopaCardsForValue(this.getCardNumericValue(this.playedCard))
-          //   .filter((c: any) => c !== this.playedCard && centerDeck.includes(c));
-
-          // if (captureCards.length > 0) {
-          //   console.log(`${nextPlayer.name} può catturare carte con ${this.playedCard.rank} di ${this.playedCard.suit}:`,
-          //     captureCards.map((c: any) => `${c.rank} di ${c.suit}`).join(', '));
-          //   ...
-          //   return;
-          // }
-        }
-
-        // Non far partire la CPU successiva
-        // this.playNextCPU(users, nextPlayer.name);
-      }, 3000);
-    }
-  }
-
   findBestCaptureOrLowestCard(handCards: any[], centerDeck: any[]): { handCard?: any, capturedCards?: any[], handCardIndex?: number } | null {
     const cardValue = (card: any) => {
       switch (card.rank.toLowerCase()) {
@@ -810,11 +1082,6 @@ export class BaseComponent implements OnInit, AfterViewInit {
     return bestOption;
   }
 
-
-  toggleSelectCaptureCard(card: any) {
-
-  }
-
   /**
   * Trova nel centerDeck le carte che possono essere raccolte per fare punti. 
   */
@@ -825,8 +1092,8 @@ export class BaseComponent implements OnInit, AfterViewInit {
     const exactMatch = centerDeck.filter((c: any) => this.getCardNumericValue(c) === targetValue);
     if (exactMatch.length > 0) return exactMatch;
 
-    // Altrimenti cerca combinazioni di carte che sommano al valore target
-    const results: any[] = [];
+    // Cerca tutte le combinazioni di carte che sommano al valore target
+    const results: any[][] = [];
 
     const findCombinations = (arr: any[], combo: any[] = [], sum: number = 0, start: number = 0) => {
       if (sum === targetValue) {
@@ -845,14 +1112,17 @@ export class BaseComponent implements OnInit, AfterViewInit {
 
     findCombinations(centerDeck);
 
-    // Restituisci la prima combinazione trovata, se ce n'è più di una
-    return results.length > 0 ? results[0] : [];
+    if (results.length === 0) return [];
+
+    // 🔹 Opzione: restituisci la combinazione con meno carte
+    results.sort((a, b) => a.length - b.length);
+    return results[0];
   }
+
 
   /**
    * Restituisce il valore numerico di una carta SCOPA
    */
-
   getCardNumericValue(card: any): number {
     switch (card.rank.toLowerCase()) {
       case '1':
@@ -910,6 +1180,7 @@ export class BaseComponent implements OnInit, AfterViewInit {
     this.gameForm.patchValue({ users, [fromDeckName]: deck });
 
     if (drawnCards.length > 0) {
+      console.log('💾 Stato pointsDeck:', users.map((e: any) => e.pointsDeck));
       this.alertService.triggerAlert(
         'warning',
         `${name} pesca ${drawnCards.length} carte${count > 1 ? 's' : ''}: ${drawnCards.map((c: any) => c.name).join(', ')}`,
