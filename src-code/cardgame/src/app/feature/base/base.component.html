@@ -124,10 +124,10 @@
             </div>
         </div>
         <div class="d-flex justify-content-between card-wrapper center-deck-wrapper">
-            <div class="left-wrapper">
+            <div class="  d-md-none">
 
             </div>
-            <div class="center-wrapper"
+            <div class="center-wrapper position-relative"
                 [ngClass]="{'scopa-center-wrapper': gameForm.get('gameName')?.value?.toLowerCase() === 'scopa'}">
                 <div class="deck-container" style="position: relative; "
                     [class]="gameForm.get('gameName')?.value?.toLowerCase() === 'scopa' ? 'position-absolute' : ''"
@@ -149,12 +149,12 @@
             </div>
 
 
-            <div class="right-wrapper"> </div>
+            <div class=" d-md-none"> </div>
         </div>
         <div class="d-flex justify-content-center card-wrapper" style="margin-top: 50px;">
-            <div class="deck-container" style="position: relative; height: 135px;"
-                [ngStyle]="{'margin-left': calculateMarginForDeckContainer(getMyUserDeck().length)}">
+            <div class="deck-container d-flex justify-content-center" style="position: relative; height: 135px;">
 
+                <!-- [ngStyle]="{'margin-left': calculateMarginForDeckContainer(getMyUserDeck().length)}" -->
                 <div *ngFor="let card of getMyUserDeck(); let i = index"
                     class="card deck-card position-absolute  shadow" [ngClass]="getCardClasses(card)" [ngStyle]="{
        'margin-left': calculateMargin(i, getMyUserDeck().length),

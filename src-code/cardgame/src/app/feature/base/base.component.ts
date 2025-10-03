@@ -590,7 +590,7 @@ export class BaseComponent implements OnInit, AfterViewInit {
       default:
         console.log('Azione non gestita:', action, card);
     }
-  } 
+  }
 
   getMyUserDeck() {
 
@@ -604,7 +604,7 @@ export class BaseComponent implements OnInit, AfterViewInit {
   calculateMargin(index: number, length: number): string {
     if (!length) return '0px';
     const middle = Math.floor(length / 2);
-    const offset = 30; // pixel di spostamento per carta
+    const offset = 50; // pixel di spostamento per carta
 
     if (index < middle) {
       return `-${(middle - index) * offset}px`; // carte a sinistra
@@ -702,14 +702,14 @@ export class BaseComponent implements OnInit, AfterViewInit {
 
   calculateMarginForDeckContainer(deckLength: number): string {
     if (!deckLength || deckLength <= 1) return '0px';
-
-    const middleIndex = Math.floor(deckLength / 2); // indice della carta di mezzo
+    
     const offset = 30; // pixel di sovrapposizione tra carte
-
-    // sposta il container a sinistra del numero di carte prima della centrale
-    const margin = -middleIndex * offset;
-    return `${margin}px`;
+    const totalOffset = -(deckLength) * offset; // spostamento complessivo
+    const margin = -(totalOffset / 2); // centratura
+ 
+    return `${totalOffset}px`;
   }
+
 
   addPlayer() {
     if (!this.nickname.trim()) return;
