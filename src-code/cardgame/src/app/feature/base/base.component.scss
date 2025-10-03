@@ -49,9 +49,7 @@
     background-color: rgba(#FFF, .5);
 }
 
-.card-wrapper {
-    min-height: 150px;
-}
+.card-wrapper {}
 
 .center-wrapper {
     width: 100%;
@@ -86,11 +84,21 @@
     /* position: absolute; */
     cursor: pointer;
 }
-
 /* Effetto hover solo per carte abilitare */
 .deck-card:not(.deck-red-disabled):not(.deck-green-disabled):not(.deck-blue-disabled):not(.deck-yellow-disabled):not(.deck-wild-disabled):hover {
     transform: translateY(-20px);
-} 
+}
+
+@media screen and (max-width: 762px) {
+    .deck-card {
+        transform: scale(.8);
+    }
+
+    .deck-card:not(.deck-red-disabled):not(.deck-green-disabled):not(.deck-blue-disabled):not(.deck-yellow-disabled):not(.deck-wild-disabled):hover {
+        transform: translateY(-20px) scale(.8);
+    }
+}
+
 
 
 /* Colori UNO */
@@ -119,6 +127,7 @@
     color: white;
     /* testo leggibile sul gradiente */
 }
+
 .card-body {
     padding: 10px;
 }
@@ -357,6 +366,10 @@
     cursor: not-allowed;
 }
 
+.upper-deck-wrapper {
+    min-height: 150px;
+}
+
 .center-deck-wrapper {
     min-height: 300px;
 }
@@ -436,7 +449,7 @@
 
 .scopa-center-wrapper .deck-container {
     flex-direction: row;
-    display: flex; 
+    display: flex;
     justify-content: center;
     width: 400px;
     flex-wrap: wrap;
@@ -447,12 +460,13 @@
     background-color: #E4CFD5;
     pointer-events: none;
 }
+
 .not-selectable .center-icon-scopa {
     opacity: 0.5;
     filter: brightness(.8) contrast(1.2);
-} 
+}
 
-.selected-card-icon {    
+.selected-card-icon {
     width: 10px;
     height: 10px;
     z-index: 2000;
@@ -462,7 +476,7 @@
 }
 
 .text-green {
-    color: #45BB32!important;
+    color: #45BB32 !important;
 }
 
 .scopa-deck-card .card-body {

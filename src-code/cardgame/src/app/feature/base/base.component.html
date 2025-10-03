@@ -114,7 +114,7 @@
 
 
         </div>
-        <div class="d-flex justify-content-between card-wrapper center-deck-wrapper">
+        <div class="d-flex justify-content-between card-wrapper upper-deck-wrapper">
             <div class="left-wrapper">
                 <div [class]="gameForm.get('gameName')?.value?.toLowerCase() +'-deck-card'"
                     class="card deck-card position-absolute  shadow"
@@ -122,7 +122,11 @@
                     <div class="card-body"> </div>
                 </div>
             </div>
+        </div>
+        <div class="d-flex justify-content-between card-wrapper center-deck-wrapper">
+            <div class="left-wrapper">
 
+            </div>
             <div class="center-wrapper"
                 [ngClass]="{'scopa-center-wrapper': gameForm.get('gameName')?.value?.toLowerCase() === 'scopa'}">
                 <div class="deck-container" style="position: relative; "
