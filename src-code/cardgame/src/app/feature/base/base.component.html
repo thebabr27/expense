@@ -130,10 +130,8 @@
                     [ngStyle]="gameForm.get('gameName')?.value?.toLowerCase() === 'scopa' ? {} : {'margin-left': calculateMarginForDeckContainer(gameForm.get('centerDeck')?.value?.length)}">
 
                     <div *ngFor="let card of gameForm.get('centerDeck')?.value; let i = index"
-                        class="card deck-card shadow" [ngClass]="{
-       'not-selectable': hasSelectableCards && !card.selectable,
-       'selected-card': selectedCaptureCards.includes(card)
-     }" (click)="action('centerDeckCard', card)">
+                        class="card deck-card shadow" [ngClass]="getCardClasses(card)"
+                        (click)="action('centerDeckCard', card)">
                         <div class="selected-card-icon d-none position-absolute">
                             <i class="bi bi-check-lg text-green"></i>
                         </div>
@@ -154,10 +152,7 @@
                 [ngStyle]="{'margin-left': calculateMarginForDeckContainer(getMyUserDeck().length)}">
 
                 <div *ngFor="let card of getMyUserDeck(); let i = index"
-                    class="card deck-card position-absolute  shadow"  [ngClass]="{
-       'not-selectable': hasSelectableCards && !card.selectable,
-       'selected-card': selectedCaptureCards.includes(card)
-     }"  [ngStyle]="{
+                    class="card deck-card position-absolute  shadow" [ngClass]="getCardClasses(card)" [ngStyle]="{
        'margin-left': calculateMargin(i, getMyUserDeck().length),
        'z-index': hoveredCard === card ? 100 : 1
      }" (mouseenter)="onHover(card)" (mouseleave)="onLeave()" (click)="action('userDeckCard', card)">
@@ -236,7 +231,7 @@
             </div>
 
         </div>
-    </div> 
+    </div>
 
     <!-- FINISH -->
     <div *ngIf="gameForm.get('phase')?.value === 'finish-playing'">

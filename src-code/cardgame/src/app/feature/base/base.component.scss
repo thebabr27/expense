@@ -91,6 +91,34 @@
 .deck-card:not(.deck-red-disabled):not(.deck-green-disabled):not(.deck-blue-disabled):not(.deck-yellow-disabled):not(.deck-wild-disabled):hover {
     transform: translateY(-20px);
 } 
+
+
+/* Colori UNO */
+.deck-red {
+    background-color: #e74c3c;
+}
+
+.deck-green {
+    background-color: #27ae60;
+}
+
+.deck-blue {
+    background-color: #3498db;
+}
+
+.deck-yellow {
+    background-color: #f1c40f;
+    color: black;
+}
+
+/* testo scuro per contrasto */
+.deck-wild {
+    background: linear-gradient(135deg, #000000, #333333, #555555, #000000);
+    background-size: 400% 400%;
+    animation: wildGradientBlack 5s ease infinite;
+    color: white;
+    /* testo leggibile sul gradiente */
+}
 .card-body {
     padding: 10px;
 }

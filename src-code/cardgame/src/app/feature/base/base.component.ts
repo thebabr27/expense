@@ -65,64 +65,63 @@ export class BaseComponent implements OnInit, AfterViewInit {
   }
 
   getUserScores() {
-  const users = this.gameForm.get('users')?.value || [];
+    const users = this.gameForm.get('users')?.value || [];
 
-  // Conteggio carte e denari
-  const deckLengths = users.map((u: any) => (u.pointsDeck?.deck?.length || 0));
-  const maxCarte = Math.max(...deckLengths);
-  const denariCounts = users.map((u: any) => (u.pointsDeck?.deck?.filter((c: any) => c.suit.toLowerCase() === 'denari').length || 0));
-  const maxDenari = Math.max(...denariCounts);
+    // Conteggio carte e denari
+    const deckLengths = users.map((u: any) => (u.pointsDeck?.deck?.length || 0));
+    const maxCarte = Math.max(...deckLengths);
+    const denariCounts = users.map((u: any) => (u.pointsDeck?.deck?.filter((c: any) => c.suit.toLowerCase() === 'denari').length || 0));
+    const maxDenari = Math.max(...denariCounts);
 
-  // Controllo se ci sono pareggi per carte e denari
-  const maxCarteCount = deckLengths.filter((l: any) => l === maxCarte).length;
-  const maxDenariCount = denariCounts.filter((l: any) => l === maxDenari).length;
+    // Controllo se ci sono pareggi per carte e denari
+    const maxCarteCount = deckLengths.filter((l: any) => l === maxCarte).length;
+    const maxDenariCount = denariCounts.filter((l: any) => l === maxDenari).length;
 
-  // Calcolo primiera di tutti i giocatori e massimo
-  const primiereScores = users.map((u: any) => this.calcPrimiera(u.pointsDeck?.deck || []));
-  const maxPrimiera = Math.max(...primiereScores);
-  const maxPrimieraCount = primiereScores.filter((p: any) => p === maxPrimiera).length;
+    // Calcolo primiera di tutti i giocatori e massimo
+    const primiereScores = users.map((u: any) => this.calcPrimiera(u.pointsDeck?.deck || []));
+    const maxPrimiera = Math.max(...primiereScores);
+    const maxPrimieraCount = primiereScores.filter((p: any) => p === maxPrimiera).length;
 
-  return users.map((u: any, index: number) => {
-    const deckObj = u.pointsDeck || { deck: [], scopa: 0 };
-    const deck = deckObj.deck || [];
-    const scope = deckObj.scopa || 0;
+    return users.map((u: any, index: number) => {
+      const deckObj = u.pointsDeck || { deck: [], scopa: 0 };
+      const deck = deckObj.deck || [];
+      const scope = deckObj.scopa || 0;
 
-    const carte = deck.length;
-    const denari = deck.filter((c: any) => c.suit.toLowerCase() === 'denari').length;
-    const settebello = deck.some((c: any) => c.suit.toLowerCase() === 'denari' && c.rank === '7') ? 1 : 0;
-    const primiera = primiereScores[index];
+      const carte = deck.length;
+      const denari = deck.filter((c: any) => c.suit.toLowerCase() === 'denari').length;
+      const settebello = deck.some((c: any) => c.suit.toLowerCase() === 'denari' && c.rank === '7') ? 1 : 0;
+      const primiera = primiereScores[index];
 
-    // Totale punti
-    let total = 0;
-    total += scope;                                           // punti per scopa
-    total += (carte === maxCarte && maxCarteCount === 1 ? 1 : 0);     // più carte, solo se unico
-    total += (denari === maxDenari && maxDenariCount === 1 ? 1 : 0);   // più denari, solo se unico
-    total += settebello;                                      // settebello
-    total += (primiera === maxPrimiera && maxPrimieraCount === 1 ? 1 : 0); // primiera, solo se unico
+      // Totale punti
+      let total = 0;
+      total += scope;                                           // punti per scopa
+      total += (carte === maxCarte && maxCarteCount === 1 ? 1 : 0);     // più carte, solo se unico
+      total += (denari === maxDenari && maxDenariCount === 1 ? 1 : 0);   // più denari, solo se unico
+      total += settebello;                                      // settebello
+      total += (primiera === maxPrimiera && maxPrimieraCount === 1 ? 1 : 0); // primiera, solo se unico
 
-    console.log({
-      name: u.name,
-      scope,
-      carte,
-      denari,
-      settebello,
-      primiera,
-      total,
-      pointsDeck: deck
+      console.log({
+        name: u.name,
+        scope,
+        carte,
+        denari,
+        settebello,
+        primiera,
+        total,
+        pointsDeck: deck
+      });
+
+      return {
+        name: u.name,
+        scope,
+        carte,
+        denari,
+        settebello,
+        primiera,
+        total
+      };
     });
-
-    return {
-      name: u.name,
-      scope,
-      carte,
-      denari,
-      settebello,
-      primiera,
-      total
-    };
-  });
-}
-
+  }
 
   // Calcolo primiera corretto
   calcPrimiera(deck: any[]): number {
@@ -146,7 +145,12 @@ export class BaseComponent implements OnInit, AfterViewInit {
     return score;
   }
 
-
+  getCardClasses(card: any): { [key: string]: boolean } {
+    return {
+      'not-selectable': this.hasSelectableCards && !card.selectable,
+      'selected-card': this.selectedCaptureCards.includes(card)
+    };
+  }
 
   onHover(card: any) {
     this.hoveredCard = card; // carta in primo piano
@@ -480,7 +484,6 @@ export class BaseComponent implements OnInit, AfterViewInit {
     }
   }
 
-
   action(action: string, card?: any) {
     const users: any[] = this.gameForm.get('users')?.value || [];
     const centerDeck: any[] = this.gameForm.get('centerDeck')?.value || [];
@@ -587,65 +590,7 @@ export class BaseComponent implements OnInit, AfterViewInit {
       default:
         console.log('Azione non gestita:', action, card);
     }
-  }
-
-  private assignPointsToPlayer(player: any, capturedCards: any[], playedCard: any, centerDeck: any[]) {
-    const users = this.gameForm.get('users')?.value || [];
-    const playedCardIndexInCenter = centerDeck.findIndex(
-      (c: any) => c.rank === playedCard.rank && c.suit === playedCard.suit
-    );
-    if (!player.pointsDeck) player.pointsDeck = { deck: [], scopa: 0 };
-    const pointsDeckObj = player.pointsDeck;
-
-    const centerCountBefore = centerDeck.length;
-
-    // 🔹 Sposta le carte catturate dal centro al pointsDeck
-    capturedCards.forEach((c: any) => {
-      const idx = centerDeck.findIndex((d: any) => d.rank === c.rank && d.suit === c.suit);
-      if (idx > -1) {
-        this.moveCards(centerDeck, pointsDeckObj.deck, [idx]);
-      }
-    });
-
-    // 🔹 Aggiungi la carta giocata direttamente al pointsDeck
-    pointsDeckObj.deck.push(playedCard);
-
-    // 🔹 Rimuovi la carta dal centro se presente
-
-    if (playedCardIndexInCenter > -1) {
-      centerDeck.splice(playedCardIndexInCenter, 1);
-    }
-
-    // 🔹 Aggiungi la carta giocata al pointsDeck
-    pointsDeckObj.deck.push(playedCard);
-
-    // 🔹 Rimuovi la carta giocata dal centro se era stata messa
-
-    if (playedCardIndexInCenter > -1) {
-      centerDeck.splice(playedCardIndexInCenter, 1);
-    }
-
-    // 🔹 SCOPA: se il centro era pieno e ora è vuoto
-    if (centerCountBefore === capturedCards.length + 1) {
-      pointsDeckObj.scopa = (pointsDeckObj.scopa || 0) + 1;
-    }
-
-    // Messaggio cattura
-    const capturedText = capturedCards.map((c: any) => `${c.rank} di ${c.suit}`).join(', ');
-    const scopaText = centerDeck.length === 0 ? ' …e ha fatto SCOPA!' : '';
-    const hasSettebello = capturedCards.some((c: any) => c.suit === 'denari' && c.value === 7);
-
-    console.log('💾 Stato pointsDeck:', users.map((e: any) => e.pointsDeck));
-    this.alertService.triggerAlert(
-      'success',
-      `${player.name} ha preso ${capturedText} con ${playedCard.rank} di ${playedCard.suit}${scopaText}${hasSettebello ? ' …e ha preso Settebello!' : ''}`,
-      'check-circle',
-      7000
-    );
-
-    this.gameForm.patchValue({ lastTaker: player.name, users, centerDeck });
-  }
-
+  } 
 
   getMyUserDeck() {
 
@@ -693,7 +638,6 @@ export class BaseComponent implements OnInit, AfterViewInit {
     return sum1 > sum2 ? "greater" : "less";
   }
 
-
   /* Trova tutte le combinazioni di carte nel deck che possono essere catturate
  * da una carta giocata (in base al suo valore numerico). */
   private findCaptureCombinationsFlat(
@@ -738,7 +682,6 @@ export class BaseComponent implements OnInit, AfterViewInit {
       return results;
     }
   }
-
 
   private toggleSelectableCards(deck: any[], selectIndices: any[]) {
 
