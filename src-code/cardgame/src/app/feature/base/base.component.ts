@@ -23,6 +23,12 @@ export class BaseComponent implements OnInit, AfterViewInit {
   toCapture: any[] = [];
   toCenter: any[] = [];
   playedCard: any;
+  pressTimer: any;
+  startX = 0;
+
+  hoverDragDelta: number = 0; // variabile della classe
+  hoveredCardIndex: number | null = null;
+  isLongPressActive: boolean = false;
 
 
   // Carte del centro che l'utente può effettivamente prendere
@@ -150,14 +156,6 @@ export class BaseComponent implements OnInit, AfterViewInit {
       'not-selectable': this.hasSelectableCards && !card.selectable,
       'selected-card': this.selectedCaptureCards.includes(card)
     };
-  }
-
-  onHover(card: any) {
-    this.hoveredCard = card; // carta in primo piano
-  }
-
-  onLeave() {
-    this.hoveredCard = null; // reset z-index
   }
 
   getCardBackground(card: any): any {
@@ -514,6 +512,9 @@ export class BaseComponent implements OnInit, AfterViewInit {
             this.gameForm.value.centerDeck,
             [cardIndex]
           );
+          this.hasSelectableCards = false;
+          this.hoveredCardIndex = null;
+          this.hoveredCard = null;
 
           // Alert per giocata senza presa
           this.alertService.triggerAlert(
@@ -599,6 +600,93 @@ export class BaseComponent implements OnInit, AfterViewInit {
     // Trova il mazzo del giocatore con quel nome
     const userDeck = (this.gameForm.get('users')?.value).find((u: any) => u.name === userName)?.deck;
     return userDeck
+  }
+
+  onPressEnd(event: MouseEvent | TouchEvent) {
+    this.action('userDeckCard', this.hoveredCard)
+    console.log('⏹️ Fine hover-trascinamento', event);
+
+    // Disattiva lo stato hover su tutte le carte
+    /*  this.hoveredCardIndex = null;
+     this.hoveredCard = null; */
+
+    // Disattiva la modalità long press
+    this.isLongPressActive = false;
+  }
+
+
+  onOverlayMove(event: TouchEvent | MouseEvent) {
+    const deck = this.getMyUserDeck();
+    if (!deck.length) return;
+
+    const overlayEl = event.currentTarget as HTMLElement; // il container della griglia
+    const rect = overlayEl.getBoundingClientRect();
+    const clientX = this.getClientX(event); // metodo che legge sia mouse che touch
+
+    const deckLength = deck.length; // numero di carte
+    const segmentWidth = rect.width / deckLength;
+
+    // calcola quale cella stiamo passando
+    let index = Math.floor((clientX - rect.left) / segmentWidth);
+    index = Math.max(0, Math.min(deckLength - 1, index)); // limita tra 0 e deckLength-1
+
+    // assegna la carta corrispondente all'hover
+    this.hoveredCard = deck[index];
+    const centerDeck: any[] = this.gameForm.get('centerDeck')?.value || [];
+    const users: any[] = this.gameForm.get('users')?.value || [];
+
+    const possibleCaptures = this.findCaptureCombinationsFlat(this.hoveredCard, centerDeck, true);
+    const currentUserName: string = this.gameForm.get('userName')?.value;
+    const currentPlayer: any = users.find((u: any) => u.name === currentUserName);
+
+
+    if (this.hoveredCardIndex !== index) {
+      this.hoveredCardIndex = index;
+      if (possibleCaptures && possibleCaptures.length > 0) {
+        this.playedCard = this.hoveredCard;
+        this.toggleSelectableCards(this.gameForm.value.centerDeck, possibleCaptures);
+        this.toggleSelectableCards(currentPlayer.deck, [index]);
+      } else {
+        this.toggleSelectableCards(this.gameForm.value.centerDeck, []);
+        this.toggleSelectableCards(currentPlayer.deck, [index]);
+      }
+      this.hoveredCard = deck[index];
+      console.log(`👉 Hover su carta index ${index}`, deck[index]);
+    }
+  }
+
+  getClientX(event: MouseEvent | TouchEvent): number {
+    if ((event as TouchEvent).touches && (event as TouchEvent).touches.length > 0) {
+      return (event as TouchEvent).touches[0].clientX;
+    }
+    return (event as MouseEvent).clientX;
+  }
+
+  getHoveredCard(): any | null {
+    const deck = this.getMyUserDeck();
+    if (this.hoveredCardIndex !== null) return deck[this.hoveredCardIndex];
+    return null;
+  }
+
+
+  hoverNextCard() {
+    const deck = this.getMyUserDeck();
+    if (!deck.length) return;
+
+    let index = this.hoveredCard ? deck.indexOf(this.hoveredCard) : -1;
+    index = (index + 1) % deck.length;
+    this.hoveredCard = deck[index];
+    console.log('👉 Hover su', this.hoveredCard);
+  }
+
+  hoverPrevCard() {
+    const deck = this.getMyUserDeck();
+    if (!deck.length) return;
+
+    let index = this.hoveredCard ? deck.indexOf(this.hoveredCard) : deck.length;
+    index = (index - 1 + deck.length) % deck.length;
+    this.hoveredCard = deck[index];
+    console.log('👈 Hover su', this.hoveredCard);
   }
 
   calculateMargin(index: number, length: number): string {
@@ -702,11 +790,11 @@ export class BaseComponent implements OnInit, AfterViewInit {
 
   calculateMarginForDeckContainer(deckLength: number): string {
     if (!deckLength || deckLength <= 1) return '0px';
-    
+
     const offset = 30; // pixel di sovrapposizione tra carte
     const totalOffset = -(deckLength) * offset; // spostamento complessivo
     const margin = -(totalOffset / 2); // centratura
- 
+
     return `${totalOffset}px`;
   }
 

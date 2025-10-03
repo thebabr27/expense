@@ -92,20 +92,24 @@
                     <div *ngIf="player.name !== gameForm.get('userName')?.value" class="d-flex flex-column text-end">
 
                         <!-- Nome e numero di carte -->
-                        <div class="d-flex align-items-center">
+                        <div class="d-flex align-items-center other-player-name justify-content-end">
                             <div *ngIf="gameForm.get('peopleInTurn')?.value === player.name"
                                 class="spinner-border spinner-border-sm mx-1 text-warning" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
-                            <p class="mb-1">{{ player.name }}</p>
+                            <p class="mb-1 text-light">{{ player.name }}</p>
                         </div>
-                        <p class="mb-1">Carte {{ player.deck?.length || 0 }}</p>
+                        <small>
+                            <p class="mb-1 text-light">Carte {{ player.deck?.length || 0 }}</p>
+                        </small>
 
 
                         <!-- Mini deck -->
-                        <div class="mini-card-wrapper d-flex flex-column">
-                            <div *ngFor="let card of player.deck" class="card mini-card me-1">
-                                <div class="card-body"></div>
+                        <div class="d-flex justify-content-end">
+                            <div class="mini-card-wrapper d-flex flex-column">
+                                <div *ngFor="let card of player.deck" class="card mini-card me-1">
+                                    <div class="card-body"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -151,15 +155,20 @@
 
             <div class=" d-md-none"> </div>
         </div>
-        <div class="d-flex justify-content-center card-wrapper" style="margin-top: 50px;">
-            <div class="deck-container d-flex justify-content-center" style="position: relative; height: 135px;">
+        <div class="d-flex justify-content-center card-wrapper position-relative" style="margin-top: 50px;">
+            <div class="deck-container d-flex justify-content-center position-relative">
 
-                <!-- [ngStyle]="{'margin-left': calculateMarginForDeckContainer(getMyUserDeck().length)}" -->
-                <div *ngFor="let card of getMyUserDeck(); let i = index"
-                    class="card deck-card position-absolute  shadow" [ngClass]="getCardClasses(card)" [ngStyle]="{
-       'margin-left': calculateMargin(i, getMyUserDeck().length),
-       'z-index': hoveredCard === card ? 100 : 1
-     }" (mouseenter)="onHover(card)" (mouseleave)="onLeave()" (click)="action('userDeckCard', card)">
+                <!-- Carte dell’utente -->
+                <div *ngFor="let card of getMyUserDeck(); let i = index" class="card deck-card position-absolute shadow"
+                    [ngClass]="{
+           'not-selectable': hasSelectableCards && !card.selectable,
+           'selected-card': selectedCaptureCards.includes(card),
+           'hovered-card': hoveredCardIndex === i
+         }" [ngStyle]="{
+           'margin-left': calculateMargin(i, getMyUserDeck().length),
+           'z-index': hoveredCardIndex === i ? 100 : 1,
+           'transform': hoveredCardIndex === i ? 'translateY(-20px)' : 'none'
+         }" (click)="action('userDeckCard', card)">
 
                     <div class="card-body w-100 d-flex flex-column justify-content-between">
                         <!-- Valore piccolo in alto a sinistra -->
@@ -232,13 +241,24 @@
                     </div>
                 </div>
 
+
             </div>
 
         </div>
+
     </div>
 
+    <!-- Overlay griglia per il drag -->
+    <div class="deck-overlay position-absolute border w-100 d-md-none" (touchmove)="onOverlayMove($event )"
+        (touchend)="onPressEnd($event)">
+        <div *ngFor="let card of getMyUserDeck(); let i = index" class="overlay-cell"
+            [style.width.%]="100 / getMyUserDeck().length" style="height: 100%; display: inline-block;">
+        </div>
+    </div>
     <!-- FINISH -->
-    <div *ngIf="gameForm.get('phase')?.value === 'finish-playing'">
+    <div *ngIf="gameForm.get('phase')?.value === 'finish-playing'" style="
+    overflow-x: auto;
+">
         <h2>Risultati finali</h2>
 
         <table class="table table-striped table-dark" border="1" cellpadding="6">

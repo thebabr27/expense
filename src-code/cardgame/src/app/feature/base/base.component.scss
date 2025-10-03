@@ -84,9 +84,11 @@
     /* position: absolute; */
     cursor: pointer;
 }
+
 /* Effetto hover solo per carte abilitare */
 .deck-card:not(.deck-red-disabled):not(.deck-green-disabled):not(.deck-blue-disabled):not(.deck-yellow-disabled):not(.deck-wild-disabled):hover {
-    transform: translateY(-20px);
+    transform: translateY(-20px) scale(1)!important;
+    z-index: 2000 !important;
 }
 
 @media screen and (max-width: 762px) {
@@ -95,11 +97,27 @@
     }
 
     .deck-card:not(.deck-red-disabled):not(.deck-green-disabled):not(.deck-blue-disabled):not(.deck-yellow-disabled):not(.deck-wild-disabled):hover {
-        transform: translateY(-20px) scale(.8);
+        transform: scale(1) translateY(-20px) !important;
+        z-index: 2000 !important;
+    }
+
+    .card.deck-card {
+        transition: transform 0.2s ease;
+        /* transizione morbida */
+    }
+
+    .card.deck-card.hovered-card {
+        transform: translateY(-20px);
+        z-index: 2000!important;
+        /* porta in primo piano */
     }
 }
 
-
+.deck-overlay {
+    border: 1px solid black;
+    height: 100px;
+    left: 0;
+}
 
 /* Colori UNO */
 .deck-red {
@@ -529,6 +547,11 @@
 
 .mini-card-wrapper {
     margin-top: 25px;
+    margin-right: -30px;
+}
+
+.other-player-name {
+    margin-bottom: -10px;
 }
 
 .mini-card {
