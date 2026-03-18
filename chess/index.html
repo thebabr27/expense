@@ -355,8 +355,8 @@
                     <button id="newGameBtn" class="btn btn-success">NewGame</button>
                 </div>
                 <div class="d-flex justify-content-between">
-                    <div id="turn" class="mb-3 fw-bold">Turno: Bianco</div>
-                    <div id="check" class="fw-bold align-self-center">Scacco !</div>
+                    <div id="turn" class="mb-3 fw-bold">...</div>
+                    <div id="check" class="fw-bold align-self-center"> </div>
                 </div>
                 <div id="games" class="list-group m-3"></div>
 
@@ -618,8 +618,8 @@
                 chessState.players.white === userId ? "white" :
                     chessState.players.black === userId ? "black" : null;
 
-            
-            console.log(row,col,chessState,userColor,userId)
+
+            console.log(row, col, chessState, userColor, userId)
             if (!userColor || chessState.turn !== userColor) return;
 
             const piece = chessState.board[row][col];
@@ -681,7 +681,7 @@
             // =========================
             selected = null;
             clearHighlights();
-        }        
+        }
 
         function saveChessState(state) { return set(gameRef, state); }
 
@@ -697,9 +697,26 @@
             const userColor =
                 chessState.players.white === userId ? "white" :
                     chessState.players.black === userId ? "black" : null;
+            const currentTurn = chessState.turn; // "white" o "black"
+            const currentPlayerEmail = chessState.players[currentTurn] || "Sconosciuto";
 
-            turnElement.textContent = "Turno: " + (chessState.turn === "white" ? "Bianco" : "Nero");
+            // scegli icona scacco
+            const pieceIcon = currentTurn === "white" ? "♔" : "♚";
 
+            turnElement.innerHTML = currentTurn === "white" 
+            ? `Tocca a ${currentPlayerEmail} <span class="text-light">${pieceIcon}</span>`
+            :`Tocca a ${currentPlayerEmail} <span>${pieceIcon}</span>`;
+             
+            const inCheck = isCheck(chessState.board, currentTurn);
+            const inCheckmate = isCheckmate(chessState.board, currentTurn);
+
+            if (inCheckmate) {
+                checkElement.textContent = `♔ Scacco matto!`;
+            } else if (inCheck) {
+                checkElement.textContent = `♔ Scacco!`;
+            } else {
+                checkElement.textContent = "";
+            }
             const isMyTurn = userColor && chessState.turn === userColor;
 
             if (!isMyTurn && !selected) {
