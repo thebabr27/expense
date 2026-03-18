@@ -399,7 +399,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.0)</small>
+                        <small class="mx-2">(v1.1)</small>
                     </div>
                     <button id="logoutBtn" class="btn btn-danger">Logout</button>
                     <button id="newGameBtn" class="btn btn-success">NewGame</button>
@@ -489,8 +489,11 @@
         const checkMateOverlayButtons = document.getElementById("checkMateOverlayButtons");
         const checkMateOverlayInput = document.getElementById("checkMateOverlayInput");
 
-        function showCheckmateOverlay(winnerEmail) {
-            winnerText.textContent = `Vince... ${winnerEmail}!!!`;
+        function showCheckmateOverlay(winnerEmail, currentTurn) {
+            winnerText.textContent = currentTurn === 'white'
+                ? `Vincono... i Bianchi (${winnerEmail}!!!)`
+                : `Vincono... i Neri (${winnerEmail}!!!)`
+                ;
             checkMateOverlay.classList.remove("hidden");
         }
 
@@ -507,6 +510,8 @@
         newGameFromMate.addEventListener("click", async () => {
             modalInput.value = checkMateOverlayInput.value
             modalSaveBtn.click();
+            hide([formNewGameFromMate])
+            show([checkMateOverlayButtons])
             hideCheckmateOverlay();
         });
 
@@ -534,16 +539,18 @@
         onAuthStateChanged(auth, async user => {
             if (user) {
                 currentUser = user;
-                console.log("logged", user)
+                //console.log("logged", user)
                 hide([authSection])
                 show([appSection])
 
                 onValue(dbRef, snapshot => {
-                    console.log(dbRef, snapshot.val())
                     const state = snapshot.val();
                     if (!state) return;
-                    showGamesList(state);
-                    checkUserInGame(user.email) 
+                    if (state && state.isNewGame) {
+                        hideCheckmateOverlay();
+                    }
+
+                    checkUserInGame(user.email, state)
                 })
 
             } else {
@@ -572,7 +579,8 @@
         }
 
         // Funzione che controlla se l'utente è già in una partita
-        async function checkUserInGame(userEmail) {
+        async function checkUserInGame(userEmail,state) {
+            showGamesList(state)
             const chessRef = ref(db, '/chess');  // tutti i giochi
             const snapshot = await get(chessRef);
 
@@ -592,9 +600,16 @@
                 if (game.players.white === userEmail || game.players.black === userEmail) {
                     console.log(`Utente già in partita: ${gameId}`, game);
                     handleGameClick(gameId, userEmail)
+                    if (game && game.players && game.players.length == 2) {
+                        overlay.classList.remove("active");
+                    } else {
+                        overlay.classList.add("active");
+                    }
                 } else {
                     console.log("Utente non è in nessuna partita.");
+                    hideCheckmateOverlay();                    
                     show([games])
+                    boardElement.innerHTML = "";
                     return null; // non trovato
                 }
             }
@@ -687,17 +702,11 @@
                 ["R", "N", "B", "Q", "K", "B", "N", "R"]
             ];
             const snapshot = await get(gameRef);
-            const initialState = { board: initialBoard, turn: "white", selected: null, history: [], newGame: true, players: { white: userId, black: null } };
+            const initialState = { board: initialBoard, turn: "white", selected: null, history: [], isNewGame: true, players: { white: userId, black: null } };
             gameId = modalInput.value;
             gameRef = ref(db, `/chess/${gameId}`);
             console.log(initialState, gameId)
             await set(gameRef, initialState);
-            /* if (!snapshot.exists() || userId === 0) {
-                const initialState = { board: initialBoard, turn: "white", selected: null, history: [], players: { white: userId, black: null } };
-                await set(gameRef, initialState);
-                return initialState;
-            }
-            return snapshot.val(); */
         }
 
         async function getChessStateOnce() { const snap = await get(gameRef); return snap.exists() ? snap.val() : null; }
@@ -718,7 +727,7 @@
                     chessState.players.black === userId ? "black" : null;
 
 
-            console.log(row, col, chessState, userColor, userId)
+
             if (!userColor || chessState.turn !== userColor) return;
 
             const piece = chessState.board[row][col];
@@ -789,7 +798,13 @@
             clearHighlights();
         }
 
-        function saveChessState(state) { return set(gameRef, state); }
+        function saveChessState(state) {
+            if (state.isNewGame) {
+                delete state.isNewGame;
+                hideCheckmateOverlay();
+            }
+            return set(gameRef, state);
+        }
 
         function clearHighlights() {
             document.querySelectorAll(".highlight").forEach(el => el.classList.remove("highlight"));
@@ -814,7 +829,7 @@
             if (playerInCheckmate) {
                 // chi ha vinto? L’altro giocatore 
                 if (chessState.players[currentTurn]) {
-                    showCheckmateOverlay(chessState.players[currentTurn]);
+                    showCheckmateOverlay(chessState.players[currentTurn], currentTurn);
                 }
             } else {
                 hideCheckmateOverlay();
@@ -822,10 +837,19 @@
 
             // scegli icona scacco
             const pieceIcon = "♟";
-            const italianColor = currentTurn === "white" ? 'bianchi' : 'neri';
-            turnElement.innerHTML = currentTurn === "white"
-                ? `Tocca ai ${italianColor} <span class="text-light">${pieceIcon}</span> (${currentPlayerEmail}) `
-                : `Tocca ai ${italianColor} <span><h4>${pieceIcon}</h4></span> (${currentPlayerEmail}) `;
+            const italianColor = currentTurn === "white" ? "bianchi" : "neri";
+
+            // se il giocatore in turno è l’utente corrente, scrivi "Tocca a te"
+            const turnoTesto = currentPlayerEmail === currentUser.email
+                ? "Tocca a te"
+                : `Tocca ai ${italianColor} (${currentPlayerEmail}). Attendi...`;
+
+            // aggiungi la classe solo se il turno è bianco
+            const iconHTML = currentTurn === "white"
+                ? `<span class="text-light">${pieceIcon}</span>`
+                : `<span>${pieceIcon}</span>`;
+
+            turnElement.innerHTML = `${turnoTesto} ${iconHTML}`;
 
             const inCheck = isCheck(chessState.board, currentTurn);
             const inCheckmate = isCheckmate(chessState.board, currentTurn);
@@ -1032,13 +1056,17 @@
 
         function show(elements) {
             for (let element of elements) {
-                element.style.display = "block";
+                if (element && element.style) {
+                    element.style.display = "block";
+                }
             }
         }
 
         function hide(elements) {
             for (let element of elements) {
-                element.style.display = "none";
+                if (element && element.style) {
+                    element.style.display = "none";
+                }
             }
         }
 
