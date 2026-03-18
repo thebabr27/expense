@@ -672,7 +672,7 @@
                 selected = null;
                 clearHighlights();
 
-                await saveChessState(chessState);
+                await saveChessState(chessState); 
                 return;
             }
 
@@ -692,6 +692,7 @@
 
         function drawBoard(userId, chessState) {
             console.log(chessState)
+            checkElement.textContent = "";
             if (!chessState || !chessState.board) return;
 
             const userColor =
@@ -703,10 +704,10 @@
             // scegli icona scacco
             const pieceIcon = currentTurn === "white" ? "♔" : "♚";
 
-            turnElement.innerHTML = currentTurn === "white" 
-            ? `Tocca a ${currentPlayerEmail} <span class="text-light">${pieceIcon}</span>`
-            :`Tocca a ${currentPlayerEmail} <span>${pieceIcon}</span>`;
-             
+            turnElement.innerHTML = currentTurn === "white"
+                ? `Tocca a ${currentPlayerEmail} <span class="text-light">${pieceIcon}</span>`
+                : `Tocca a ${currentPlayerEmail} <span>${pieceIcon}</span>`;
+
             const inCheck = isCheck(chessState.board, currentTurn);
             const inCheckmate = isCheckmate(chessState.board, currentTurn);
 
@@ -717,6 +718,7 @@
             } else {
                 checkElement.textContent = "";
             }
+
             const isMyTurn = userColor && chessState.turn === userColor;
 
             if (!isMyTurn && !selected) {
