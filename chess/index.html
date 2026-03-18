@@ -543,8 +543,7 @@
                     const state = snapshot.val();
                     if (!state) return;
                     showGamesList(state);
-                    checkUserInGame(user.email)
-                    /* drawBoard(user.uid, state); */
+                    checkUserInGame(user.email) 
                 })
 
             } else {
@@ -595,6 +594,7 @@
                     handleGameClick(gameId, userEmail)
                 } else {
                     console.log("Utente non è in nessuna partita.");
+                    show([games])
                     return null; // non trovato
                 }
             }
@@ -687,7 +687,7 @@
                 ["R", "N", "B", "Q", "K", "B", "N", "R"]
             ];
             const snapshot = await get(gameRef);
-            const initialState = { board: initialBoard, turn: "white", selected: null, history: [], players: { white: userId, black: null } };
+            const initialState = { board: initialBoard, turn: "white", selected: null, history: [], newGame: true, players: { white: userId, black: null } };
             gameId = modalInput.value;
             gameRef = ref(db, `/chess/${gameId}`);
             console.log(initialState, gameId)
@@ -821,11 +821,11 @@
             }
 
             // scegli icona scacco
-            const pieceIcon = currentTurn === "white" ? "♔" : "♚";
-
+            const pieceIcon = "♟";
+            const italianColor = currentTurn === "white" ? 'bianchi' : 'neri';
             turnElement.innerHTML = currentTurn === "white"
-                ? `Tocca a ${currentPlayerEmail} <span class="text-light">${pieceIcon}</span>`
-                : `Tocca a ${currentPlayerEmail} <span>${pieceIcon}</span>`;
+                ? `Tocca ai ${italianColor} <span class="text-light">${pieceIcon}</span> (${currentPlayerEmail}) `
+                : `Tocca ai ${italianColor} <span><h4>${pieceIcon}</h4></span> (${currentPlayerEmail}) `;
 
             const inCheck = isCheck(chessState.board, currentTurn);
             const inCheckmate = isCheckmate(chessState.board, currentTurn);
