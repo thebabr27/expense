@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scacchi JS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <style>
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+
+            background: rgba(0, 0, 0, 0.2);
+            /* semitrasparente */
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            z-index: 10;
+
+            visibility: hidden;
+            /* nascosto di default */
+        }
+
+        .hourglass.frame {
+            position: absolute;
+            width: 50px;
+            height: 80px;
+            /* centra esattamente */
+
+            border-top: 6px solid white;
+            border-bottom: 6px solid white;
+            border-left: none;
+            border-right: none;
+
+            border-radius: 6px;
+            box-sizing: border-box;
+            z-index: 1010;
+        }
+
+        /* Clessidra */
+        .hourglass {
+            width: 45px;
+            height: 65px;
+            position: relative;
+            animation: rotate 2s linear infinite;
+        }
+
+        /* Lati diagonali */
+        .hourglass.frame::before,
+        .hourglass.frame::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            /* spessore lato */
+            height: 125%;
+            /* tutta l’altezza della clessidra */
+            top: 0;
+            background: white;
+        }
+
+        /* lato sinistro */
+        .hourglass.frame::before {
+            left: 0;
+            transform: rotate(-35deg);
+            transform-origin: top left;
+        }
+
+        /* lato destro */
+        .hourglass.frame::after {
+            right: 0;
+            transform: rotate(35deg);
+            transform-origin: top right;
+        }
+
+
+        .hourglass:not(.frame)::before,
+        .hourglass:not(.frame)::after {
+            border-radius: 5px;
+        }
+
+        /* triangolo sopra */
+        .hourglass:not(.frame)::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: #f5d27a;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            animation: sandTop 4s linear infinite;
+        }
+
+        /* triangolo sotto */
+        .hourglass:not(.frame)::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: #f5d27a;
+            clip-path: polygon(0 100%, 100% 100%, 50% 0);
+            animation: sandBottom 4s linear infinite;
+        }
+
+        @keyframes sandBottom {
+
+            /* inizialmente vuoto */
+            0% {
+                clip-path: polygon(0 100%, 100% 100%, 50% 0);
+            }
+
+            10% {
+                clip-path: polygon(0 100%, 100% 100%, 50% 0);
+            }
+
+            /* durante il flip → ancora vuoto */
+            25% {
+                clip-path: polygon(50% 0, 50% 0, 50% 0);
+            }
+
+            35% {
+                clip-path: polygon(50% 0, 50% 0, 50% 0);
+            }
+
+            50% {
+                clip-path: polygon(0 100%, 100% 100%, 50% 0);
+            }
+
+            60% {
+                clip-path: polygon(0 100%, 100% 100%, 50% 0);
+            }
+
+            75% {
+                clip-path: polygon(50% 0, 50% 0, 50% 0);
+            }
+
+            85% {
+                clip-path: polygon(50% 0, 50% 0, 50% 0);
+            }
+
+            /* fase ferma → si riempie */
+            100% {
+                clip-path: polygon(0 100%, 100% 100%, 50% 0);
+            }
+        }
+
+        @keyframes sandTop {
+
+            /* fase iniziale (prima del primo flip) */
+            0% {
+                clip-path: polygon(50% 100%, 50% 100%, 50% 100%);
+            }
+
+            10% {
+                clip-path: polygon(50% 100%, 50% 100%, 50% 100%);
+            }
+
+            /* durante il flip → reset immediato */
+            25% {
+                clip-path: polygon(0 0, 100% 0, 50% 100%);
+            }
+
+            35% {
+                clip-path: polygon(0 0, 100% 0, 50% 100%);
+            }
+
+            /* fase ferma → si svuota */
+            50% {
+                clip-path: polygon(50% 100%, 50% 100%, 50% 100%);
+            }
+
+            60% {
+                clip-path: polygon(50% 100%, 50% 100%, 50% 100%);
+            }
+
+            /* secondo flip → reset */
+            75% {
+                clip-path: polygon(0 0, 100% 0, 50% 100%);
+            }
+
+            85% {
+                clip-path: polygon(0 0, 100% 0, 50% 100%);
+            }
+
+            /* seconda fase ferma → si svuota */
+            100% {
+                clip-path: polygon(50% 100%, 50% 100%, 50% 100%);
+            }
+        }
+
+        /* Rotazione */
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            25% {
+                transform: rotate(180deg);
+            }
+
+            50% {
+                transform: rotate(180deg);
+            }
+
+            75% {
+                transform: rotate(360deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #overlay.active {
+            visibility: visible;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        #board {
+            max-width: 600px;
+        }
+
+        .bg {
+            background-color: #b79735 !important
+        }
+
+        .disabled {
+            pointer-events: none;
+            /* Non cliccabile */
+            opacity: 0.8;
+            /* Opaco per evidenza */
+        }
+
+
+        h1 {
+            margin-top: 10px;
+        }
+
+        .square {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1 / 1;
+            width: 10.5%;
+            display: flex;
+            cursor: pointer;
+        }
+
+        .highlight {
+            background-color: rgb(38 255 0 / 64%) !important;
+            border: 2px dotted rgba(0, 0, 0, 0.6);
+            box-sizing: border-box;
+        }
+
+        .white {
+            background-color: #f0d9b5;
+        }
+
+        .black {
+            background-color: #b58863;
+        }
+
+        #turn {
+            margin: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body style="height: 100vh; overflow: hidden;">
+    <!-- Modal semplice -->
+
+    <!-- Button trigger modal -->
+    <button type="button" id="openModalBtn" style="height: 0; width: 0; opacity: 0;" data-bs-toggle="modal"
+        data-bs-target="#modal"></button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h5 class="modal-title mb-2" id="textModalLabel">Creazione partita</h5>
+                    <label for="">Nuova partita:</label>
+                    <input type="text" value="game1" id="modalInput" class="form-control" placeholder="Scrivi qui...">
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                    <button type="button" id="modalSaveBtn" class="btn btn-primary">Crea</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid" style="height: calc(100% + 1rem);  
+    background-image: url('./assets/chess_bg.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;">
+        <div id="auth-section" class="row h-100">
+            <div class="col-3 d-none d-md-block">
+
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="d-flex h-100 flex-column justify-content-center">
+                    <div class="text-center">
+                        <h1 class="display-3">Chess</h1>
+                    </div>
+                    <div class="card p-4 shadow bg-transparent rounded" style="border: 2px solid white">
+                        <h3 class="card-title text-center mb-3">Login / Registrati</h3>
+                        <div class="mb-3">
+                            <input type="email" id="email" class="form-control" placeholder="Email">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" id="password" class="form-control" placeholder="Password">
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button id="loginBtn" class="btn btn-primary">Login</button>
+                            <button id="registerBtn" class="btn btn-success">Registrati</button>
+                        </div>
+                        <div class="text-center mt-2">
+                            <a href="#" id="resetPasswordLink">Hai dimenticato la password?</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="app-section" class="row h-100">
+            <div class="col-12 p-0">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2>♟ Scacchi</h2>
+                    <button id="logoutBtn" class="btn btn-danger">Logout</button>
+                    <button id="newGameBtn" class="btn btn-success">NewGame</button>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div id="turn" class="mb-3 fw-bold">Turno: Bianco</div>
+                    <div id="check" class="fw-bold align-self-center">Scacco !</div>
+                </div>
+                <div id="games" class="list-group m-3"></div>
+
+                <div id="board" class="mx-auto"></div>
+
+                <div id="overlay">
+                    <div class="hourglass frame"></div> <!-- bordo -->
+                    <div class="hourglass sand"></div> <!-- sabbia -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+        // ===== CONFIG FIREBASE =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEMsSffsu2_Rex1mKshOIDb-kJYvFqutc",
+            authDomain: "farmazon-a2fae.firebaseapp.com",
+            databaseURL: "https://farmazon-a2fae.firebaseio.com",
+            projectId: "farmazon-a2fae",
+            storageBucket: "farmazon-a2fae.firebasestorage.app",
+            messagingSenderId: "513177430863",
+            appId: "1:513177430863:web:d84e2ad140e1aaa342733a"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        let gameId = "game4";
+        let dbRef = ref(db, `/chess`);
+        let gameRef = ref(db, `/chess/${gameId}`);
+        let selected;
+
+        // ===== UI =====
+        const authSection = document.getElementById("auth-section");
+
+        const resetSection = document.getElementById("reset-section");
+        const loginBtn = document.getElementById("loginBtn");
+        const registerBtn = document.getElementById("registerBtn");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const appSection = document.getElementById("app-section");
+        const boardElement = document.getElementById("board");
+        const turnElement = document.getElementById("turn");
+        const checkElement = document.getElementById("check");
+        const overlay = document.getElementById("overlay");
+        const newGameBtn = document.getElementById("newGameBtn");
+        const modal = document.getElementById("modal");
+        const openModalBtn = document.getElementById("openModalBtn");
+        const modalInput = document.getElementById("modalInput");
+        const modalSaveBtn = document.getElementById("modalSaveBtn");
+        const games = document.getElementById("games");
+
+        const pieces = {
+            K: "assets/K_white.svg", Q: "assets/R_white.svg", R: "assets/T_white.svg", N: "assets/C_white.svg", B: "assets/A_white.svg", P: "assets/P_white.svg",
+            k: "assets/K_black.svg", q: "assets/R_black.svg", r: "assets/T_black.svg", n: "assets/C_black.svg", b: "assets/A_black.svg", p: "assets/P_black.svg"
+        };
+
+        let currentUser;
+        let currentGame;
+        let gamesList = [];
+
+        // ===== EVENTI UI =====
+        loginBtn.addEventListener("click", async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await signInWithEmailAndPassword(auth, email, password); } catch (e) { alert(e.message); } });
+        registerBtn.addEventListener("click", async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await createUserWithEmailAndPassword(auth, email, password); } catch (e) { alert(e.message); } });
+        logoutBtn.addEventListener("click", async () => { await signOut(auth); });
+        newGameBtn.addEventListener("click", async () => { openModalBtn.click() });
+        modalSaveBtn.addEventListener("click", async () => { initChessGame(currentUser.email) });
+
+        // ===== REALTIME LISTENER =====
+        onAuthStateChanged(auth, async user => {
+            if (user) {
+                currentUser = user;
+                console.log("logged", user)
+                hide([authSection])
+                show([appSection])
+
+                onValue(dbRef, snapshot => {
+                    console.log(dbRef, snapshot.val())
+                    const state = snapshot.val();
+                    if (!state) return;
+                    showGamesList(state);
+                    checkUserInGame(user.email)
+                    /* drawBoard(user.uid, state); */
+                })
+
+            } else {
+                console.log("logged out")
+                show([authSection])
+                hide([appSection])
+            }
+        });
+
+        function showGamesList(state) {
+            // Crea la lista
+            games.innerHTML = "";
+            Object.keys(state).forEach(gameId => {
+                const game = state[gameId];
+
+                const item = document.createElement("div");
+                item.className = "list-group-item list-group-item-action";
+                item.textContent = gameId;
+                item.style.cursor = "pointer";
+                console.log(gameId)
+                // Quando clicchi, chiama la funzione con il titolo
+                item.addEventListener("click", () => handleGameClick(gameId, currentUser.email));
+
+                games.appendChild(item);
+            });
+        }
+
+        // Funzione che controlla se l'utente è già in una partita
+        async function checkUserInGame(userEmail) {
+            const chessRef = ref(db, '/chess');  // tutti i giochi
+            const snapshot = await get(chessRef);
+
+            if (!snapshot.exists()) {
+                console.log("Non ci sono partite nel database.");
+                return null; // nessuna partita
+            }
+
+            const games = snapshot.val();
+            console.log(games)
+
+            // Cerca tra tutte le partite
+            for (const gameId in games) {
+                const game = games[gameId];
+                if (!game.players) continue;
+
+                if (game.players.white === userEmail || game.players.black === userEmail) {
+                    console.log(`Utente già in partita: ${gameId}`, game);
+                    handleGameClick(gameId, userEmail)
+                } else {
+                    console.log("Utente non è in nessuna partita.");
+                    return null; // non trovato
+                }
+            }
+        }
+
+        async function joinGame(gameId, userEmail) {
+            const gameRef = ref(db, `/chess/${gameId}`);
+            const snapshot = await get(gameRef);
+
+            if (!snapshot.exists()) {
+                console.log("Partita non trovata");
+                return;
+            }
+
+            const game = snapshot.val();
+
+            if (!game.players) {
+                game.players = {};
+            }
+
+            // Se l'utente è già dentro, non fare nulla
+            if (game.players.white === userEmail || game.players.black === userEmail) {
+                console.log("Sei già in questa partita");
+                hide([games])
+                return;
+            }
+
+            // Inserisce nel primo slot libero
+            if (!game.players.white) {
+                game.players.white = userEmail;
+                console.log("Entrato come WHITE");
+                hide([games])
+            } else if (!game.players.black) {
+                game.players.black = userEmail;
+                console.log("Entrato come BLACK");
+                hide([games])
+            } else {
+                console.log("Partita piena");
+                return;
+            }
+
+            // Salva aggiornamento
+            await set(gameRef, game);
+
+            console.log("Giocatori aggiornati:", game.players);
+        }
+
+        function handleGameClick(title, userEmail) {
+            // Ottieni il riferimento alla partita specifica
+            gameId = title;
+            gameRef = ref(db, `/chess/${gameId}`);
+            get(gameRef)
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        joinGame(gameId, userEmail)
+                        drawBoard(userEmail, snapshot.val())
+                    } else {
+                        console.log("La partita non esiste:", gameId);
+                    }
+                })
+                .catch(error => {
+                    console.error("Errore nel leggere la partita:", error);
+                });
+            // Leggi una sola volta lo snapshot
+            /* get(gameRef)
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        hide([games])
+                        drawBoard(currentUser.email, snapshot.val())
+                    } else {
+                        console.log("La partita non esiste:", gameId);
+                    }
+                })
+                .catch(error => {
+                    console.error("Errore nel leggere la partita:", error);
+                }); */
+        }
+
+        // ===== DATABASE HELPERS =====
+        async function initChessGame(userId) {
+            console.log("new game starting...")
+            const initialBoard = [
+                ["r", "n", "b", "q", "k", "b", "n", "r"],
+                ["p", "p", "p", "p", "p", "p", "p", "p"],
+                ["", "", "", "", "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["P", "P", "P", "P", "P", "P", "P", "P"],
+                ["R", "N", "B", "Q", "K", "B", "N", "R"]
+            ];
+            const snapshot = await get(gameRef);
+            const initialState = { board: initialBoard, turn: "white", selected: null, history: [], players: { white: userId, black: null } };
+            gameId = modalInput.value;
+            gameRef = ref(db, `/chess/${gameId}`);
+            console.log(initialState, gameId)
+            await set(gameRef, initialState);
+            /* if (!snapshot.exists() || userId === 0) {
+                const initialState = { board: initialBoard, turn: "white", selected: null, history: [], players: { white: userId, black: null } };
+                await set(gameRef, initialState);
+                return initialState;
+            }
+            return snapshot.val(); */
+        }
+
+        async function getChessStateOnce() { const snap = await get(gameRef); return snap.exists() ? snap.val() : null; }
+
+        // ===== HANDLE CLICK =====
+        async function handleClick(e, userId) {
+            const sq = e.target.closest(".square");
+            if (!sq) return;
+
+            const row = parseInt(sq.dataset.row);
+            const col = parseInt(sq.dataset.col);
+
+            const chessState = await getChessStateOnce();
+            if (!chessState) return;
+
+            const userColor =
+                chessState.players.white === userId ? "white" :
+                    chessState.players.black === userId ? "black" : null;
+
+            
+            console.log(row,col,chessState,userColor,userId)
+            if (!userColor || chessState.turn !== userColor) return;
+
+            const piece = chessState.board[row][col];
+
+            // =========================
+            // 👉 PRIMO CLICK (selezione)
+            // =========================
+            if (!selected) {
+                if (piece && isCorrectTurn(piece, chessState.turn)) {
+                    selected = { row, col };
+                    highlightMoves(row, col, chessState.board);
+                }
+                return;
+            }
+
+            // =========================
+            // 👉 CLICK STESSA CASELLA → annulla
+            // =========================
+            if (selected.row === row && selected.col === col) {
+                selected = null;
+                clearHighlights();
+                return;
+            }
+
+            const fromRow = selected.row;
+            const fromCol = selected.col;
+            const fromPiece = chessState.board[fromRow][fromCol];
+
+            // =========================
+            // 👉 CAMBIO SELEZIONE (clicco altro mio pezzo)
+            // =========================
+            if (piece && isCorrectTurn(piece, chessState.turn)) {
+                selected = { row, col };
+                highlightMoves(row, col, chessState.board);
+                return;
+            }
+
+            // =========================
+            // 👉 MOSSA (vuota o cattura)
+            // =========================
+            if (isValidMove(fromRow, fromCol, row, col, chessState.board)) {
+
+                // movimento (copre anche la cattura)
+                chessState.board[row][col] = fromPiece;
+                chessState.board[fromRow][fromCol] = "";
+
+                // cambio turno
+                chessState.turn = chessState.turn === "white" ? "black" : "white";
+
+                selected = null;
+                clearHighlights();
+
+                await saveChessState(chessState);
+                return;
+            }
+
+            // =========================
+            // 👉 CLICK NON VALIDO → reset
+            // =========================
+            selected = null;
+            clearHighlights();
+        }        
+
+        function saveChessState(state) { return set(gameRef, state); }
+
+        function clearHighlights() {
+            document.querySelectorAll(".highlight").forEach(el => el.classList.remove("highlight"));
+            document.querySelectorAll(".disabled").forEach(el => el.classList.remove("disabled"));
+        }
+
+        function drawBoard(userId, chessState) {
+            console.log(chessState)
+            if (!chessState || !chessState.board) return;
+
+            const userColor =
+                chessState.players.white === userId ? "white" :
+                    chessState.players.black === userId ? "black" : null;
+
+            turnElement.textContent = "Turno: " + (chessState.turn === "white" ? "Bianco" : "Nero");
+
+            const isMyTurn = userColor && chessState.turn === userColor;
+
+            if (!isMyTurn && !selected) {
+                overlay.classList.add("active");
+            } else {
+                overlay.classList.remove("active");
+            }
+
+            boardElement.innerHTML = "";
+
+            // 🔁 8 righe
+            for (let r = 0; r < 8; r++) {
+
+                const row = document.createElement("div");
+                row.className = "w-100 d-flex";
+
+                // bordo sinistro (vuoto o futuro uso coordinate)
+                const leftBorder = document.createElement("div");
+                leftBorder.style.width = "8%";
+                row.appendChild(leftBorder);
+
+                // ♟️ celle scacchiera
+                for (let c = 0; c < 8; c++) {
+
+                    const sq = document.createElement("div");
+
+                    sq.style.width = "10.5%";
+                    sq.classList.add(
+                        "square",
+                        (r + c) % 2 === 0 ? "white" : "black"
+                    );
+
+                    sq.dataset.row = r;
+                    sq.dataset.col = c;
+
+                    const piece = chessState.board[r][c];
+                    if (piece) {
+                        sq.innerHTML = `<img src="${pieces[piece]}" style="width:80%;height:80%;">`;
+                    }
+
+                    sq.addEventListener("click", e => handleClick(e, currentUser.email));
+
+                    row.appendChild(sq);
+                }
+
+                // bordo destro
+                const rightBorder = document.createElement("div");
+                rightBorder.style.width = "8%";
+                row.appendChild(rightBorder);
+
+                boardElement.appendChild(row);
+            }
+        }
+
+        // ===== DRAW BOARD =====
+        /* function drawBoard(userId, chessState) {
+            if (!chessState || !chessState.board) return;
+
+            const userColor =
+                chessState.players.white === userId ? "white" :
+                    chessState.players.black === userId ? "black" : null;
+
+            turnElement.textContent = "Turno: " + (chessState.turn === "white" ? "Bianco" : "Nero");
+
+            // 👉 gestione overlay
+            if (userColor && chessState.turn !== userColor) {
+                overlay.classList.add("active");   // mostra "attendi..."
+            } else {
+                overlay.classList.remove("active"); // nasconde
+            }
+
+            boardElement.innerHTML = "";
+
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+
+                    const sq = document.createElement("div");
+                    sq.classList.add("square", (r + c) % 2 === 0 ? "white" : "black");
+                    sq.dataset.row = r;
+                    sq.dataset.col = c;
+
+                    const piece = chessState.board[r][c];
+                    if (piece) {
+                        sq.innerHTML = `<img src="${pieces[piece]}" style="width:50px;height:50px;">`;
+                    }
+
+                    sq.addEventListener("click", e => handleClick(e, userId));
+                    boardElement.appendChild(sq);
+                }
+            }
+        } */
+
+        // ===== HIGHLIGHT MOVES =====
+        async function highlightMoves(row, col, board) {
+            const userId = auth.currentUser.uid;
+            const chessState = await getChessStateOnce();
+            const userColor = chessState.turn;
+            drawBoard(userId, chessState); // redraw
+            document.querySelectorAll(".square").forEach(sq => {
+                const r = parseInt(sq.dataset.row), c = parseInt(sq.dataset.col);
+                if (isValidMove(row, col, r, c, board)) sq.classList.add("highlight");
+                else if (board[r][c] && ((board[r][c] === board[r][c].toUpperCase() && userColor === "white") || (board[r][c] === board[r][c].toLowerCase() && userColor === "black"))) {
+                    // pezzi miei non disabilitare
+                } else {
+                    sq.classList.add("disabled");
+                }
+            });
+        }
+
+        // ===== CHECK / CHECKMATE =====
+        function findKing(board, color) { const king = color === "white" ? "K" : "k"; for (let r = 0; r < 8; r++) { for (let c = 0; c < 8; c++) { if (board[r][c] === king) return { row: r, col: c } } return null } }
+        function isSquareAttacked(board, row, col, attackerColor) { for (let r = 0; r < 8; r++) { for (let c = 0; c < 8; c++) { const piece = board[r][c]; if (!piece) continue; const pieceColor = piece === piece.toUpperCase() ? "white" : "black"; if (pieceColor !== attackerColor) continue; if (isValidMove(r, c, row, col, board)) return true } } return false }
+        function isCheck(board, color) { const kingPos = findKing(board, color); if (!kingPos) return false; const opponentColor = color === "white" ? "black" : "white"; return isSquareAttacked(board, kingPos.row, kingPos.col, opponentColor) }
+        function isCheckmate(board, color) {
+            if (!isCheck(board, color)) return false; for (let r = 0; r < 8; r++) { for (let c = 0; c < 8; c++) { const piece = board[r][c]; if (!piece) continue; const pieceColor = piece === piece.toUpperCase() ? "white" : "black"; if (pieceColor !== color) continue; for (let dr = 0; dr < 8; dr++) { for (let dc = 0; dc < 8; dc++) { if (isValidMove(r, c, dr, dc, board)) { const tmp = board[dr][dc]; board[dr][dc] = board[r][c]; board[r][c] = ""; const stillInCheck = isCheck(board, color); board[r][c] = board[dr][dc]; board[dr][dc] = tmp; if (!stillInCheck) return false } } } } return true }
+        }
+
+        // ===== UTILS =====
+        function isCorrectTurn(piece, turn) { return (turn === "white" && piece === piece.toUpperCase()) || (turn === "black" && piece === piece.toLowerCase()) }
+        function isValidMove(sr, sc, dr, dc, board) { const piece = board[sr][sc]; if (!piece) return false; const target = board[dr][dc]; if (target && ((piece === piece.toUpperCase() && target === target.toUpperCase()) || (piece === piece.toLowerCase() && target === target.toLowerCase()))) return false; const dx = dr - sr, dy = dc - sc; switch (piece.toLowerCase()) { case "p": const dir = piece === "P" ? -1 : 1; if (dy === 0 && !target) { if (dx === dir) return true; if ((sr === 6 && piece === "P" || sr === 1 && piece === "p") && dx === 2 * dir && !board[sr + dir][sc]) return true } if (Math.abs(dy) === 1 && dx === dir && target) return true; break; case "r": if (dx === 0 || dy === 0) return clearPath(sr, sc, dr, dc, board); break; case "n": if ((Math.abs(dx) === 2 && Math.abs(dy) === 1) || (Math.abs(dx) === 1 && Math.abs(dy) === 2)) return true; break; case "b": if (Math.abs(dx) === Math.abs(dy)) return clearPath(sr, sc, dr, dc, board); break; case "q": if (dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy)) return clearPath(sr, sc, dr, dc, board); break; case "k": if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) return true }return false }
+        function clearPath(sr, sc, dr, dc, board) { const stepX = Math.sign(dr - sr), stepY = Math.sign(dc - sc); let r = sr + stepX, c = sc + stepY; while (r !== dr || c !== dc) { if (board[r][c] !== "") return false; r += stepX; c += stepY } return true }
+
+
+        function show(elements) {
+            for (let element of elements) {
+                element.style.display = "block";
+            }
+        }
+
+        function hide(elements) {
+            for (let element of elements) {
+                element.style.display = "none";
+            }
+        }
+
+    </script>
+</body>
+
+</html>

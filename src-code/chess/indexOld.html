@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Scacchi JS</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .bg {
+            background-color: #b79735 !important
+        }
+
+        .disabled {
+            pointer-events: none;
+            /* Non cliccabile */
+            opacity: 0.8;
+            /* Opaco per evidenza */
+        }
+
+
+        h1 {
+            margin-top: 10px;
+        }
+
+        #board {
+            width: 485px;
+            display: grid;
+            grid-template-columns: repeat(8, 60px);
+            grid-template-rows: repeat(8, 60px);
+            border: 3px solid black;
+        }
+
+        .square {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .white {
+            background-color: #f0d9b5;
+        }
+
+        .black {
+            background-color: #b58863;
+        }
+
+        .highlight {
+            background-color: rgb(176 255 135) !important;
+            border: 2px dotted rgba(0, 0, 0, 0.6);
+            box-sizing: border-box;
+        }
+
+
+        .white {
+            background-color: #f0d9b5;
+        }
+
+        .black {
+            background-color: #b58863;
+        }
+
+        .highlight {
+            background-color: rgba(255, 255, 255, 0.35) !important;
+            border: 2px dotted rgba(0, 0, 0, 0.6);
+            box-sizing: border-box;
+        }
+
+
+        .white {
+            background: #f0d9b5;
+        }
+
+        .black {
+            background: #b58863;
+        }
+
+        .highlight {
+            background-color: rgba(255, 255, 255, 0.35) !important;
+            /* bianco leggermente trasparente */
+            border: 2px dotted rgba(0, 0, 0, 0.6);
+            box-sizing: border-box;
+        }
+
+
+        #turn {
+            margin: 15px;
+            font-weight: bold;
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+</head>
+
+<body class="bg">
+
+    <div class="container mt-5">
+
+        <!-- ===== LOGIN / REGISTER ===== -->
+        <div id="auth-section" class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="card p-4 shadow">
+                    <h3 class="card-title text-center mb-3">Login / Registrati</h3>
+                    <div class="mb-3">
+                        <input type="email" id="email" class="form-control" placeholder="Email">
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" id="password" class="form-control" placeholder="Password">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button id="loginBtn" class="btn btn-primary">Login</button>
+                        <button id="registerBtn" class="btn btn-success">Registrati</button>
+                    </div>
+                    <div class="text-center mt-2">
+                        <a href="#" id="resetPasswordLink">Hai dimenticato la password?</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== RESET PASSWORD ===== -->
+        <div id="reset-section" class="row justify-content-center" style="display:none;">
+            <div class="col-md-4">
+                <div class="card p-4 shadow">
+                    <h3 class="card-title text-center mb-3">Reset Password</h3>
+                    <div class="mb-3">
+                        <input type="email" id="resetEmail" class="form-control" placeholder="Inserisci la tua email">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button id="sendResetBtn" class="btn btn-warning">Invia link di reset</button>
+                    </div>
+                    <div class="text-center mt-2">
+                        <a href="#" id="backToLoginLink">Torna al login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ===== APP SCACCHI ===== -->
+        <div id="app-section" style="display:none; padding: 0;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>♟ Scacchi</h2>
+                <button id="logoutBtn" class="btn btn-danger">Logout</button>
+                <button id="newGameBtn" class="btn btn-success">NewGame</button>
+            </div>
+            <div class="d-flex justify-content-between">
+                <div id="turn" class="mb-3 fw-bold">Turno: Bianco</div>
+                <div id="check" class="fw-bold align-self-center">Scacco !</div>
+            </div>
+            <div id="board" class="mx-auto"></div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+        // ===== CONFIG FIREBASE =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEMsSffsu2_Rex1mKshOIDb-kJYvFqutc",
+            authDomain: "farmazon-a2fae.firebaseapp.com",
+            databaseURL: "https://farmazon-a2fae.firebaseio.com",
+            projectId: "farmazon-a2fae",
+            storageBucket: "farmazon-a2fae.firebasestorage.app",
+            messagingSenderId: "513177430863",
+            appId: "1:513177430863:web:d84e2ad140e1aaa342733a"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const gameId = "game1";
+        const gameRef = ref(db, `/chess/${gameId}`);
+
+        // ===== UI =====
+        const authSection = document.getElementById("auth-section");
+        const appSection = document.getElementById("app-section");
+        const resetSection = document.getElementById("reset-section");
+        const loginBtn = document.getElementById("loginBtn");
+        const registerBtn = document.getElementById("registerBtn");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const newGameBtn = document.getElementById("newGameBtn");
+        const resetPasswordLink = document.getElementById("resetPasswordLink");
+        const backToLoginLink = document.getElementById("backToLoginLink");
+        const sendResetBtn = document.getElementById("sendResetBtn");
+        const boardElement = document.getElementById("board");
+        const turnElement = document.getElementById("turn");
+        const checkElement = document.getElementById("check");
+
+        const pieces = {
+            K: "assets/K_white.svg", Q: "assets/R_white.svg", R: "assets/T_white.svg", N: "assets/C_white.svg", B: "assets/A_white.svg", P: "assets/P_white.svg",
+            k: "assets/K_black.svg", q: "assets/R_black.svg", r: "assets/T_black.svg", n: "assets/C_black.svg", b: "assets/A_black.svg", p: "assets/P_black.svg"
+        };
+        let selected = null;
+        
+
+        // ===== EVENTI UI =====
+        loginBtn.addEventListener("click", async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await signInWithEmailAndPassword(auth, email, password); } catch (e) { alert(e.message); } });
+        registerBtn.addEventListener("click", async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await createUserWithEmailAndPassword(auth, email, password); } catch (e) { alert(e.message); } });
+        logoutBtn.addEventListener("click", async () => { await signOut(auth); });
+        newGameBtn.addEventListener("click", async () => { await initChessGame(0); });
+        resetPasswordLink.addEventListener("click", e => { e.preventDefault(); authSection.style.display = "none"; resetSection.style.display = "flex"; });
+        backToLoginLink.addEventListener("click", e => { e.preventDefault(); resetSection.style.display = "none"; authSection.style.display = "flex"; });
+        sendResetBtn.addEventListener("click", async () => { const email = document.getElementById("resetEmail").value; if (!email) { alert("Inserisci la tua email"); return; } try { await sendPasswordResetEmail(auth, email); alert("✅ Link inviato"); } catch (e) { alert("❌ " + e.message); } });
+
+
+        // ===== REALTIME LISTENER =====
+        onAuthStateChanged(auth, async user => {
+            if (user) { 
+                console.log("logged", user)
+                authSection.style.display = "none"; resetSection.style.display = "none"; appSection.style.display = "block";
+                await joinGame(user.uid);
+                const chessState = await initChessGame(user.uid);
+                drawBoard(user.uid, chessState);
+                onValue(gameRef, snapshot => {
+                    const state = snapshot.val();
+                    if (!state) return;
+                    drawBoard(user.uid, state);
+
+                    // SCACCO / SCACCO MATTO
+                    const userColor = state.players.white === user.uid ? "white" : "black";
+                    const opponentColor = userColor === "white" ? "black" : "white";
+                    const inCheck = isCheck(state.board, opponentColor);
+                    const inCheckmate = isCheckmate(state.board, opponentColor);
+                    if (inCheckmate) checkElement.textContent = `♔ Scacco matto! ${userColor} vince`;
+                    else if (inCheck) checkElement.textContent = `♔ Scacco!`;
+                    else checkElement.textContent = "";
+                });
+            } else {
+                authSection.style.display = "none"; resetSection.style.display = "none"; appSection.style.display = "block";
+            }
+        }); 
+
+        // ===== DATABASE HELPERS =====
+        async function initChessGame(userId) {
+            const initialBoard = [
+                ["r", "n", "b", "q", "k", "b", "n", "r"],
+                ["p", "p", "p", "p", "p", "p", "p", "p"],
+                ["", "", "", "", "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["P", "P", "P", "P", "P", "P", "P", "P"],
+                ["R", "N", "B", "Q", "K", "B", "N", "R"]
+            ];
+            const snapshot = await get(gameRef);
+            if (!snapshot.exists() || userId === 0) {
+                const initialState = { board: initialBoard, turn: "white", selected: null, history: [], players: { white: userId, black: null } };
+                await set(gameRef, initialState);
+                return initialState;
+            }
+            return snapshot.val();
+        }
+
+        function saveChessState(state) { return set(gameRef, state); }
+        
+        async function getChessStateOnce() { const snap = await get(gameRef); return snap.exists() ? snap.val() : null; }
+        
+        async function joinGame(userId) {
+            const state = await getChessStateOnce();
+            if (!state) return;
+            if (state.players.white === userId || state.players.black === userId) return;
+            if (!state.players.white) state.players.white = userId;
+            else if (!state.players.black) state.players.black = userId;
+            else return console.log("♟ Partita piena");
+            await saveChessState(state);
+        }
+
+        // ===== DRAW BOARD =====
+        function drawBoard(userId, chessState) {
+            if (!chessState || !chessState.board) return;
+            const userColor = chessState.players.white === userId ? "white" : chessState.players.black === userId ? "black" : null;
+            turnElement.textContent = "Turno: " + (chessState.turn === "white" ? "Bianco" : "Nero");
+            boardElement.innerHTML = "";
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    
+                    const sq = document.createElement("div");
+                    sq.classList.add("square", (r + c) % 2 === 0 ? "white" : "black");
+                    sq.dataset.row = r; sq.dataset.col = c;
+                    const piece = chessState.board[r][c];
+                    if (piece) sq.innerHTML = `<img src="${pieces[piece]}" style="width:50px;height:50px;">`;
+                    sq.addEventListener("click", e => handleClick(e, userId));
+                    boardElement.appendChild(sq);
+                }
+            }
+        }
+
+        // ===== HIGHLIGHT MOVES =====
+        async function highlightMoves(row, col, board) {
+            const userId = auth.currentUser.uid;
+            const chessState = await getChessStateOnce();
+            const userColor = chessState.turn;
+            drawBoard(userId, chessState); // redraw
+            document.querySelectorAll(".square").forEach(sq => {
+                const r = parseInt(sq.dataset.row), c = parseInt(sq.dataset.col);
+                if (isValidMove(row, col, r, c, board)) sq.classList.add("highlight");
+                else if (board[r][c] && ((board[r][c] === board[r][c].toUpperCase() && userColor === "white") || (board[r][c] === board[r][c].toLowerCase() && userColor === "black"))) {
+                    // pezzi miei non disabilitare
+                } else {
+                    sq.classList.add("disabled");
+                }
+            });
+        }
+
+        // ===== HANDLE CLICK =====
+        async function handleClick(e, userId) {
+            const sq = e.target.closest(".square");
+            if (!sq) return;
+            const row = parseInt(sq.dataset.row), col = parseInt(sq.dataset.col);
+            const chessState = await getChessStateOnce();
+            if (!chessState) return;
+            const userColor = chessState.players.white === userId ? "white" : chessState.players.black === userId ? "black" : null;
+            if (!userColor || chessState.turn !== userColor) return;
+            const piece = chessState.board[row][col];
+
+            // clicco nuovamente sullo stesso pezzo → annulla selezione
+            if (selected && selected.row === row && selected.col === col) {
+                selected = null;
+                document.querySelectorAll(".highlight").forEach(sq => sq.classList.remove("highlight"));
+                document.querySelectorAll(".disabled").forEach(sq => sq.classList.remove("disabled"));
+                return;
+            }
+
+            // secondo click: mossa
+            if (selected) {
+                if (isValidMove(selected.row, selected.col, row, col, chessState.board)) {
+                    chessState.board[row][col] = chessState.board[selected.row][selected.col];
+                    chessState.board[selected.row][selected.col] = "";
+                    chessState.turn = chessState.turn === "white" ? "black" : "white";
+                    selected = null;
+                    await saveChessState(chessState); // trigger onValue
+                    return;
+                }
+                // clicco altro mio pezzo → cambia selezione
+                if (piece && isCorrectTurn(piece, chessState.turn)) {
+                    selected = { row, col };
+                    highlightMoves(row, col, chessState.board);
+                    return;
+                }
+                selected = null;
+                drawBoard(userId, chessState);
+                return;
+            }
+
+            // primo click
+            if (piece && isCorrectTurn(piece, chessState.turn)) {
+                selected = { row, col };
+                highlightMoves(row, col, chessState.board);
+            }
+        }
+
+        // ===== CHECK / CHECKMATE =====
+        function findKing(board, color) { const king = color === "white" ? "K" : "k"; for (let r = 0; r < 8; r++) { for (let c = 0; c < 8; c++) { if (board[r][c] === king) return { row: r, col: c } } return null } }
+        function isSquareAttacked(board, row, col, attackerColor) { for (let r = 0; r < 8; r++) { for (let c = 0; c < 8; c++) { const piece = board[r][c]; if (!piece) continue; const pieceColor = piece === piece.toUpperCase() ? "white" : "black"; if (pieceColor !== attackerColor) continue; if (isValidMove(r, c, row, col, board)) return true } } return false }
+        function isCheck(board, color) { const kingPos = findKing(board, color); if (!kingPos) return false; const opponentColor = color === "white" ? "black" : "white"; return isSquareAttacked(board, kingPos.row, kingPos.col, opponentColor) }
+        function isCheckmate(board, color) {
+            if (!isCheck(board, color)) return false; for (let r = 0; r < 8; r++) { for (let c = 0; c < 8; c++) { const piece = board[r][c]; if (!piece) continue; const pieceColor = piece === piece.toUpperCase() ? "white" : "black"; if (pieceColor !== color) continue; for (let dr = 0; dr < 8; dr++) { for (let dc = 0; dc < 8; dc++) { if (isValidMove(r, c, dr, dc, board)) { const tmp = board[dr][dc]; board[dr][dc] = board[r][c]; board[r][c] = ""; const stillInCheck = isCheck(board, color); board[r][c] = board[dr][dc]; board[dr][dc] = tmp; if (!stillInCheck) return false } } } } return true }
+        }
+
+        // ===== UTILS =====
+        function isCorrectTurn(piece, turn) { return (turn === "white" && piece === piece.toUpperCase()) || (turn === "black" && piece === piece.toLowerCase()) }
+        function isValidMove(sr, sc, dr, dc, board) { const piece = board[sr][sc]; if (!piece) return false; const target = board[dr][dc]; if (target && ((piece === piece.toUpperCase() && target === target.toUpperCase()) || (piece === piece.toLowerCase() && target === target.toLowerCase()))) return false; const dx = dr - sr, dy = dc - sc; switch (piece.toLowerCase()) { case "p": const dir = piece === "P" ? -1 : 1; if (dy === 0 && !target) { if (dx === dir) return true; if ((sr === 6 && piece === "P" || sr === 1 && piece === "p") && dx === 2 * dir && !board[sr + dir][sc]) return true } if (Math.abs(dy) === 1 && dx === dir && target) return true; break; case "r": if (dx === 0 || dy === 0) return clearPath(sr, sc, dr, dc, board); break; case "n": if ((Math.abs(dx) === 2 && Math.abs(dy) === 1) || (Math.abs(dx) === 1 && Math.abs(dy) === 2)) return true; break; case "b": if (Math.abs(dx) === Math.abs(dy)) return clearPath(sr, sc, dr, dc, board); break; case "q": if (dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy)) return clearPath(sr, sc, dr, dc, board); break; case "k": if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) return true }return false }
+        function clearPath(sr, sc, dr, dc, board) { const stepX = Math.sign(dr - sr), stepY = Math.sign(dc - sc); let r = sr + stepX, c = sc + stepY; while (r !== dr || c !== dc) { if (board[r][c] !== "") return false; r += stepX; c += stepY } return true }
+
+    </script>
+
+</body>
+
+</html>
