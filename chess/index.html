@@ -8,6 +8,45 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <style>
+        #formNewGameFromMate {
+            display: none;
+        }
+        /* Overlay scacco matto */
+        #checkMateOverlay.overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        #checkMateOverlay .overlay-content {
+            text-align: center;
+            background: #222;
+            padding: 30px 50px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 0 20px black;
+        }
+
+        #checkMateOverlay .overlay-content h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        #checkMateOverlay .buttons button {
+            margin: 0 10px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
         #overlay {
             position: absolute;
             top: 0;
@@ -264,6 +303,13 @@
             cursor: pointer;
         }
 
+        .suicide {
+            background-color: rgba(255, 0, 0, 0.64) !important;
+            border: 2px dotted rgba(0, 0, 0, 0.6);
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+
         .highlight {
             background-color: rgb(38 255 0 / 64%) !important;
             border: 2px dotted rgba(0, 0, 0, 0.6);
@@ -366,6 +412,23 @@
                     <div class="hourglass frame"></div> <!-- bordo -->
                     <div class="hourglass sand"></div> <!-- sabbia -->
                 </div>
+                <div id="checkMateOverlay" class="overlay hidden">
+                    <div class="overlay-content">
+                        <h2>♔ Scacco matto!</h2>
+                        <h3 id="winnerText"></h3>
+
+                        <div id="checkMateOverlayButtons"  class="buttons">
+                            <button id="triggerNewGameFromMate"  class="btn btn-success">Nuova Partita</button>
+                            <button id="logoutFromMate" class="btn btn-danger">Logout</button>
+                        </div>
+                        <div id="formNewGameFromMate" class="text-start">
+                            <label for="">Nuova partita:</label>
+                            <input type="text" value="game1" id="checkMateOverlayInput" class="form-control mb-2"
+                                placeholder="Scrivi qui...">
+                            <button id="newGameFromMate" class="btn btn-success">Crea Partita</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -414,6 +477,38 @@
         const modalInput = document.getElementById("modalInput");
         const modalSaveBtn = document.getElementById("modalSaveBtn");
         const games = document.getElementById("games");
+        const checkMateOverlay = document.getElementById("checkMateOverlay");
+        const winnerText = document.getElementById("winnerText");
+        const newGameFromMate = document.getElementById("newGameFromMate");
+        const logoutFromMate = document.getElementById("logoutFromMate");
+        const formNewGameFromMate = document.getElementById("formNewGameFromMate");
+        const checkMateOverlayButtons = document.getElementById("checkMateOverlayButtons");
+        const checkMateOverlayInput = document.getElementById("checkMateOverlayInput");
+
+        function showCheckmateOverlay(winnerEmail) {
+            winnerText.textContent = `Vince... ${winnerEmail}!!!`;
+            checkMateOverlay.classList.remove("hidden");
+        }
+
+        function hideCheckmateOverlay() {
+            checkMateOverlay.classList.add("hidden");
+        }
+
+        // Eventi pulsanti        
+        triggerNewGameFromMate.addEventListener("click", async () => {
+            show([formNewGameFromMate])
+            hide([checkMateOverlayButtons])
+        });
+
+        newGameFromMate.addEventListener("click", async () => {
+            modalInput.value = checkMateOverlayInput.value
+            modalSaveBtn.click();
+            hideCheckmateOverlay();
+        });
+
+        logoutFromMate.addEventListener("click", async () => {
+            await signOut(auth);
+        });
 
         const pieces = {
             K: "assets/K_white.svg", Q: "assets/R_white.svg", R: "assets/T_white.svg", N: "assets/C_white.svg", B: "assets/A_white.svg", P: "assets/P_white.svg",
@@ -661,18 +756,25 @@
             // 👉 MOSSA (vuota o cattura)
             // =========================
             if (isValidMove(fromRow, fromCol, row, col, chessState.board)) {
+                // controllo che non sia suicida
+                if (isSuicideMove(fromRow, fromCol, row, col, chessState.board, userColor)) {
+                    alert("Mossa non valida: il re verrebbe messo sotto scacco!");
+                    return;
+                }
 
-                // movimento (copre anche la cattura)
+                // eseguo la mossa
                 chessState.board[row][col] = fromPiece;
                 chessState.board[fromRow][fromCol] = "";
 
                 // cambio turno
                 chessState.turn = chessState.turn === "white" ? "black" : "white";
 
+                // reset selezione / evidenziazione
                 selected = null;
                 clearHighlights();
 
-                await saveChessState(chessState); 
+                await saveChessState(chessState);
+                drawBoard(userId, chessState);
                 return;
             }
 
@@ -688,10 +790,12 @@
         function clearHighlights() {
             document.querySelectorAll(".highlight").forEach(el => el.classList.remove("highlight"));
             document.querySelectorAll(".disabled").forEach(el => el.classList.remove("disabled"));
+            document.querySelectorAll(".suicide").forEach(el => el.classList.remove("suicide"));
         }
 
         function drawBoard(userId, chessState) {
             console.log(chessState)
+
             checkElement.textContent = "";
             if (!chessState || !chessState.board) return;
 
@@ -700,6 +804,17 @@
                     chessState.players.black === userId ? "black" : null;
             const currentTurn = chessState.turn; // "white" o "black"
             const currentPlayerEmail = chessState.players[currentTurn] || "Sconosciuto";
+
+            const playerInCheckmate = isCheckmate(chessState.board, currentTurn);
+
+            if (playerInCheckmate) {
+                // chi ha vinto? L’altro giocatore 
+                if (chessState.players[currentTurn]) {
+                    showCheckmateOverlay(chessState.players[currentTurn]);
+                }
+            } else {
+                hideCheckmateOverlay();
+            }
 
             // scegli icona scacco
             const pieceIcon = currentTurn === "white" ? "♔" : "♚";
@@ -773,57 +888,33 @@
             }
         }
 
-        // ===== DRAW BOARD =====
-        /* function drawBoard(userId, chessState) {
-            if (!chessState || !chessState.board) return;
-
-            const userColor =
-                chessState.players.white === userId ? "white" :
-                    chessState.players.black === userId ? "black" : null;
-
-            turnElement.textContent = "Turno: " + (chessState.turn === "white" ? "Bianco" : "Nero");
-
-            // 👉 gestione overlay
-            if (userColor && chessState.turn !== userColor) {
-                overlay.classList.add("active");   // mostra "attendi..."
-            } else {
-                overlay.classList.remove("active"); // nasconde
-            }
-
-            boardElement.innerHTML = "";
-
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-
-                    const sq = document.createElement("div");
-                    sq.classList.add("square", (r + c) % 2 === 0 ? "white" : "black");
-                    sq.dataset.row = r;
-                    sq.dataset.col = c;
-
-                    const piece = chessState.board[r][c];
-                    if (piece) {
-                        sq.innerHTML = `<img src="${pieces[piece]}" style="width:50px;height:50px;">`;
-                    }
-
-                    sq.addEventListener("click", e => handleClick(e, userId));
-                    boardElement.appendChild(sq);
-                }
-            }
-        } */
-
         // ===== HIGHLIGHT MOVES =====
         async function highlightMoves(row, col, board) {
             const userId = auth.currentUser.uid;
             const chessState = await getChessStateOnce();
             const userColor = chessState.turn;
+
             drawBoard(userId, chessState); // redraw
+
             document.querySelectorAll(".square").forEach(sq => {
                 const r = parseInt(sq.dataset.row), c = parseInt(sq.dataset.col);
-                if (isValidMove(row, col, r, c, board)) sq.classList.add("highlight");
-                else if (board[r][c] && ((board[r][c] === board[r][c].toUpperCase() && userColor === "white") || (board[r][c] === board[r][c].toLowerCase() && userColor === "black"))) {
-                    // pezzi miei non disabilitare
+
+                // rimuovi tutte le classi prima
+                sq.classList.remove("highlight", "disabled", "suicide");
+
+                if (isValidMove(row, col, r, c, board)) {
+                    // controllo se mossa sarebbe suicida
+                    if (isSuicideMove(row, col, r, c, board, userColor)) {
+                        sq.classList.add("suicide"); // mossa valida ma pericolosa
+                    } else {
+                        sq.classList.add("highlight"); // mossa valida e sicura
+                    }
+                } else if (board[r][c] &&
+                    ((board[r][c] === board[r][c].toUpperCase() && userColor === "white") ||
+                        (board[r][c] === board[r][c].toLowerCase() && userColor === "black"))) {
+                    // pezzi miei → non evidenziare
                 } else {
-                    sq.classList.add("disabled");
+                    sq.classList.add("disabled"); // mossa non valida
                 }
             });
         }
@@ -831,12 +922,105 @@
         // ===== CHECK / CHECKMATE =====
         function findKing(board, color) { const king = color === "white" ? "K" : "k"; for (let r = 0; r < 8; r++) { for (let c = 0; c < 8; c++) { if (board[r][c] === king) return { row: r, col: c } } return null } }
         function isSquareAttacked(board, row, col, attackerColor) { for (let r = 0; r < 8; r++) { for (let c = 0; c < 8; c++) { const piece = board[r][c]; if (!piece) continue; const pieceColor = piece === piece.toUpperCase() ? "white" : "black"; if (pieceColor !== attackerColor) continue; if (isValidMove(r, c, row, col, board)) return true } } return false }
-        function isCheck(board, color) { const kingPos = findKing(board, color); if (!kingPos) return false; const opponentColor = color === "white" ? "black" : "white"; return isSquareAttacked(board, kingPos.row, kingPos.col, opponentColor) }
+        function isCheck(board, color) {
+            // trova il re del colore
+            const kingChar = color === "white" ? "K" : "k";
+            let kingPos = null;
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (board[r][c] === kingChar) {
+                        kingPos = { row: r, col: c };
+                        break;
+                    }
+                }
+                if (kingPos) break;
+            }
+            if (!kingPos) return false; // errore: re non trovato
+
+            // controlla tutte le mosse dell’avversario
+            const opponentColor = color === "white" ? "black" : "white";
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const piece = board[r][c];
+                    if (!piece) continue;
+                    if (opponentColor === "white" ? piece === piece.toUpperCase() : piece === piece.toLowerCase()) {
+                        // verifica se il pezzo può attaccare il re
+                        if (isValidMove(r, c, kingPos.row, kingPos.col, board, true)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+        /**
+ * Controlla se il giocatore color è in scacco matto
+ * board: matrice 8x8
+ * color: "white" o "black"
+ */
+        /**
+ * Controlla se il giocatore color è in scacco matto
+ * board: matrice 8x8
+ * color: "white" o "black"
+ */
         function isCheckmate(board, color) {
-            if (!isCheck(board, color)) return false; for (let r = 0; r < 8; r++) { for (let c = 0; c < 8; c++) { const piece = board[r][c]; if (!piece) continue; const pieceColor = piece === piece.toUpperCase() ? "white" : "black"; if (pieceColor !== color) continue; for (let dr = 0; dr < 8; dr++) { for (let dc = 0; dc < 8; dc++) { if (isValidMove(r, c, dr, dc, board)) { const tmp = board[dr][dc]; board[dr][dc] = board[r][c]; board[r][c] = ""; const stillInCheck = isCheck(board, color); board[r][c] = board[dr][dc]; board[dr][dc] = tmp; if (!stillInCheck) return false } } } } return true }
+            // 1️⃣ Se il re NON è in scacco → non è scacco matto
+            if (!isCheck(board, color)) return false;
+
+            const possibleMoves = []; // array per memorizzare le mosse valide
+
+            // 2️⃣ Ciclo su tutti i pezzi del giocatore
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const piece = board[r][c];
+                    if (!piece) continue;
+
+                    // solo i pezzi del giocatore
+                    if ((color === "white" && piece === piece.toUpperCase()) ||
+                        (color === "black" && piece === piece.toLowerCase())) {
+
+                        // prova tutte le possibili mosse su tutta la scacchiera
+                        for (let tr = 0; tr < 8; tr++) {
+                            for (let tc = 0; tc < 8; tc++) {
+                                if (isValidMove(r, c, tr, tc, board)) {
+                                    // verifica se la mossa è sicura
+                                    if (!isSuicideMove(r, c, tr, tc, board, color)) {
+                                        possibleMoves.push({ from: [r, c], to: [tr, tc], piece });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // stampa le mosse ancora possibili
+            if (possibleMoves.length > 0) {
+                console.log(`Mosse legali per ${color}:`, possibleMoves);
+                return false; // non è scacco matto
+            } else {
+                console.log(`${color} è in scacco matto!`);
+                return true; // scacco matto
+            }
         }
 
         // ===== UTILS =====
+        /**
+ * Controlla se muovere un pezzo da (fromRow, fromCol) a (toRow, toCol)
+ * lascerebbe il re del giocatore sotto scacco
+ */
+        function isSuicideMove(fromRow, fromCol, toRow, toCol, board, playerColor) {
+            // 1️⃣ Clona la board per simulare la mossa
+            const simulatedBoard = board.map(row => [...row]);
+
+            // Muovi il pezzo
+            simulatedBoard[toRow][toCol] = simulatedBoard[fromRow][fromCol];
+            simulatedBoard[fromRow][fromCol] = "";
+
+            // 2️⃣ Controlla se il re del playerColor è sotto scacco dopo la mossa
+            return isCheck(simulatedBoard, playerColor);
+        }
         function isCorrectTurn(piece, turn) { return (turn === "white" && piece === piece.toUpperCase()) || (turn === "black" && piece === piece.toLowerCase()) }
         function isValidMove(sr, sc, dr, dc, board) { const piece = board[sr][sc]; if (!piece) return false; const target = board[dr][dc]; if (target && ((piece === piece.toUpperCase() && target === target.toUpperCase()) || (piece === piece.toLowerCase() && target === target.toLowerCase()))) return false; const dx = dr - sr, dy = dc - sc; switch (piece.toLowerCase()) { case "p": const dir = piece === "P" ? -1 : 1; if (dy === 0 && !target) { if (dx === dir) return true; if ((sr === 6 && piece === "P" || sr === 1 && piece === "p") && dx === 2 * dir && !board[sr + dir][sc]) return true } if (Math.abs(dy) === 1 && dx === dir && target) return true; break; case "r": if (dx === 0 || dy === 0) return clearPath(sr, sc, dr, dc, board); break; case "n": if ((Math.abs(dx) === 2 && Math.abs(dy) === 1) || (Math.abs(dx) === 1 && Math.abs(dy) === 2)) return true; break; case "b": if (Math.abs(dx) === Math.abs(dy)) return clearPath(sr, sc, dr, dc, board); break; case "q": if (dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy)) return clearPath(sr, sc, dr, dc, board); break; case "k": if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) return true }return false }
         function clearPath(sr, sc, dr, dc, board) { const stepX = Math.sign(dr - sr), stepY = Math.sign(dc - sc); let r = sr + stepX, c = sc + stepY; while (r !== dr || c !== dc) { if (board[r][c] !== "") return false; r += stepX; c += stepY } return true }
