@@ -31,12 +31,19 @@
         }
 
         #history {
+            margin: 15px;
             height: 100px;
-            overflow-y: auto;
+            overflow: hidden;
             background-color: rgba(0, 0, 0, 0.4);
             padding: 10px 25px;
             border-radius: 5px;
             font-size: 0.9rem;
+        }
+
+        #history #movesContainer {
+            overflow-y: auto;
+            height: -webkit-fill-available;
+            margin-bottom: 20px;
         }
 
         #history h5 {
@@ -523,7 +530,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.26)</small>
+                        <small class="mx-2">(v1.27)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -540,7 +547,7 @@
                     <div class="col-12 col-sm-6">
                         <div id="history">
                             <h5 class="text-light">History</h5>
-                            <div id="movesContainer" style="height: 100px; overflow-y: auto;"></div>
+                            <div id="movesContainer"></div>
                         </div>
                     </div>
                 </div>
@@ -632,7 +639,7 @@
         const overlayMessage = document.getElementById("overlay-message");
 
         function updateHistory(chessState) {
-            const historyDiv = document.getElementById("history");
+            const historyDiv = document.getElementById("movesContainer");
             if (!historyDiv) return;
 
             // svuota la lista tranne l'h5
@@ -645,7 +652,7 @@
                 moveDiv.classList.add("move", item.color); // item.color = "white" o "black"
 
                 // 🔹 ottieni orario della mossa o trattino se non c'è
-                let timeStr = "-";
+                let timeStr = "??:??";
                 if (item.time) {
                     const time = new Date(item.time);
                     const hours = String(time.getHours()).padStart(2, "0");
@@ -659,7 +666,12 @@
 
                 historyDiv.appendChild(moveDiv);
             });
-
+            setTimeout(() => {
+                historyDiv.scrollTo({
+                    top: historyDiv.scrollHeight,
+                    behavior: "smooth" // animazione fluida
+                });
+            }, 100)
             // scorri automaticamente in basso per mostrare l'ultima mossa
             historyDiv.scrollTop = historyDiv.scrollHeight;
         }
@@ -1004,8 +1016,8 @@
                 // funzione di supporto per notazione tipo "Re in A4"
                 function pieceToText(piece) {
                     const mapping = {
-                        K: "Re", Q: "Donna", R: "Torre", N: "Cavallo", B: "Alfiere", P: "Pedone",
-                        k: "Re", q: "Donna", r: "Torre", n: "Cavallo", b: "Alfiere", p: "Pedone"
+                        K: "Re", Q: "Regina", R: "Torre", N: "Cavallo", B: "Alfiere", P: "Pedone",
+                        k: "Re", q: "Regina", r: "Torre", n: "Cavallo", b: "Alfiere", p: "Pedone"
                     };
                     return mapping[piece] || piece;
                 }
