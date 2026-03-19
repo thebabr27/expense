@@ -910,10 +910,10 @@
         playPauseBtn.addEventListener("click", () => {
             if (music.paused) {
                 music.play();
-                playPauseBtn.textContent = "⏸";
+                playPauseBtn.textContent = `<i class="bi bi-pause-fill"></i>`;
             } else {
                 music.pause();
-                playPauseBtn.textContent = "▶️";
+                playPauseBtn.innerHTML = `<i class="bi bi-play-fill"></i>`;
             }
         });
 
@@ -922,7 +922,7 @@
             currentSongIndex = (currentSongIndex + 1) % playlist.length;
             loadSong(currentSongIndex);
             music.play();
-            playPauseBtn.textContent = "⏸";
+            playPauseBtn.textContent = `<i class="bi bi-pause-fill"></i>`;
         });
 
         // ⏮ prev
@@ -930,7 +930,7 @@
             currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
             loadSong(currentSongIndex);
             music.play();
-            playPauseBtn.textContent = "⏸";
+            playPauseBtn.textContent = `<i class="bi bi-pause-fill"></i>`;
         });
 
         // 🔁 autoplay next quando finisce
