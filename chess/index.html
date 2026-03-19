@@ -439,7 +439,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.3)</small>
+                        <small class="mx-2">(v1.2)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -563,7 +563,7 @@
 
             overlay.classList.remove("active");
             const games = snapshot.val();
-            currentGameActive = false;
+
             show([gameSelectionSection]);
             hide([gameBoardSection]);
 
@@ -590,7 +590,6 @@
         let currentUser;
         let currentGame;
         let gamesList = [];
-        let currentGameActive = false;
 
         // ===== EVENTI UI =====
         loginBtn.addEventListener("click", async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await signInWithEmailAndPassword(auth, email, password); } catch (e) { alert(e.message); } });
@@ -614,7 +613,7 @@
                     if (state && state.isNewGame) {
                         hideCheckmateOverlay();
                     }
-                    if (gameId && !currentGameActive) {
+                    if (gameId && gameId !== "") {
                         show([gameSelectionSection])
                         hide([gameBoardSection])
                         showGamesList(state);
@@ -754,7 +753,6 @@
                     if (snapshot.exists()) {
                         show([gameBoardSection])
                         hide([gameSelectionSection])
-                        currentGameActive = true;
                         if (!snapshot.val().players.black || !snapshot.val().players.white) {
                             overlayMessage.innerHTML = "<h2>Attesa giocatore...</h2>"
                         } else {
@@ -949,14 +947,10 @@
 
             const isMyTurn = userColor && chessState.turn === userColor;
 
-            if (!isMyTurn && !selected) {
+            if ((!isMyTurn && !selected) || !chessState.players.white || !chessState.players.black) {
                 overlay.classList.add("active");
             } else {
-                if (chessState.players.white && chessState.players.black) {
-                    overlay.classList.remove("active");
-                } else {
-                    overlay.classList.add("active");
-                }
+                overlay.classList.remove("active");
             }
 
             boardElement.innerHTML = "";
