@@ -541,6 +541,7 @@
                         <small class="mx-2">(v1.27)</small>
                     </div>
                     <div class="d-flex">
+                        <button id="resetGameBtn" class="mx-1 btn btn-primary">Reset Game</button>
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
                     </div>
                 </div>
@@ -573,6 +574,7 @@
                             <h3 id="winnerText"></h3>
 
                             <div id="checkMateOverlayButtons" class="buttons">
+                                <button id="resetGameBtn" class="mx-1 btn btn-primary">Ricomincia Partita</button>
                                 <button id="triggerNewGameFromMate" class="btn btn-success">Nuova Partita</button>
                                 <button id="logoutFromMate" class="btn btn-danger">Logout</button>
                             </div>
@@ -630,6 +632,7 @@
         const overlay = document.getElementById("overlay");
         const newGameBtn = document.getElementById("newGameBtn");
         const leaveGameBtn = document.getElementById("leaveGameBtn");
+        const resetGameBtn = document.getElementById("resetGameBtn");
         const modal = document.getElementById("modal");
         const openModalBtn = document.getElementById("openModalBtn");
         const modalInput = document.getElementById("modalInput");
@@ -702,6 +705,10 @@
             hide([checkMateOverlayButtons])
         });
 
+
+        resetGameBtn.addEventListener("click", async () => {
+            console.log("reset",gameId)
+        })
 
         leaveGameBtn.addEventListener("click", async () => {
             gameId = "";
