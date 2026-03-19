@@ -1307,7 +1307,7 @@
             const pieceType = lastMove.piece.toLowerCase();
 
             // ❌ escludi pedone, cavallo, re
-            if (pieceType === "p" || pieceType === "n" || pieceType === "k") return;
+            if (pieceType === "n" || pieceType === "k") return;
 
             // 🔹 calcola direzione
             const dRow = Math.sign(lastMove.toRow - lastMove.fromRow);
