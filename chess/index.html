@@ -523,7 +523,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.24)</small>
+                        <small class="mx-2">(v1.25)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -1106,7 +1106,9 @@
             boardElement.innerHTML = "";
 
             // 🔁 8 righe
-            for (let r = 0; r < 8; r++) {
+            const rows = userColor === "white" ? [...Array(8).keys()] : [...Array(8).keys()].reverse();
+            for (let rIndex = 0; rIndex < 8; rIndex++) {
+                const r = rows[rIndex];
 
                 const row = document.createElement("div");
                 row.className = "w-100 d-flex";
