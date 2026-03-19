@@ -1149,11 +1149,12 @@
 
                 updateHistory(chessState);
                 highlightLastMove(chessState);
-                boardElement.setAttribute("style", "transform: rotate(180deg)!important;")
 
-                for (let piece of document.querySelectorAll('.piece')) {
-                    piece.style.transform = "rotate(180deg)";
-
+                if (userColor == 'black') {
+                    boardElement.setAttribute("style", "transform: rotate(180deg)!important;")
+                    for (let piece of document.querySelectorAll('.piece')) {
+                        piece.style.transform = "rotate(180deg)";
+                    }
                 }
             }
         }
