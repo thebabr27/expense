@@ -583,12 +583,14 @@
         </div>
     </div>
 
-    <div class="container-fluid" style="height: calc(100% + 1rem);  
+    <div class="container-fluid" style="height: 100vh;  
+    padding-top: 10px;
     background-image: url('./assets/chess_bg.png');
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
-    overflow:hidden">
+    overflow-x:hidden;
+    position: absolute">
         <div id="auth-section" class="row h-100">
             <div class="col-3 d-none d-md-block">
 
@@ -630,10 +632,10 @@
                 <div id="games" class="list-group m-3"></div>
             </div>
             <div id="game-board-section" class=" col-12 p-0">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.31)</small>
+                        <small class="mx-2">(v1.32)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -643,7 +645,7 @@
                     <div id="turn" class="mb-3 fw-bold">...</div>
                     <div id="check" class="fw-bold align-self-center"> </div>
                 </div>
-                <div class="row">
+                <div class="row" style="padding-bottom: 25px;">
                     <div class="col-12 col-sm-6">
                         <div id="board" class="mx-auto"></div>
                     </div>
