@@ -25,9 +25,50 @@
             border-radius: 10px;
         }
 
-        /* Handle on hover */
-        ::-webkit-scrollbar-thumb:hover {
-            background: #3a3a3a;
+        #chat {
+            margin: 15px;
+            height: 150px;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 10px 25px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        #chat #chatMessages {
+            overflow-y: auto;
+            height: -webkit-fill-available;
+            margin-bottom: 10px;
+        }
+
+        .chat-message.other-message {
+            background-color: rgba(172, 115, 24, 0.8);
+        }
+
+        .chat-message.my-message {
+            background-color: rgba(255, 184, 32, 0.8);
+        }
+
+        .chat-message {
+            text-align: right;
+            color: white;
+            border-radius: 10px;
+            padding: 10px;
+            width: fit-content;
+        }
+
+        .chat-message-wrapper {
+            display: flex;
+            margin-bottom: 6px;
+        }
+
+        /* allineamento */
+        .my-wrapper {
+            justify-content: flex-end;
+        }
+
+        .other-wrapper {
+            justify-content: flex-start;
         }
 
         #history {
@@ -538,7 +579,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.29)</small>
+                        <small class="mx-2">(v1.3)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -556,6 +597,16 @@
                         <div id="history">
                             <h5 class="text-light">History</h5>
                             <div id="movesContainer"></div>
+                        </div>
+                        <div id="chat" class="mt-2">
+                            <h5 class="text-light">Chat</h5>
+
+                            <div id="chatMessages"></div>
+
+                            <div class="d-flex mt-2">
+                                <input id="chatInput" class="form-control me-2" placeholder="Scrivi..." />
+                                <button id="sendChatBtn" class="btn btn-primary">Invia</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -648,57 +699,19 @@
         const gameSelectionSection = document.getElementById("game-selection-section");
         const overlayMessage = document.getElementById("overlay-message");
 
-        function updateHistory(chessState) {
-            const historyDiv = document.getElementById("movesContainer");
-            if (!historyDiv) return;
+        // Eventi pulsanti     
+        sendChatBtn.addEventListener("click", () => {
+            sendMessage(chatInput.value);
+            chatInput.value = "";
+        });
 
-            // svuota la lista tranne l'h5
-            historyDiv.querySelectorAll(".move").forEach(el => el.remove());
+        chatInput.addEventListener("keypress", e => {
+            if (e.key === "Enter") {
+                sendMessage(chatInput.value);
+                chatInput.value = "";
+            }
+        });
 
-            if (!chessState.history || chessState.history.length === 0) return;
-
-            chessState.history.forEach(item => {
-                const moveDiv = document.createElement("div");
-                moveDiv.classList.add("move", item.color); // item.color = "white" o "black"
-
-                // 🔹 ottieni orario della mossa o trattino se non c'è
-                let timeStr = "??:??";
-                if (item.time) {
-                    const time = new Date(item.time);
-                    const hours = String(time.getHours()).padStart(2, "0");
-                    const minutes = String(time.getMinutes()).padStart(2, "0");
-                    timeStr = `${hours}:${minutes}`;
-                }
-
-                // 🔹 pedone + testo + orario
-                const pieceIcon = item.color === "white" ? "♙" : "♟";
-                moveDiv.innerHTML = `${timeStr} ${pieceIcon} ${item.text}`; // es. "14:23 ♙ Re in A4" o "- ♟ Cavallo in C6"
-
-                historyDiv.appendChild(moveDiv);
-            });
-            setTimeout(() => {
-                historyDiv.scrollTo({
-                    top: historyDiv.scrollHeight,
-                    behavior: "smooth" // animazione fluida
-                });
-            }, 100)
-            // scorri automaticamente in basso per mostrare l'ultima mossa
-            historyDiv.scrollTop = historyDiv.scrollHeight;
-        }
-
-        function showCheckmateOverlay(winnerEmail, currentTurn) {
-            winnerText.textContent = currentTurn === 'white'
-                ? `Vincono... i Bianchi (${winnerEmail}!!!)`
-                : `Vincono... i Neri (${winnerEmail}!!!)`
-                ;
-            checkMateOverlay.classList.remove("hidden");
-        }
-
-        function hideCheckmateOverlay() {
-            checkMateOverlay.classList.add("hidden");
-        }
-
-        // Eventi pulsanti        
         triggerNewGameFromMate.addEventListener("click", async () => {
             show([formNewGameFromMate])
             hide([checkMateOverlayButtons])
@@ -788,6 +801,130 @@
                 hide([appSection])
             }
         });
+
+        function updateHistory(chessState) {
+            const historyDiv = document.getElementById("movesContainer");
+            if (!historyDiv) return;
+
+            // svuota la lista tranne l'h5
+            historyDiv.querySelectorAll(".move").forEach(el => el.remove());
+
+            if (!chessState.history || chessState.history.length === 0) return;
+
+            chessState.history.forEach(item => {
+                const moveDiv = document.createElement("div");
+                moveDiv.classList.add("move", item.color); // item.color = "white" o "black"
+
+                // 🔹 ottieni orario della mossa o trattino se non c'è
+                let timeStr = "??:??";
+                if (item.time) {
+                    const time = new Date(item.time);
+                    const hours = String(time.getHours()).padStart(2, "0");
+                    const minutes = String(time.getMinutes()).padStart(2, "0");
+                    timeStr = `${hours}:${minutes}`;
+                }
+
+                // 🔹 pedone + testo + orario
+                const pieceIcon = item.color === "white" ? "♙" : "♟";
+                moveDiv.innerHTML = `${timeStr} ${pieceIcon} ${item.text}`; // es. "14:23 ♙ Re in A4" o "- ♟ Cavallo in C6"
+
+                historyDiv.appendChild(moveDiv);
+            });
+            setTimeout(() => {
+                historyDiv.scrollTo({
+                    top: historyDiv.scrollHeight,
+                    behavior: "smooth" // animazione fluida
+                });
+            }, 100)
+            // scorri automaticamente in basso per mostrare l'ultima mossa
+            historyDiv.scrollTop = historyDiv.scrollHeight;
+        }
+
+        function showCheckmateOverlay(winnerEmail, currentTurn) {
+            winnerText.textContent = currentTurn === 'white'
+                ? `Vincono... i Bianchi (${winnerEmail}!!!)`
+                : `Vincono... i Neri (${winnerEmail}!!!)`
+                ;
+            checkMateOverlay.classList.remove("hidden");
+        }
+
+        function hideCheckmateOverlay() {
+            checkMateOverlay.classList.add("hidden");
+        }
+
+        function updateChat(chessState) {
+            const container = document.getElementById("chatMessages");
+            if (!container) {
+                console.log("chatMessages NON trovato");
+                return;
+            }
+
+            container.innerHTML = "";
+
+            if (!chessState.chat || chessState.chat.length === 0) {
+                console.log("Nessun messaggio");
+                return;
+            }
+
+            console.log("Chat:", chessState.chat);
+
+            chessState.chat.forEach(msg => {
+                const isMe = msg.user === currentUser.email;
+
+                // 🔹 wrapper (serve per allineamento)
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("chat-message-wrapper");
+
+                if (isMe) {
+                    wrapper.classList.add("my-wrapper");
+                } else {
+                    wrapper.classList.add("other-wrapper");
+                }
+
+                // 🔹 messaggio vero
+                const div = document.createElement("div");
+                div.classList.add("chat-message");
+
+                if (isMe) {
+                    div.classList.add("my-message");
+                } else {
+                    div.classList.add("other-message");
+                }
+
+                div.innerHTML = `
+            <small class="text-muted">${msg.time || "-"}</small><br>
+            <strong>${isMe ? "Tu" : msg.user}</strong>: ${msg.text}
+        `;
+
+                wrapper.appendChild(div);
+                container.appendChild(wrapper);
+            });
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendMessage(text) {
+            if (!text.trim()) return;
+
+            const snapshot = await get(gameRef);
+            if (!snapshot.exists()) return;
+
+            const state = snapshot.val();
+
+            // inizializza chat se non esiste
+            if (!state.chat) state.chat = [];
+
+            const now = new Date();
+            const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            state.chat.push({
+                user: currentUser.email,
+                text,
+                time
+            });
+
+            await saveChessState(state);
+        }
 
         function showGamesList(state) {
             // Pulisce la lista
@@ -1231,6 +1368,7 @@
                 boardElement.appendChild(row);
 
                 updateHistory(chessState);
+                updateChat(chessState);
                 highlightLastMove(chessState);
                 highlightCheck(chessState);
 
@@ -1331,7 +1469,7 @@
 
                 r += dRow;
                 c += dCol;
-            } 
+            }
         }
 
         // ===== HIGHLIGHT MOVES =====
