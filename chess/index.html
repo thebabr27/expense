@@ -671,6 +671,7 @@
             <div id="game-selection-section" class="col-12">
                 GAME
                 <div class="d-flex justify-content-end">
+                    <h3 class="mx-1">Ciao Marco</h3>
                     <button id="logoutBtn" class="mx-1 btn btn-danger">Logout</button>
                     <button id="newGameBtn" class="mx-1 btn btn-success">New Game</button>
 
@@ -689,6 +690,8 @@
                         <button id="playPauseBtn" class="btn btn-primary btn-sm">▶️</button>
                         <button id="nextSongBtn" class="btn btn-secondary btn-sm">⏭</button>
 
+                        <!-- 🔁 LOOP -->
+                        <button id="loopBtn" class="btn btn-secondary btn-sm">🔁</button>
                         <span id="songTitle" class="ms-2 text-light small">Nessuna traccia</span>
                     </div>
 
@@ -835,15 +838,38 @@
         const nextBtn = document.getElementById("nextSongBtn");
         const prevBtn = document.getElementById("prevSongBtn");
         const songTitle = document.getElementById("songTitle");
+        const loopBtn = document.getElementById("loopBtn");
+
+        let isLooping = false;
 
         // 🎵 playlist
         const playlist = [
-            { src: "audio/chess-music.mp3", title: "Funny song" },
-            { src: "audio/retro-music.mp3", title: "Retro game" },
-            { src: "audio/mountain-path.mp3", title: "Mountain path" }
+            { src: "audio/chess-music.mp3", title: "Funny Song" },
+            { src: "audio/retro-music.mp3", title: "Retro Game" },
+            { src: "audio/mountain-path.mp3", title: "Mountain Path" },
+            { src: "audio/pure-talent.mp3.mp3", title: "Pure Talent" },
+            { src: "audio/quiet-reverie.mp3", title: "Quiet Reverie" },
+            { src: "audio/stealth-breacher.mp3", title: "Stealth Breacher" }
+
         ];
 
         let currentSongIndex = 0;
+
+
+        // 🔁 toggle loop
+        loopBtn.addEventListener("click", () => {
+            isLooping = !isLooping;
+
+            if (isLooping) {
+                music.loop = true;
+                loopBtn.classList.remove("btn-secondary");
+                loopBtn.classList.add("btn-success"); // evidenziato
+            } else {
+                music.loop = false;
+                loopBtn.classList.remove("btn-primary");
+                loopBtn.classList.add("btn-secondary");
+            }
+        });
 
         // ▶️ play / pause
         playPauseBtn.addEventListener("click", () => {
@@ -874,7 +900,9 @@
 
         // 🔁 autoplay next quando finisce
         music.addEventListener("ended", () => {
-            nextBtn.click();
+            if (!isLooping) {
+                nextBtn.click();
+            }
         });
 
         // 🔹 init
