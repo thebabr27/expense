@@ -523,7 +523,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.25)</small>
+                        <small class="mx-2">(v1.26)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -1184,12 +1184,10 @@
 
         // ===== HIGHLIGHT MOVES =====
         async function highlightMoves(row, col, board) {
-            const userId = auth.currentUser.uid;
             const chessState = await getChessStateOnce();
             const userColor = chessState.turn;
 
-            drawBoard(userId, chessState); // redraw
-
+            // Non fare drawBoard qui
             document.querySelectorAll(".square").forEach(sq => {
                 const r = parseInt(sq.dataset.row), c = parseInt(sq.dataset.col);
 
