@@ -450,32 +450,32 @@
                     <div id="check" class="fw-bold align-self-center"> </div>
                 </div>
                 <div id="board" class="mx-auto"></div>
-            <div class=" col-12 p-0">
-                <div id="overlay">
-                    <div class="hourglass frame"></div> <!-- bordo -->
-                    <div class="hourglass sand"></div> <!-- sabbia -->
-                    <div id="overlay-message" class="position-absolute">
+                <div class=" col-12 p-0">
+                    <div id="overlay">
+                        <div class="hourglass frame"></div> <!-- bordo -->
+                        <div class="hourglass sand"></div> <!-- sabbia -->
+                        <div id="overlay-message" class="position-absolute">
 
-                    </div>
-                </div>
-                <div id="checkMateOverlay" class="overlay hidden">
-                    <div class="overlay-content">
-                        <h2>♔ Scacco matto!</h2>
-                        <h3 id="winnerText"></h3>
-
-                        <div id="checkMateOverlayButtons" class="buttons">
-                            <button id="triggerNewGameFromMate" class="btn btn-success">Nuova Partita</button>
-                            <button id="logoutFromMate" class="btn btn-danger">Logout</button>
-                        </div>
-                        <div id="formNewGameFromMate" class="text-start">
-                            <label for="">Nuova partita:</label>
-                            <input type="text" value="game1" id="checkMateOverlayInput" class="form-control mb-2"
-                                placeholder="Scrivi qui...">
-                            <button id="newGameFromMate" class="btn btn-success">Crea Partita</button>
                         </div>
                     </div>
+                    <div id="checkMateOverlay" class="overlay hidden">
+                        <div class="overlay-content">
+                            <h2>♔ Scacco matto!</h2>
+                            <h3 id="winnerText"></h3>
+
+                            <div id="checkMateOverlayButtons" class="buttons">
+                                <button id="triggerNewGameFromMate" class="btn btn-success">Nuova Partita</button>
+                                <button id="logoutFromMate" class="btn btn-danger">Logout</button>
+                            </div>
+                            <div id="formNewGameFromMate" class="text-start">
+                                <label for="">Nuova partita:</label>
+                                <input type="text" value="game1" id="checkMateOverlayInput" class="form-control mb-2"
+                                    placeholder="Scrivi qui...">
+                                <button id="newGameFromMate" class="btn btn-success">Crea Partita</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
     </div>
@@ -622,7 +622,7 @@
                     } else {
                         hide([gameSelectionSection])
                         show([gameBoardSection])
-                        drawBoard(currentUser.email, state[gameId]); 
+                        drawBoard(currentUser.email, state[gameId]);
                     }
 
                     /* checkUserInGame(user.email, state) */
@@ -662,7 +662,7 @@
                 if (hasWhite && hasBlack && !isMeWhite && !isMeBlack) {
                     // partita piena e non sono tra i giocatori → non cliccabile
                     item.style.cursor = "not-allowed";
-                    item.innerHTML += "(Partita piena)" 
+                    item.innerHTML += "(Partita piena)"
                     item.classList.add("disabled"); // puoi aggiungere uno stile grigio se vuoi
                 } else {
                     item.style.cursor = "pointer";
@@ -853,7 +853,7 @@
             }
 
             // =========================
-            // 👉 MOSSA (vuota o cattura)
+            // 👉 MOSSA (vuota o cattura) + storico
             // =========================
             if (isValidMove(fromRow, fromCol, row, col, chessState.board)) {
                 // controllo che non sia suicida
@@ -868,6 +868,42 @@
 
                 // cambio turno
                 chessState.turn = chessState.turn === "white" ? "black" : "white";
+
+                // =========================
+                // Aggiorna lo storico
+                // =========================
+                if (!chessState.history) chessState.history = [];
+
+                // funzione di supporto per notazione tipo "Re in A4"
+                function pieceToText(piece) {
+                    const mapping = {
+                        K: "Re", Q: "Donna", R: "Torre", N: "Cavallo", B: "Alfiere", P: "Pedone",
+                        k: "Re", q: "Donna", r: "Torre", n: "Cavallo", b: "Alfiere", p: "Pedone"
+                    };
+                    return mapping[piece] || piece;
+                }
+
+                // converti coordinate in notazione scacchistica
+                function coordsToNotation(r, c) {
+                    const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
+                    return files[c] + (8 - r);
+                }
+
+                const moveText = `${pieceToText(fromPiece)} in ${coordsToNotation(row, col)}`;
+                const moveEntry = {
+                    fromRow, fromCol, toRow: row, toCol: col,
+                    piece: fromPiece,
+                    color: userColor,
+                    text: moveText
+                };
+
+                // aggiorna ultima mossa se è la stessa (opzionale, utile per editing)
+                const lastMove = chessState.history[chessState.history.length - 1];
+                if (!lastMove || lastMove.fromRow !== fromRow || lastMove.fromCol !== fromCol || lastMove.toRow !== row || lastMove.toCol !== col) {
+                    chessState.history.push(moveEntry);
+                } else {
+                    chessState.history[chessState.history.length - 1] = moveEntry;
+                }
 
                 // reset selezione / evidenziazione
                 selected = null;
