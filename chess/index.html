@@ -19,6 +19,10 @@
             transition: .3s;
         }
 
+        .games-list-group.disabled {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+        }
+
         .games-list-group:hover {
             background-color: rgba(0, 0, 0, 0.2) !important;
             transition: .3s;
@@ -446,13 +450,12 @@
                     <div id="check" class="fw-bold align-self-center"> </div>
                 </div>
                 <div id="board" class="mx-auto"></div>
-            </div>
             <div class=" col-12 p-0">
                 <div id="overlay">
                     <div class="hourglass frame"></div> <!-- bordo -->
                     <div class="hourglass sand"></div> <!-- sabbia -->
                     <div id="overlay-message" class="position-absolute">
-                        
+
                     </div>
                 </div>
                 <div id="checkMateOverlay" class="overlay hidden">
@@ -472,6 +475,7 @@
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </div>
@@ -629,29 +633,38 @@
         });
 
         function showGamesList(state) {
-            // Crea la lista
+            // Pulisce la lista
             games.innerHTML = "";
+
             Object.keys(state).forEach(gameId => {
                 const game = state[gameId];
-                console.log(gameId)
+                console.log(gameId);
 
-                const pieceIcon = "♟";
-                const whitePieceIcon = "♙";
                 const item = document.createElement("div");
                 item.className = "games-list-group list-group-item list-group-item-action";
 
                 // 🔹 controlli player
                 const hasWhite = game.players && game.players.white;
                 const hasBlack = game.players && game.players.black;
+                const isMeWhite = hasWhite && game.players.white === currentUser.email;
+                const isMeBlack = hasBlack && game.players.black === currentUser.email;
+
                 // 🔹 icone condizionali
                 const whiteIcon = hasWhite ? `<span class="text-light">♙</span>` : "";
                 const blackIcon = hasBlack ? `<span class="text-dark">♟</span>` : "";
 
                 item.innerHTML = `${gameId} ${whiteIcon} ${blackIcon}`;
-                item.style.cursor = "pointer";
-                console.log(gameId)
-                // Quando clicchi, chiama la funzione con il titolo
-                item.addEventListener("click", () => handleGameClick(gameId, currentUser.email));
+
+                // 🔹 gestione clickabilità
+                if (hasWhite && hasBlack && !isMeWhite && !isMeBlack) {
+                    // partita piena e non sono tra i giocatori → non cliccabile
+                    item.style.cursor = "not-allowed";
+                    item.innerHTML += "(Partita piena)" 
+                    item.classList.add("disabled"); // puoi aggiungere uno stile grigio se vuoi
+                } else {
+                    item.style.cursor = "pointer";
+                    item.addEventListener("click", () => handleGameClick(gameId, currentUser.email));
+                }
 
                 games.appendChild(item);
             });
@@ -932,7 +945,7 @@
                 checkElement.textContent = "";
             }
 
-            const isMyTurn = userColor && chessState.turn === userColor; 
+            const isMyTurn = userColor && chessState.turn === userColor;
 
             if ((!isMyTurn && !selected) || !chessState.players.white || !chessState.players.black) {
                 overlay.classList.add("active");
