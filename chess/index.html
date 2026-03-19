@@ -538,7 +538,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.28)</small>
+                        <small class="mx-2">(v1.29)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -1288,20 +1288,50 @@
             const lastMove = chessState.history[chessState.history.length - 1];
             const squares = document.querySelectorAll(".square");
 
+            // 🔹 evidenzia partenza e arrivo
             squares.forEach(sq => {
                 const r = parseInt(sq.dataset.row);
                 const c = parseInt(sq.dataset.col);
 
-                // quadratino solo se casella vuota
+                // partenza (solo se vuota)
                 if ((r === lastMove.fromRow && c === lastMove.fromCol) && sq.innerHTML.trim() === "") {
                     sq.classList.add("last-move");
                 }
 
-                // bordo giallo sulla casella di arrivo, sempre
+                // arrivo
                 if (r === lastMove.toRow && c === lastMove.toCol) {
                     sq.classList.add("last-move-to");
                 }
             });
+
+            const pieceType = lastMove.piece.toLowerCase();
+
+            // ❌ escludi pedone, cavallo, re
+            if (pieceType === "p" || pieceType === "n" || pieceType === "k") return;
+
+            // 🔹 calcola direzione
+            const dRow = Math.sign(lastMove.toRow - lastMove.fromRow);
+            const dCol = Math.sign(lastMove.toCol - lastMove.fromCol);
+
+            let r = lastMove.fromRow + dRow;
+            let c = lastMove.fromCol + dCol;
+
+            const pathSquares = [];
+
+            // 🔹 percorri le caselle intermedie
+            while (r !== lastMove.toRow || c !== lastMove.toCol) {
+                pathSquares.push({ row: r, col: c });
+
+                const sq = document.querySelector(`.square[data-row="${r}"][data-col="${c}"]`);
+
+                // aggiungi highlight solo se vuota
+                if (sq && sq.innerHTML.trim() === "") {
+                    sq.classList.add("last-move");
+                }
+
+                r += dRow;
+                c += dCol;
+            } 
         }
 
         // ===== HIGHLIGHT MOVES =====
