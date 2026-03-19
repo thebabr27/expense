@@ -48,6 +48,10 @@
             transform: scale(1.2);
         }
 
+        .rotation {
+            transform: rotate(180deg) !important;
+        }
+
         #chat {
             margin: 15px;
             height: 150px;
@@ -162,7 +166,7 @@
         }
 
         #history .move.black {
-            color: #ffd700;
+            color: #111;
             /* giallo per il nero */
         }
 
@@ -635,7 +639,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.32)</small>
+                        <small class="mx-2">(v1.33)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -646,10 +650,10 @@
                     <div id="check" class="fw-bold align-self-center"> </div>
                 </div>
                 <div class="row" style="padding-bottom: 25px;">
-                    <div class="col-12 col-sm-6">
+                    <div class="col-12 col-md-7">
                         <div id="board" class="mx-auto"></div>
                     </div>
-                    <div class="col-12 col-sm-6">
+                    <div class="col-12 col-md-5">
                         <div id="history">
                             <h5 class="text-light">History</h5>
                             <div id="movesContainer"></div>
@@ -830,6 +834,7 @@
         newGameBtn.addEventListener("click", async () => { openModalBtn.click() });
         modalSaveBtn.addEventListener("click", async () => { initChessGame(currentUser.email) });
 
+
         // ===== REALTIME LISTENER =====
         onAuthStateChanged(auth, async user => {
             if (user) {
@@ -842,6 +847,7 @@
 
 
                 onValue(dbRef, snapshot => {
+
                     const state = snapshot.val();
                     if (!state) return;
                     if (state && state.isNewGame) {
@@ -854,7 +860,9 @@
                     } else {
                         hide([gameSelectionSection])
                         show([gameBoardSection])
-                        drawBoard(currentUser.email, state[gameId]);
+                        if (state.players.white !== 'computer' && state.players.black !== 'computer') {
+                            drawBoard(currentUser.email, state[gameId]);
+                        }
                     }
 
                     /* checkUserInGame(user.email, state) */
@@ -867,6 +875,73 @@
             }
         });
 
+        // ======================
+        // 👉 AI / Computer move
+        // ======================
+        async function makeComputerMove(chessState) {
+            if (!chessState || !chessState.board) return;
+
+            const computerColor = chessState.turn; // il colore del computer
+            const board = chessState.board;
+
+            const moves = [];
+
+            // 🔹 Trova tutte le mosse valide per il computer
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const piece = board[r][c];
+                    if (!piece) continue;
+
+                    const isComputerPiece =
+                        (computerColor === "white" && piece === piece.toUpperCase()) ||
+                        (computerColor === "black" && piece === piece.toLowerCase());
+
+                    if (!isComputerPiece) continue;
+
+                    // esplora tutte le possibili destinazioni
+                    for (let tr = 0; tr < 8; tr++) {
+                        for (let tc = 0; tc < 8; tc++) {
+                            if (isValidMove(r, c, tr, tc, board) &&
+                                !isSuicideMove(r, c, tr, tc, board, computerColor)) {
+                                moves.push({ fromRow: r, fromCol: c, toRow: tr, toCol: tc, piece });
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (moves.length === 0) {
+                console.log("Computer non ha mosse valide!");
+                return;
+            }
+
+            // 🔹 Scegli una mossa a caso
+            const move = moves[Math.floor(Math.random() * moves.length)];
+
+            // 🔹 Esegui la mossa
+            board[move.toRow][move.toCol] = move.piece;
+            board[move.fromRow][move.fromCol] = "";
+
+            // 🔹 Aggiorna la history
+            const moveText = `${pieceToText(move.piece)} in ${coordsToNotation(move.toRow, move.toCol)}`;
+            if (!chessState.history) chessState.history = [];
+            chessState.history.push({
+                fromRow: move.fromRow,
+                fromCol: move.fromCol,
+                toRow: move.toRow,
+                toCol: move.toCol,
+                piece: move.piece,
+                color: computerColor,
+                text: moveText,
+                time: Date.now()
+            });
+
+            // 🔹 Cambia turno
+            chessState.turn = computerColor === "white" ? "black" : "white";
+
+            // 🔹 Salva su DB e ridisegna la board
+            await saveChessState(chessState);
+        }
 
         // genera emoji picker
         function initEmojiPicker() {
@@ -1135,6 +1210,42 @@
             console.log("Giocatori aggiornati:", game.players);
         }
 
+        async function playAgainstPC(gameId) {
+            const gameRef = ref(db, `/chess/${gameId}`);
+            const snapshot = await get(gameRef);
+
+            if (!snapshot.exists()) {
+                console.log("Partita non trovata");
+                return;
+            }
+
+            const game = snapshot.val();
+
+            if (!game.players) {
+                game.players = {};
+            }
+
+            // Controlla se c'è già un giocatore umano
+            if (game.players.white && game.players.black) {
+                console.log("Partita piena, impossibile giocare contro il computer");
+                return;
+            }
+
+            // Inserisci il computer nello slot libero
+            if (!game.players.white) {
+                game.players.white = "computer";
+                console.log("Computer entra come WHITE");
+            } else if (!game.players.black) {
+                game.players.black = "computer";
+                console.log("Computer entra come BLACK");
+            }
+
+            // Salva aggiornamento su Firebase
+            await set(gameRef, game);
+
+            console.log("Giocatori aggiornati:", game.players);
+        }
+
         function handleGameClick(title, userEmail) {
             // Ottieni il riferimento alla partita specifica
             gameId = title;
@@ -1146,7 +1257,17 @@
                         hide([gameSelectionSection])
                         gameSelected = true;
                         if (!snapshot.val().players.black || !snapshot.val().players.white) {
-                            overlayMessage.innerHTML = "<h2>Attesa giocatore...</h2>"
+                            overlayMessage.innerHTML = `<div>
+                                <h2>Attesa giocatore...</h2>
+                                    <div class='d-flex justify-content-center'>
+                                        <button id="playAgainstPCBtn" class='btn btn-primary'>
+                                            Gioca contro il computer
+                                        </button>
+                                    </div>
+                                </div>`
+                            document.getElementById('playAgainstPCBtn').addEventListener('click', () => {
+                                playAgainstPC(gameId);
+                            })
                         } else {
                             overlayMessage.innerHTML = ""
                         }
@@ -1293,21 +1414,6 @@
                 // =========================
                 if (!chessState.history) chessState.history = [];
 
-                // funzione di supporto per notazione tipo "Re in A4"
-                function pieceToText(piece) {
-                    const mapping = {
-                        K: "Re", Q: "Regina", R: "Torre", N: "Cavallo", B: "Alfiere", P: "Pedone",
-                        k: "Re", q: "Regina", r: "Torre", n: "Cavallo", b: "Alfiere", p: "Pedone"
-                    };
-                    return mapping[piece] || piece;
-                }
-
-                // converti coordinate in notazione scacchistica
-                function coordsToNotation(r, c) {
-                    const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
-                    return files[c] + (8 - r);
-                }
-
                 const moveText = `${pieceToText(fromPiece)} in ${coordsToNotation(row, col)}`;
                 const moveEntry = {
                     fromRow, fromCol,
@@ -1348,6 +1454,21 @@
             clearHighlights();
         }
 
+        // funzione di supporto per notazione tipo "Re in A4"
+        function pieceToText(piece) {
+            const mapping = {
+                K: "Re", Q: "Regina", R: "Torre", N: "Cavallo", B: "Alfiere", P: "Pedone",
+                k: "Re", q: "Regina", r: "Torre", n: "Cavallo", b: "Alfiere", p: "Pedone"
+            };
+            return mapping[piece] || piece;
+        }
+
+        // converti coordinate in notazione scacchistica
+        function coordsToNotation(r, c) {
+            const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
+            return files[c] + (8 - r);
+        }
+
         function saveChessState(state) {
             if (state.isNewGame) {
                 delete state.isNewGame;
@@ -1375,6 +1496,10 @@
             const currentPlayerEmail = chessState.players[currentTurn] || "Sconosciuto";
 
             const playerInCheckmate = isCheckmate(chessState.board, currentTurn);
+
+            if (currentPlayerEmail == 'computer') {
+                makeComputerMove(chessState)
+            }
 
             if (playerInCheckmate) {
                 // chi ha vinto? L’altro giocatore 
@@ -1466,26 +1591,28 @@
 
                 updateHistory(chessState);
                 updateChat(chessState);
-                highlightLastMove(chessState);
-                highlightCheck(chessState);
 
             }
             console.log(gameId, "neri:", chessState.players.black, currentUser.email)
             if (chessState.players.black == currentUser.email) {
-                boardElement.setAttribute("style", "transform: rotate(180deg)!important;")
-                setTimeout(() => {
-                    for (let piece of document.querySelectorAll('.piece')) {
-                        piece.style.transform = "rotate(180deg)";
-                    }
-                }, 5)
+                boardElement.classList.add('rotation');
+
+                for (let piece of document.querySelectorAll('.piece')) {
+                    piece.classList.add('rotation');
+                }
+
             } else {
-                boardElement.setAttribute("style", "transform: rotate(0deg)!important;")
-                setTimeout(() => {
-                    for (let piece of document.querySelectorAll('.piece')) {
-                        piece.style.transform = "rotate(0deg)";
-                    }
-                }, 5)
+                boardElement.classList.remove('rotation');
+
+                for (let piece of document.querySelectorAll('.piece')) {
+                    piece.classList.remove('rotation');
+                }
+
             }
+            setTimeout(() => {
+                highlightLastMove(chessState);
+                highlightCheck(chessState);
+            }, 100)
         }
 
         function highlightCheck(chessState) {
@@ -1575,7 +1702,6 @@
             const chessState = await getChessStateOnce();
             const userColor = chessState.turn;
 
-            drawBoard(userId, chessState); // redraw
 
             document.querySelectorAll(".square").forEach(sq => {
                 const r = parseInt(sq.dataset.row), c = parseInt(sq.dataset.col);
