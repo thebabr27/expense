@@ -860,7 +860,7 @@
                     } else {
                         hide([gameSelectionSection])
                         show([gameBoardSection])
-                        if (state.players.white !== 'computer' && state.players.black !== 'computer') {
+                        if (state[gameId].players.white !== 'computer' && state[gameId].players.black !== 'computer') {
                             drawBoard(currentUser.email, state[gameId]);
                         }
                     }
