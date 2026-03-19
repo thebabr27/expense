@@ -541,7 +541,6 @@
                         <small class="mx-2">(v1.27)</small>
                     </div>
                     <div class="d-flex">
-                        <button id="resetGameBtn" class="mx-1 btn btn-primary">Reset Game</button>
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
                     </div>
                 </div>
@@ -707,7 +706,8 @@
 
 
         resetGameBtn.addEventListener("click", async () => {
-            console.log("reset",gameId)
+            console.log("reset", gameId)
+            resetGame();
         })
 
         leaveGameBtn.addEventListener("click", async () => {
@@ -927,6 +927,37 @@
                 });
         }
 
+
+        async function resetGame() {
+            console.log("reset game...");
+
+            const initialBoard = [
+                ["r", "n", "b", "q", "k", "b", "n", "r"],
+                ["p", "p", "p", "p", "p", "p", "p", "p"],
+                ["", "", "", "", "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["", "", "", "", "", "", "", ""],
+                ["P", "P", "P", "P", "P", "P", "P", "P"],
+                ["R", "N", "B", "Q", "K", "B", "N", "R"]
+            ];
+
+            const snapshot = await get(gameRef);
+            if (!snapshot.exists()) return;
+
+            const currentState = snapshot.val();
+
+            const newState = {
+                ...currentState,            // mantiene players e altri dati
+                board: initialBoard,
+                turn: "white",
+                history: [],
+                selected: null,
+                isNewGame: true            // utile per nascondere overlay checkmate
+            };
+
+            await set(gameRef, newState);
+        }
         // ===== DATABASE HELPERS =====
         async function initChessGame(userId) {
             console.log("new game starting...")
@@ -1097,30 +1128,6 @@
             document.querySelectorAll(".suicide").forEach(el => el.classList.remove("suicide"));
         }
 
-        function highlightCheck(chessState) {
-            // Rimuovi eventuali check precedenti
-            document.querySelectorAll(".square.check").forEach(sq => sq.classList.remove("check"));
-
-            if (!chessState || !chessState.board) return;
-
-            // Controlla se qualcuno è sotto scacco
-            const turn = chessState.turn; // il colore che ha il turno
-            const inCheck = isCheck(chessState.board, turn);
-            if (!inCheck) return;
-
-            // Trova il re sotto scacco
-            const kingChar = turn === "white" ? 'K' : 'k'; // assumendo maiuscolo = bianco, minuscolo = nero
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                    if (chessState.board[r][c] === kingChar) {
-                        // trova la casella corrispondente nel DOM
-                        const sq = document.querySelector(`.square[data-row="${r}"][data-col="${c}"]`);
-                        if (sq) sq.classList.add("check");
-                    }
-                }
-            }
-        }
-
         function drawBoard(userId, chessState) {
             console.log(chessState, gameId)
 
@@ -1159,22 +1166,7 @@
                 : `<span>${pieceIcon}</span>`;
 
             turnElement.innerHTML = `${turnoTesto} ${iconHTML}`;
-            console.log(gameId, "neri:", chessState.players.black, currentUser.email)
-            if (chessState.players.black == currentUser.email) {
-                boardElement.setAttribute("style", "transform: rotate(180deg)!important;")
-                setTimeout(() => {
-                    for (let piece of document.querySelectorAll('.piece')) {
-                        piece.style.transform = "rotate(180deg)";
-                    }
-                }, 20)
-            } else {
-                boardElement.setAttribute("style", "transform: rotate(0deg)!important;")
-                setTimeout(() => {
-                    for (let piece of document.querySelectorAll('.piece')) {
-                        piece.style.transform = "rotate(0deg)";
-                    }
-                }, 20)
-            }
+
             const inCheck = isCheck(chessState.board, currentTurn);
             const inCheckmate = isCheckmate(chessState.board, currentTurn);
 
@@ -1243,6 +1235,45 @@
                 highlightCheck(chessState);
 
             }
+            console.log(gameId, "neri:", chessState.players.black, currentUser.email)
+            if (chessState.players.black == currentUser.email) {
+                boardElement.setAttribute("style", "transform: rotate(180deg)!important;")
+                setTimeout(() => {
+                    for (let piece of document.querySelectorAll('.piece')) {
+                        piece.style.transform = "rotate(180deg)";
+                    }
+                }, 5)
+            } else {
+                boardElement.setAttribute("style", "transform: rotate(0deg)!important;")
+                setTimeout(() => {
+                    for (let piece of document.querySelectorAll('.piece')) {
+                        piece.style.transform = "rotate(0deg)";
+                    }
+                }, 5)
+            }
+        }
+
+        function highlightCheck(chessState) {
+            // rimuovi eventuali check precedenti
+            document.querySelectorAll(".square.check").forEach(sq => sq.classList.remove("check"));
+
+            if (!chessState || !chessState.board) return;
+
+            // controlla per entrambi i colori se sono sotto scacco
+            const colors = ["white", "black"];
+            colors.forEach(color => {
+                if (isCheck(chessState.board, color)) {
+                    const kingChar = color === "white" ? 'K' : 'k';
+                    for (let r = 0; r < 8; r++) {
+                        for (let c = 0; c < 8; c++) {
+                            if (chessState.board[r][c] === kingChar) {
+                                const sq = document.querySelector(`.square[data-row="${r}"][data-col="${c}"]`);
+                                if (sq) sq.classList.add("check");
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         function highlightLastMove(chessState) {
