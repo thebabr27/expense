@@ -25,6 +25,29 @@
             border-radius: 10px;
         }
 
+        #emojiPicker {
+            position: absolute;
+            bottom: 45px;
+            left: 0;
+            background: #222;
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            width: 200px;
+            z-index: 10;
+        }
+
+        #emojiPicker span {
+            cursor: pointer;
+            font-size: 20px;
+            margin: 4px;
+        }
+
+        #emojiPicker span:hover {
+            transform: scale(1.2);
+        }
+
         #chat {
             margin: 15px;
             height: 150px;
@@ -35,34 +58,21 @@
             font-size: 0.9rem;
         }
 
+        #chat-input-wrapper {
+            margin: 15px;
+        }
+
         #chat #chatMessages {
             overflow-y: auto;
             height: -webkit-fill-available;
             margin-bottom: 30px;
         }
 
-        .chat-message.other-message {
-            background-color: rgba(172, 115, 24, 0.8);
-        }
-
-        .chat-message.my-message {
-            background-color: rgba(255, 184, 32, 0.8);
-        }
-
-        .chat-message {
-            text-align: right;
-            color: white;
-            border-radius: 10px;
-            padding: 10px;
-            width: fit-content;
-        }
-
         .chat-message-wrapper {
+            margin-bottom: 5px;
             display: flex;
-            margin-bottom: 6px;
         }
 
-        /* allineamento */
         .my-wrapper {
             justify-content: flex-end;
         }
@@ -70,9 +80,34 @@
         .other-wrapper {
             justify-content: flex-start;
         }
+
+        .chat-message {
+            max-width: calc(fit-content + 15px);
+            padding: 6px 10px;
+            border-radius: 10px;
+            color: white;
+        }
+
+        .my-message {
+            background-color: #fdb90d;
+            /* blu per i messaggi miei */
+            color: white;
+        }
+
+        .other-message {
+            background-color: rgba(255, 227, 151, 0.3);
+            /* grigio scuro per gli altri */
+            color: white;
+        }
         
-        #chat-input-wrapper {
-            margin: 15px;
+
+        .other-message .chat-time {
+            color: rgb(226, 226, 226)!important;
+        }
+        
+
+        .chat-message-text {
+            word-wrap: break-word;
         }
 
         #history {
@@ -584,7 +619,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.3)</small>
+                        <small class="mx-2">(v1.31)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -608,11 +643,16 @@
 
                             <div id="chatMessages"></div>
                         </div>
-                        
 
-                        <div id="chat-input-wrapper" class="d-flex">
+                        <div id="chat-input-wrapper" class="d-flex position-relative">
+                            <button id="emojiBtn" class="btn btn-secondary me-1">😊</button>
+
                             <input id="chatInput" class="form-control me-2" placeholder="Scrivi..." />
+
                             <button id="sendChatBtn" class="btn btn-primary">Invia</button>
+
+                            <!-- picker emoji -->
+                            <div id="emojiPicker" class="hidden"></div>
                         </div>
                     </div>
                 </div>
@@ -705,6 +745,21 @@
         const gameSelectionSection = document.getElementById("game-selection-section");
         const overlayMessage = document.getElementById("overlay-message");
 
+
+        const pieces = {
+            K: "assets/K_white.svg", Q: "assets/R_white.svg", R: "assets/T_white.svg", N: "assets/C_white.svg", B: "assets/A_white.svg", P: "assets/P_white.svg",
+            k: "assets/K_black.svg", q: "assets/R_black.svg", r: "assets/T_black.svg", n: "assets/C_black.svg", b: "assets/A_black.svg", p: "assets/P_black.svg"
+        };
+        // lista emoji base (puoi ampliarla)
+        const emojis = ["😀", "😂", "😍", "😎", "😭", "😡", "👍", "👎", "🔥", "💯", "♟", "♔", "♚"];
+
+        const emojiBtn = document.getElementById("emojiBtn");
+        const emojiPicker = document.getElementById("emojiPicker");
+        const chatInput = document.getElementById("chatInput");
+        let currentUser;
+        let currentGame;
+        let gamesList = [];
+
         // Eventi pulsanti     
         sendChatBtn.addEventListener("click", () => {
             sendMessage(chatInput.value);
@@ -757,15 +812,6 @@
             await signOut(auth);
         });
 
-        const pieces = {
-            K: "assets/K_white.svg", Q: "assets/R_white.svg", R: "assets/T_white.svg", N: "assets/C_white.svg", B: "assets/A_white.svg", P: "assets/P_white.svg",
-            k: "assets/K_black.svg", q: "assets/R_black.svg", r: "assets/T_black.svg", n: "assets/C_black.svg", b: "assets/A_black.svg", p: "assets/P_black.svg"
-        };
-
-        let currentUser;
-        let currentGame;
-        let gamesList = [];
-
         // ===== EVENTI UI =====
         loginBtn.addEventListener("click", async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await signInWithEmailAndPassword(auth, email, password); } catch (e) { alert(e.message); } });
         registerBtn.addEventListener("click", async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await createUserWithEmailAndPassword(auth, email, password); } catch (e) { alert(e.message); } });
@@ -776,6 +822,8 @@
         // ===== REALTIME LISTENER =====
         onAuthStateChanged(auth, async user => {
             if (user) {
+                // init
+                initEmojiPicker();
                 currentUser = user;
                 //console.log("logged", user)
                 hide([authSection])
@@ -805,6 +853,37 @@
                 console.log("logged out")
                 show([authSection])
                 hide([appSection])
+            }
+        });
+
+
+        // genera emoji picker
+        function initEmojiPicker() {
+            emojiPicker.innerHTML = "";
+
+            emojis.forEach(e => {
+                const span = document.createElement("span");
+                span.textContent = e;
+
+                span.addEventListener("click", () => {
+                    chatInput.value += e;
+                    emojiPicker.classList.add("hidden");
+                    chatInput.focus();
+                });
+
+                emojiPicker.appendChild(span);
+            });
+        }
+
+        // toggle apertura
+        emojiBtn.addEventListener("click", () => {
+            emojiPicker.classList.toggle("hidden");
+        });
+
+        // chiudi cliccando fuori
+        document.addEventListener("click", (e) => {
+            if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+                emojiPicker.classList.add("hidden");
             }
         });
 
@@ -840,7 +919,7 @@
                 historyDiv.scrollTo({
                     top: historyDiv.scrollHeight,
                     behavior: "smooth" // animazione fluida
-                });  
+                });
             }, 100)
             // scorri automaticamente in basso per mostrare l'ultima mossa
             historyDiv.scrollTop = historyDiv.scrollHeight;
@@ -880,39 +959,34 @@
                 // 🔹 wrapper (serve per allineamento)
                 const wrapper = document.createElement("div");
                 wrapper.classList.add("chat-message-wrapper");
-
-                if (isMe) {
-                    wrapper.classList.add("my-wrapper");
-                } else {
-                    wrapper.classList.add("other-wrapper");
-                }
+                wrapper.classList.add(isMe ? "my-wrapper" : "other-wrapper");
 
                 // 🔹 messaggio vero
                 const div = document.createElement("div");
                 div.classList.add("chat-message");
+                div.classList.add(isMe ? "my-message" : "other-message");
 
-                if (isMe) {
-                    div.classList.add("my-message");
-                } else {
-                    div.classList.add("other-message");
-                }
-
+                // layout: nome a sinistra, orario a destra sopra al testo
                 div.innerHTML = `
-            <small class="text-muted">${msg.time || "-"}</small><br>
-            <strong>${isMe ? "Tu" : msg.user}</strong>: ${msg.text}
+            <div class="chat-message-header" style="display:flex; justify-content: space-between; font-size:0.75rem; margin-bottom: 2px;">
+                <span class="chat-username">${isMe ? "Tu" : msg.user.split('@')[0]}</span>
+                <span class="chat-time text-muted">${msg.time || "-"}</span>
+            </div>
+            <div class="chat-message-text">${msg.text}</div>
         `;
 
                 wrapper.appendChild(div);
                 container.appendChild(wrapper);
             });
 
+            // scroll automatico
             container.scrollTop = container.scrollHeight;
             setTimeout(() => {
                 container.scrollTo({
                     top: container.scrollHeight,
-                    behavior: "smooth" // animazione fluida
-                });  
-            }, 100)
+                    behavior: "smooth"
+                });
+            }, 100);
         }
 
         async function sendMessage(text) {
