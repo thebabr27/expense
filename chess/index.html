@@ -56,16 +56,29 @@
             padding: 10px 25px;
             border-radius: 5px;
             font-size: 0.9rem;
-        }
-
-        #chat-input-wrapper {
-            margin: 15px;
+            position: relative;
+            /* serve per posizionare input sopra overlay */
+            z-index: 1;
         }
 
         #chat #chatMessages {
             overflow-y: auto;
-            height: -webkit-fill-available;
-            margin-bottom: 30px;
+            height: calc(100% - 40px);
+            /* lascia spazio per l'input */
+            margin-bottom: 10px;
+        }
+
+        #chat-input-wrapper {
+            margin: 0 15px;
+            position: sticky;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 5px 10px;
+            z-index: 20;
+            /* sopra l'overlay */
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
         }
 
         .chat-message-wrapper {
@@ -99,12 +112,12 @@
             /* grigio scuro per gli altri */
             color: white;
         }
-        
+
 
         .other-message .chat-time {
-            color: rgb(226, 226, 226)!important;
+            color: rgb(226, 226, 226) !important;
         }
-        
+
 
         .chat-message-text {
             word-wrap: break-word;
@@ -641,18 +654,13 @@
                         </div>
                         <div id="chat" class="mt-2">
                             <h5 class="text-light">Chat</h5>
-
                             <div id="chatMessages"></div>
                         </div>
 
                         <div id="chat-input-wrapper" class="d-flex position-relative">
                             <button id="emojiBtn" class="btn btn-secondary me-1">😊</button>
-
                             <input id="chatInput" class="form-control me-2" placeholder="Scrivi..." />
-
                             <button id="sendChatBtn" class="btn btn-primary">Invia</button>
-
-                            <!-- picker emoji -->
                             <div id="emojiPicker" class="hidden"></div>
                         </div>
                     </div>
