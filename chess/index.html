@@ -25,6 +25,35 @@
             border-radius: 10px;
         }
 
+        .radio-group {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 5px 20px;
+            text-align: center;
+        }
+
+        .group-title {
+            display: block;
+            font-size: 0.8rem;
+            color: #ccc;
+            margin-bottom: 5px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .radio-item input[type="radio"] {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
         #emojiPicker {
             position: absolute;
             bottom: 45px;
@@ -283,7 +312,7 @@
             width: 100%;
             height: 100%;
 
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.4);
             /* semitrasparente */
             color: white;
             font-size: 24px;
@@ -580,7 +609,8 @@
                     <input type="text" value="game1" id="modalInput" class="form-control" placeholder="Scrivi qui...">
                 </div>
                 <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                    <button type="button" id="modalCloseBtn" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Chiudi</button>
                     <button type="button" id="modalSaveBtn" class="btn btn-primary">Crea</button>
                 </div>
             </div>
@@ -639,7 +669,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.34)</small>
+                        <small class="mx-2">(v1.4)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -651,6 +681,9 @@
                 </div>
                 <div class="row" style="padding-bottom: 25px;">
                     <div class="col-12 col-md-7">
+                        <audio id="bgMusic" loop>
+                            <source src="audio/chess-music.mp3" type="audio/mpeg">
+                        </audio>
                         <div id="board" class="mx-auto"></div>
                     </div>
                     <div class="col-12 col-md-5">
@@ -748,6 +781,7 @@
         const openModalBtn = document.getElementById("openModalBtn");
         const modalInput = document.getElementById("modalInput");
         const modalSaveBtn = document.getElementById("modalSaveBtn");
+        const modalCloseBtn = document.getElementById("modalCloseBtn");
         const games = document.getElementById("games");
         const checkMateOverlay = document.getElementById("checkMateOverlay");
         const winnerText = document.getElementById("winnerText");
@@ -774,6 +808,15 @@
         let currentUser;
         let currentGame;
         let gamesList = [];
+
+        const music = document.getElementById("bgMusic");
+
+        document.addEventListener("click", () => {
+            if (music.paused) {
+                music.volume = 0.3; // volume basso
+                music.play().catch(err => console.log("Autoplay bloccato:", err));
+            }
+        }, { once: true });
 
         // Eventi pulsanti     
         sendChatBtn.addEventListener("click", () => {
@@ -809,6 +852,9 @@
             const games = snapshot.val();
             gameSelected = false;
 
+            music.pause();
+            music.currentTime = 0;
+
             show([gameSelectionSection]);
             hide([gameBoardSection]);
 
@@ -832,7 +878,28 @@
         registerBtn.addEventListener("click", async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await createUserWithEmailAndPassword(auth, email, password); } catch (e) { alert(e.message); } });
         logoutBtn.addEventListener("click", async () => { await signOut(auth); });
         newGameBtn.addEventListener("click", async () => { openModalBtn.click() });
-        modalSaveBtn.addEventListener("click", async () => { initChessGame(currentUser.email) });
+        modalSaveBtn.addEventListener("click", async () => {
+            const gameId = modalInput.value.trim();
+
+            if (!gameId) {
+                alert("Inserisci un nome per la partita");
+                return;
+            }
+
+            const gameRefCheck = ref(db, `/chess/${gameId}`);
+            const snapshot = await get(gameRefCheck);
+
+            if (snapshot.exists()) {
+                alert("Esiste già una partita con questo nome!");
+                return;
+            }
+
+            // 🔹 crea partita
+            await initChessGame(currentUser.email);
+
+            // 🔹 chiudi modale
+            modalCloseBtn.click();
+        });
 
 
         // ===== REALTIME LISTENER =====
@@ -881,50 +948,28 @@
         async function makeComputerMove(chessState) {
             if (!chessState || !chessState.board) return;
 
-            const computerColor = chessState.turn; // il colore del computer
+            const computerColor = chessState.turn;
             const board = chessState.board;
 
-            const moves = [];
-
-            // 🔹 Trova tutte le mosse valide per il computer
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                    const piece = board[r][c];
-                    if (!piece) continue;
-
-                    const isComputerPiece =
-                        (computerColor === "white" && piece === piece.toUpperCase()) ||
-                        (computerColor === "black" && piece === piece.toLowerCase());
-
-                    if (!isComputerPiece) continue;
-
-                    // esplora tutte le possibili destinazioni
-                    for (let tr = 0; tr < 8; tr++) {
-                        for (let tc = 0; tc < 8; tc++) {
-                            if (isValidMove(r, c, tr, tc, board) &&
-                                !isSuicideMove(r, c, tr, tc, board, computerColor)) {
-                                moves.push({ fromRow: r, fromCol: c, toRow: tr, toCol: tc, piece });
-                            }
-                        }
-                    }
-                }
-            }
+            // 🔹 trova tutte le mosse valide
+            const moves = getAllValidMoves(board, computerColor);
 
             if (moves.length === 0) {
                 console.log("Computer non ha mosse valide!");
                 return;
             }
 
-            // 🔹 Scegli una mossa a caso
-            const move = moves[Math.floor(Math.random() * moves.length)];
+            // 🔥 QUI entra la difficoltà
+            const move = chooseMoveByDifficulty(moves, chessState);
 
-            // 🔹 Esegui la mossa
+            // 🔹 esegui mossa
             board[move.toRow][move.toCol] = move.piece;
             board[move.fromRow][move.fromCol] = "";
 
-            // 🔹 Aggiorna la history
+            // 🔹 history
             const moveText = `${pieceToText(move.piece)} in ${coordsToNotation(move.toRow, move.toCol)}`;
             if (!chessState.history) chessState.history = [];
+
             chessState.history.push({
                 fromRow: move.fromRow,
                 fromCol: move.fromCol,
@@ -936,11 +981,103 @@
                 time: Date.now()
             });
 
-            // 🔹 Cambia turno
+            // 🔹 cambio turno
             chessState.turn = computerColor === "white" ? "black" : "white";
 
-            // 🔹 Salva su DB e ridisegna la board
             await saveChessState(chessState);
+        }
+
+        function getAllValidMoves(board, color) {
+            const moves = [];
+
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const piece = board[r][c];
+                    if (!piece) continue;
+
+                    const isMyPiece =
+                        (color === "white" && piece === piece.toUpperCase()) ||
+                        (color === "black" && piece === piece.toLowerCase());
+
+                    if (!isMyPiece) continue;
+
+                    for (let tr = 0; tr < 8; tr++) {
+                        for (let tc = 0; tc < 8; tc++) {
+                            if (
+                                isValidMove(r, c, tr, tc, board) &&
+                                !isSuicideMove(r, c, tr, tc, board, color)
+                            ) {
+                                moves.push({
+                                    fromRow: r,
+                                    fromCol: c,
+                                    toRow: tr,
+                                    toCol: tc,
+                                    piece
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            return moves;
+        }
+        function randomMove(moves) {
+            return moves[Math.floor(Math.random() * moves.length)];
+        }
+        function mediumMove(moves) {
+            const captureMoves = moves.filter(m => m.captured);
+
+            if (captureMoves.length > 0) {
+                return randomMove(captureMoves);
+            }
+
+            return randomMove(moves);
+        }
+        function hardMove(moves) {
+            const pieceValue = {
+                p: 1,
+                n: 3,
+                b: 3,
+                r: 5,
+                q: 9,
+                k: 100
+            };
+
+            let bestMove = null;
+            let bestScore = -Infinity;
+
+            moves.forEach(move => {
+                let score = 0;
+
+                if (move.captured) {
+                    score += pieceValue[move.captured.toLowerCase()] || 0;
+                }
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
+            });
+
+            return bestMove || randomMove(moves);
+        }
+        function chooseMoveByDifficulty(moves, chessState) {
+            const difficulty = chessState.pcDifficulty || "easy";
+
+            switch (difficulty) {
+                case "easy":
+                    return randomMove(moves);
+
+                case "medium":
+                    return mediumMove(moves);
+
+                case "hard":
+                    return hardMove(moves);
+
+                default:
+                    return randomMove(moves);
+            }
         }
 
         // genera emoji picker
@@ -1226,6 +1363,13 @@
         }
 
         async function playAgainstPC(gameId) {
+            // 🔹 leggi valori radio
+            const difficulty = document.querySelector('input[name="pcDifficulty"]:checked')?.value;
+            const playerColor = document.querySelector('input[name="playerColor"]:checked')?.value;
+
+            console.log("🎮 Difficoltà:", difficulty);
+            console.log("♔ Colore scelto:", playerColor);
+
             const gameRef = ref(db, `/chess/${gameId}`);
             const snapshot = await get(gameRef);
 
@@ -1246,21 +1390,60 @@
                 return;
             }
 
-            // Inserisci il computer nello slot libero
-            if (!game.players.white) {
-                game.players.white = "computer";
-                console.log("Computer entra come WHITE");
-            } else if (!game.players.black) {
+            // 🔹 assegna computer in base al colore scelto
+            if (playerColor === "white") {
+                game.players.white = currentUser.email;
                 game.players.black = "computer";
-                console.log("Computer entra come BLACK");
+                console.log("Tu WHITE, Computer BLACK");
+            } else {
+                game.players.black = currentUser.email;
+                game.players.white = "computer";
+                console.log("Tu BLACK, Computer WHITE");
             }
+
+            // 🔹 salva anche la difficoltà nello stato (utile dopo)
+            game.pcDifficulty = difficulty;
 
             // Salva aggiornamento su Firebase
             await set(gameRef, game);
+            // 🔹 AUTO MOSSA COMPUTER ALL'INIZIO
+            const chessState = game;
+            if (
+                chessState.isNewGame &&
+                chessState.players?.white === "computer"
+            ) {
+                console.log("🤖 Computer inizia (WHITE)");
 
+                // ruota board
+                boardElement.classList.add('rotation');
+
+                for (let piece of document.querySelectorAll('.piece')) {
+                    piece.classList.add('rotation');
+                }
+
+                // evita loop → rimuovi flag
+                delete chessState.isNewGame;
+
+                // fai muovere il computer con piccolo delay
+                overlayMessage.innerHTML = "";
+                overlay.classList.add("active");
+                setTimeout(() => {
+                    makeComputerMove(chessState);
+                    drawBoard('computer', game)
+                    overlay.classList.remove("active");
+                }, 1000);
+            }
             console.log("Giocatori aggiornati:", game.players);
         }
 
+        function startGameMusic() {
+            const music = document.getElementById("bgMusic");
+
+            if (music && music.paused) {
+                music.volume = 0.3;
+                music.play().catch(() => { });
+            }
+        }
         function handleGameClick(title, userEmail) {
             // Ottieni il riferimento alla partita specifica
             gameId = title;
@@ -1268,19 +1451,60 @@
             get(gameRef)
                 .then(snapshot => {
                     if (snapshot.exists()) {
+
+                        startGameMusic();
+
                         show([gameBoardSection])
                         hide([gameSelectionSection])
                         gameSelected = true;
                         if (!snapshot.val().players.black || !snapshot.val().players.white) {
-                            overlayMessage.innerHTML = `<div>
-                                <h2>Attesa giocatore...</h2>
-                                    <div class='d-flex justify-content-center'>
-                                        <button id="playAgainstPCBtn" class='btn btn-primary'>
-                                            Gioca contro il computer
-                                        </button>
-                                    </div>
-                                </div>`
+                            overlayMessage.innerHTML = `
+<div>
+    <h2 class="text-center">Attesa giocatore...</h2>
+
+    <div class='d-flex justify-content-center mb-3' style="margin: 110px;">
+        <button id="playAgainstPCBtn" class='btn btn-primary'>
+            Gioca contro il computer
+        </button>
+    </div>
+
+    <!-- 🎯 DIFFICOLTÀ -->
+    <div class="radio-group">
+        <label class="group-title">Difficoltà</label>
+        <div class="d-flex justify-content-center gap-3">
+            <label class="radio-item">
+                <input type="radio" name="pcDifficulty" value="easy" checked>
+                <span>Facile</span>
+            </label>
+            <label class="radio-item">
+                <input type="radio" name="pcDifficulty" value="medium">
+                <span>Medio</span>
+            </label>
+            <label class="radio-item">
+                <input type="radio" name="pcDifficulty" value="hard">
+                <span>Difficile</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- ♔ COLORE -->
+    <div class="radio-group mt-2">
+        <label class="group-title">Colore</label>
+        <div class="d-flex justify-content-center gap-3">
+            <label class="radio-item">
+                <input type="radio" name="playerColor" value="white" checked>
+                <span>♙ Bianco</span>
+            </label>
+            <label class="radio-item">
+                <input type="radio" name="playerColor" value="black">
+                <span>♟ Nero</span>
+            </label>
+        </div>
+    </div>
+</div>
+`;
                             document.getElementById('playAgainstPCBtn').addEventListener('click', () => {
+                                overlay.classList.remove("active");
                                 playAgainstPC(gameId);
                             })
                         } else {
