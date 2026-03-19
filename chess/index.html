@@ -523,7 +523,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.23)</small>
+                        <small class="mx-2">(v1.24)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -626,11 +626,11 @@
         const overlayMessage = document.getElementById("overlay-message");
 
         function updateHistory(chessState) {
-            const movesContainer = document.getElementById("movesContainer");
-            if (!movesContainer) return;
+            const historyDiv = document.getElementById("history");
+            if (!historyDiv) return;
 
-            // svuota solo le mosse, non l'h5
-            movesContainer.innerHTML = "";
+            // svuota la lista tranne l'h5
+            historyDiv.querySelectorAll(".move").forEach(el => el.remove());
 
             if (!chessState.history || chessState.history.length === 0) return;
 
@@ -638,13 +638,24 @@
                 const moveDiv = document.createElement("div");
                 moveDiv.classList.add("move", item.color); // item.color = "white" o "black"
 
+                // 🔹 ottieni orario della mossa o trattino se non c'è
+                let timeStr = "-";
+                if (item.time) {
+                    const time = new Date(item.time);
+                    const hours = String(time.getHours()).padStart(2, "0");
+                    const minutes = String(time.getMinutes()).padStart(2, "0");
+                    timeStr = `${hours}:${minutes}`;
+                }
+
+                // 🔹 pedone + testo + orario
                 const pieceIcon = item.color === "white" ? "♙" : "♟";
-                moveDiv.innerHTML = `${pieceIcon} ${item.text}`; // es. "♙ Re in A4"
-                movesContainer.appendChild(moveDiv);
+                moveDiv.innerHTML = `${timeStr} ${pieceIcon} ${item.text}`; // es. "14:23 ♙ Re in A4" o "- ♟ Cavallo in C6"
+
+                historyDiv.appendChild(moveDiv);
             });
 
             // scorri automaticamente in basso per mostrare l'ultima mossa
-            movesContainer.scrollTop = movesContainer.scrollHeight;
+            historyDiv.scrollTop = historyDiv.scrollHeight;
         }
 
         function showCheckmateOverlay(winnerEmail, currentTurn) {
