@@ -882,7 +882,7 @@
             { src: "audio/chess-music.mp3", title: "Funny Song" },
             { src: "audio/retro-music.mp3", title: "Retro Game" },
             { src: "audio/mountain-path.mp3", title: "Mountain Path" },
-            { src: "audio/pure-talent.mp3.mp3", title: "Pure Talent" },
+            { src: "audio/pure-talent.mp3", title: "Pure Talent" },
             { src: "audio/quiet-reverie.mp3", title: "Quiet Reverie" },
             { src: "audio/stealth-breacher.mp3", title: "Stealth Breacher" }
 
@@ -910,7 +910,7 @@
         playPauseBtn.addEventListener("click", () => {
             if (music.paused) {
                 music.play();
-                playPauseBtn.textContent = `<i class="bi bi-pause-fill"></i>`;
+                playPauseBtn.innerHTML = `<i class="bi bi-pause-fill"></i>`;
             } else {
                 music.pause();
                 playPauseBtn.innerHTML = `<i class="bi bi-play-fill"></i>`;
@@ -922,7 +922,7 @@
             currentSongIndex = (currentSongIndex + 1) % playlist.length;
             loadSong(currentSongIndex);
             music.play();
-            playPauseBtn.textContent = `<i class="bi bi-pause-fill"></i>`;
+            playPauseBtn.innerHTML = `<i class="bi bi-pause-fill"></i>`;
         });
 
         // ⏮ prev
@@ -930,7 +930,7 @@
             currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
             loadSong(currentSongIndex);
             music.play();
-            playPauseBtn.textContent = `<i class="bi bi-pause-fill"></i>`;
+            playPauseBtn.innerHTML = `<i class="bi bi-pause-fill"></i>`;
         });
 
         // 🔁 autoplay next quando finisce
