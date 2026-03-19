@@ -523,7 +523,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.26)</small>
+                        <small class="mx-2">(v1.23)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -1106,9 +1106,7 @@
             boardElement.innerHTML = "";
 
             // 🔁 8 righe
-            const rows = userColor === "white" ? [...Array(8).keys()] : [...Array(8).keys()].reverse();
-            for (let rIndex = 0; rIndex < 8; rIndex++) {
-                const r = rows[rIndex];
+            for (let r = 0; r < 8; r++) {
 
                 const row = document.createElement("div");
                 row.className = "w-100 d-flex";
@@ -1134,7 +1132,7 @@
 
                     const piece = chessState.board[r][c];
                     if (piece) {
-                        sq.innerHTML = `<img src="${pieces[piece]}" style="width:80%;height:80%;">`;
+                        sq.innerHTML = `<img src="${pieces[piece]}" class="piece" style="width:80%;height:80%;">`;
                     }
 
                     sq.addEventListener("click", e => handleClick(e, currentUser.email));
@@ -1151,6 +1149,12 @@
 
                 updateHistory(chessState);
                 highlightLastMove(chessState);
+                boardElement.setAttribute("style", "transform: rotate(180deg)!important;")
+
+                for (let piece of document.querySelectorAll('.piece')) {
+                    piece.style.transform = "rotate(180deg)";
+
+                }
             }
         }
 
@@ -1184,10 +1188,12 @@
 
         // ===== HIGHLIGHT MOVES =====
         async function highlightMoves(row, col, board) {
+            const userId = auth.currentUser.uid;
             const chessState = await getChessStateOnce();
             const userColor = chessState.turn;
 
-            // Non fare drawBoard qui
+            drawBoard(userId, chessState); // redraw
+
             document.querySelectorAll(".square").forEach(sq => {
                 const r = parseInt(sq.dataset.row), c = parseInt(sq.dataset.col);
 
