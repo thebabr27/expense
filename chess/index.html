@@ -8,6 +8,33 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <style>
+        /* casella di partenza: quadratino */
+        .square.last-move {
+            position: relative;
+        }
+
+        .square.last-move::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            background-color: yellow;
+            border-radius: 2px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* casella di arrivo: bordo giallo */
+        .square.last-move-to {
+            position: relative;
+            /* importante per il bordo */
+            border: 2px solid yellow;
+            box-sizing: border-box;
+        }
+
         #overlay-message {
             margin-top: 160px;
         }
@@ -439,7 +466,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.22)</small>
+                        <small class="mx-2">(v1.23)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -1036,7 +1063,36 @@
                 row.appendChild(rightBorder);
 
                 boardElement.appendChild(row);
+                highlightLastMove(chessState);
             }
+        }
+
+        function highlightLastMove(chessState) {
+            // rimuovi highlight precedente
+            document.querySelectorAll(".square.last-move, .square.last-move-to").forEach(sq => {
+                sq.classList.remove("last-move", "last-move-to");
+                sq.style.border = "";
+            });
+
+            if (!chessState.history || chessState.history.length === 0) return;
+
+            const lastMove = chessState.history[chessState.history.length - 1];
+            const squares = document.querySelectorAll(".square");
+
+            squares.forEach(sq => {
+                const r = parseInt(sq.dataset.row);
+                const c = parseInt(sq.dataset.col);
+
+                // quadratino solo se casella vuota
+                if ((r === lastMove.fromRow && c === lastMove.fromCol) && sq.innerHTML.trim() === "") {
+                    sq.classList.add("last-move");
+                }
+
+                // bordo giallo sulla casella di arrivo, sempre
+                if (r === lastMove.toRow && c === lastMove.toCol) {
+                    sq.classList.add("last-move-to");
+                }
+            });
         }
 
         // ===== HIGHLIGHT MOVES =====
