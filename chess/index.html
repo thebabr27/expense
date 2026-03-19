@@ -25,6 +25,19 @@
             border-radius: 10px;
         }
 
+        #musicControl {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 999;
+        }
+
+        #musicPlayer {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 6px 10px;
+            border-radius: 8px;
+        }
+
         .radio-group {
             background-color: rgba(0, 0, 0, 0.5);
             padding: 10px;
@@ -669,8 +682,17 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.4)</small>
+                        <small class="mx-2">(v1.41)</small>
                     </div>
+                    <div id="musicPlayer" class="d-flex align-items-center justify-content-center gap-2">
+                        <button id="prevSongBtn" class="btn btn-secondary btn-sm">⏮</button>
+                        <button id="playPauseBtn" class="btn btn-primary btn-sm">▶️</button>
+                        <button id="nextSongBtn" class="btn btn-secondary btn-sm">⏭</button>
+
+                        <span id="songTitle" class="ms-2 text-light small">Nessuna traccia</span>
+                    </div>
+
+                    <audio id="bgMusic"></audio>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
                     </div>
@@ -808,8 +830,56 @@
         let currentUser;
         let currentGame;
         let gamesList = [];
-
         const music = document.getElementById("bgMusic");
+        const playPauseBtn = document.getElementById("playPauseBtn");
+        const nextBtn = document.getElementById("nextSongBtn");
+        const prevBtn = document.getElementById("prevSongBtn");
+        const songTitle = document.getElementById("songTitle");
+
+        // 🎵 playlist
+        const playlist = [
+            { src: "audio/chess-music.mp3", title: "Funny song" },
+            { src: "audio/retro-music.mp3", title: "Retro game" },
+            { src: "audio/mountain-path.mp3", title: "Mountain path" }
+        ];
+
+        let currentSongIndex = 0;
+
+        // ▶️ play / pause
+        playPauseBtn.addEventListener("click", () => {
+            if (music.paused) {
+                music.play();
+                playPauseBtn.textContent = "⏸";
+            } else {
+                music.pause();
+                playPauseBtn.textContent = "▶️";
+            }
+        });
+
+        // ⏭ next
+        nextBtn.addEventListener("click", () => {
+            currentSongIndex = (currentSongIndex + 1) % playlist.length;
+            loadSong(currentSongIndex);
+            music.play();
+            playPauseBtn.textContent = "⏸";
+        });
+
+        // ⏮ prev
+        prevBtn.addEventListener("click", () => {
+            currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+            loadSong(currentSongIndex);
+            music.play();
+            playPauseBtn.textContent = "⏸";
+        });
+
+        // 🔁 autoplay next quando finisce
+        music.addEventListener("ended", () => {
+            nextBtn.click();
+        });
+
+        // 🔹 init
+        loadSong(currentSongIndex);
+        music.volume = 0.3;
 
         document.addEventListener("click", () => {
             if (music.paused) {
@@ -941,6 +1011,14 @@
                 hide([appSection])
             }
         });
+
+
+        // 🔹 carica canzone
+        function loadSong(index) {
+            const song = playlist[index];
+            music.src = song.src;
+            songTitle.textContent = song.title;
+        }
 
         // ======================
         // 👉 AI / Computer move
@@ -1444,6 +1522,7 @@
                 music.play().catch(() => { });
             }
         }
+
         function handleGameClick(title, userEmail) {
             // Ottieni il riferimento alla partita specifica
             gameId = title;
