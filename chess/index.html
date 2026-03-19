@@ -7,6 +7,7 @@
     <title>Scacchi JS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <style>
         /* width */
         ::-webkit-scrollbar {
@@ -23,6 +24,10 @@
         ::-webkit-scrollbar-thumb {
             background: #3a3a3a;
             border-radius: 10px;
+        }
+
+        #leaveGameBtn {
+            height: 40px;
         }
 
         #musicControl {
@@ -693,16 +698,24 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="d-flex flex-column">
                         <h4 class="m-0 mx-1" style="width: 110px;">♟ Scacchi</h4>
-                        <small class="mx-2">(v1.42)</small>
+                        <small class="mx-2">(v1.43)</small>
                     </div>
                     <div id="musicPlayer" class="d-flex align-items-center justify-content-center gap-2">
                         <div class="d-flex flex-column">
                             <div class="d-flex">
-                                <button id="prevSongBtn" class="btn btn-secondary btn-sm rounded-pill">⏮</button>
-                                <button id="playPauseBtn" class="btn btn-primary btn-sm mx-1 rounded-pill">▶️</button>
-                                <button id="nextSongBtn" class="btn btn-secondary btn-sm mx-1 rounded-pill">⏭</button>
+                                <button id="prevSongBtn" class="btn btn-secondary btn-sm rounded-pill">
+                                    <i class="bi bi-skip-backward-fill"></i>
+                                </button>
+                                <button id="playPauseBtn" class="btn btn-primary btn-sm mx-1 rounded-pill">
+                                    <i class="bi bi-play-fill"></i>
+                                </button>
+                                <button id="nextSongBtn" class="btn btn-secondary btn-sm mx-1 rounded-pill">
+                                    <i class="bi bi-skip-forward-fill"></i>
+                                </button>
                                 <!-- 🔁 LOOP -->
-                                <button id="loopBtn" class="btn btn-secondary btn-sm rounded-pill">🔁</button>
+                                <button id="loopBtn" class="btn btn-secondary btn-sm rounded-pill">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </button>
                                 <span id="songTitle" class="d-none d-md-block ms-2 text-light small">Nessuna traccia</span>
                             </div>
                             <div class="d-flex justify-content-center">
@@ -712,10 +725,12 @@
 
                     </div>
 
-                    <audio id="bgMusic"></audio>
                     <div class="d-flex">
-                        <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
+                        <button id="leaveGameBtn" class="mx-1 btn btn-primary rounded-pill">
+                            <i class="bi bi-box-arrow-in-left"></i>
+                        </button>
                     </div>
+                    <audio id="bgMusic"></audio>
                 </div>
                 <div class="d-flex justify-content-between">
                     <div id="turn" class="mb-3 fw-bold">...</div>
@@ -741,7 +756,9 @@
                         <div id="chat-input-wrapper" class="d-flex position-relative">
                             <button id="emojiBtn" class="btn btn-secondary me-1">😊</button>
                             <input id="chatInput" class="form-control me-2" placeholder="Scrivi..." />
-                            <button id="sendChatBtn" class="btn btn-primary">Invia</button>
+                            <button id="sendChatBtn" class="btn btn-primary">
+                                <i class="bi bi-send-fill"></i>
+                            </button>
                             <div id="emojiPicker" class="hidden"></div>
                         </div>
                     </div>
