@@ -639,7 +639,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.33)</small>
+                        <small class="mx-2">(v1.34)</small>
                     </div>
                     <div class="d-flex">
                         <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
@@ -1115,9 +1115,24 @@
                 const isMeWhite = hasWhite && game.players.white === currentUser.email;
                 const isMeBlack = hasBlack && game.players.black === currentUser.email;
 
+
                 // 🔹 icone condizionali
-                const whiteIcon = hasWhite ? `<span class="text-light">♙</span>` : "";
-                const blackIcon = hasBlack ? `<span class="text-dark">♟</span>` : "";
+                let whiteIcon = "";
+                let blackIcon = "";
+
+                // bianco
+                if (hasWhite) {
+                    whiteIcon = (game.players.white === "computer")
+                        ? `<span class="text-light">💻</span>`  // PC per il computer
+                        : `<span class="text-light">♙</span>`; // pedone per umano
+                }
+
+                // nero
+                if (hasBlack) {
+                    blackIcon = (game.players.black === "computer")
+                        ? `<span class="text-dark">💻</span>`
+                        : `<span class="text-dark">♟</span>`;
+                }
 
                 item.innerHTML = `${gameId} ${whiteIcon} ${blackIcon}`;
 
