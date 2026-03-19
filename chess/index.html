@@ -99,6 +99,14 @@
             box-sizing: border-box;
         }
 
+        /* casella di arrivo: bordo giallo */
+        .square.check {
+            position: relative;
+            /* importante per il bordo */
+            border: 2px solid rgb(255, 8, 0);
+            box-sizing: border-box;
+        }
+
         #overlay-message {
             margin-top: 160px;
         }
@@ -1082,6 +1090,30 @@
             document.querySelectorAll(".suicide").forEach(el => el.classList.remove("suicide"));
         }
 
+        function highlightCheck(chessState) {
+            // Rimuovi eventuali check precedenti
+            document.querySelectorAll(".square.check").forEach(sq => sq.classList.remove("check"));
+
+            if (!chessState || !chessState.board) return;
+
+            // Controlla se qualcuno è sotto scacco
+            const turn = chessState.turn; // il colore che ha il turno
+            const inCheck = isCheck(chessState.board, turn);
+            if (!inCheck) return;
+
+            // Trova il re sotto scacco
+            const kingChar = turn === "white" ? 'K' : 'k'; // assumendo maiuscolo = bianco, minuscolo = nero
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (chessState.board[r][c] === kingChar) {
+                        // trova la casella corrispondente nel DOM
+                        const sq = document.querySelector(`.square[data-row="${r}"][data-col="${c}"]`);
+                        if (sq) sq.classList.add("check");
+                    }
+                }
+            }
+        }
+
         function drawBoard(userId, chessState) {
             console.log(chessState, gameId)
 
@@ -1120,7 +1152,22 @@
                 : `<span>${pieceIcon}</span>`;
 
             turnElement.innerHTML = `${turnoTesto} ${iconHTML}`;
-
+            console.log(gameId, "neri:", chessState.players.black, currentUser.email)
+            if (chessState.players.black == currentUser.email) {
+                boardElement.setAttribute("style", "transform: rotate(180deg)!important;")
+                setTimeout(() => {
+                    for (let piece of document.querySelectorAll('.piece')) {
+                        piece.style.transform = "rotate(180deg)";
+                    }
+                }, 20)
+            } else {
+                boardElement.setAttribute("style", "transform: rotate(0deg)!important;")
+                setTimeout(() => {
+                    for (let piece of document.querySelectorAll('.piece')) {
+                        piece.style.transform = "rotate(0deg)";
+                    }
+                }, 20)
+            }
             const inCheck = isCheck(chessState.board, currentTurn);
             const inCheckmate = isCheckmate(chessState.board, currentTurn);
 
@@ -1186,13 +1233,8 @@
 
                 updateHistory(chessState);
                 highlightLastMove(chessState);
+                highlightCheck(chessState);
 
-                if (userColor == 'black') {
-                    boardElement.setAttribute("style", "transform: rotate(180deg)!important;")
-                    for (let piece of document.querySelectorAll('.piece')) {
-                        piece.style.transform = "rotate(180deg)";
-                    }
-                }
             }
         }
 
@@ -1253,18 +1295,9 @@
                     sq.classList.add("disabled"); // mossa non valida
                 }
             });
-
-            if (userColor == 'black') {
-                boardElement.setAttribute("style", "transform: rotate(180deg)!important;")
-                for (let piece of document.querySelectorAll('.piece')) {
-                    piece.style.transform = "rotate(180deg)";
-                }
-            }
         }
 
         // ===== CHECK / CHECKMATE =====
-        function findKing(board, color) { const king = color === "white" ? "K" : "k"; for (let r = 0; r < 8; r++) { for (let c = 0; c < 8; c++) { if (board[r][c] === king) return { row: r, col: c } } return null } }
-        function isSquareAttacked(board, row, col, attackerColor) { for (let r = 0; r < 8; r++) { for (let c = 0; c < 8; c++) { const piece = board[r][c]; if (!piece) continue; const pieceColor = piece === piece.toUpperCase() ? "white" : "black"; if (pieceColor !== attackerColor) continue; if (isValidMove(r, c, row, col, board)) return true } } return false }
         function isCheck(board, color) {
             // trova il re del colore
             const kingChar = color === "white" ? "K" : "k";
