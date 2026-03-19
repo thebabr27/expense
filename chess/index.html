@@ -38,7 +38,7 @@
         #chat #chatMessages {
             overflow-y: auto;
             height: -webkit-fill-available;
-            margin-bottom: 10px;
+            margin-bottom: 30px;
         }
 
         .chat-message.other-message {
@@ -70,6 +70,10 @@
         .other-wrapper {
             justify-content: flex-start;
         }
+        
+        #chat-input-wrapper {
+            margin: 15px;
+        }
 
         #history {
             margin: 15px;
@@ -87,7 +91,8 @@
             margin-bottom: 20px;
         }
 
-        #history h5 {
+        #history h5,
+        #chat h5 {
             margin-top: 0;
             margin-bottom: 5px;
             font-size: 1rem;
@@ -602,11 +607,12 @@
                             <h5 class="text-light">Chat</h5>
 
                             <div id="chatMessages"></div>
+                        </div>
+                        
 
-                            <div class="d-flex mt-2">
-                                <input id="chatInput" class="form-control me-2" placeholder="Scrivi..." />
-                                <button id="sendChatBtn" class="btn btn-primary">Invia</button>
-                            </div>
+                        <div id="chat-input-wrapper" class="d-flex">
+                            <input id="chatInput" class="form-control me-2" placeholder="Scrivi..." />
+                            <button id="sendChatBtn" class="btn btn-primary">Invia</button>
                         </div>
                     </div>
                 </div>
@@ -834,7 +840,7 @@
                 historyDiv.scrollTo({
                     top: historyDiv.scrollHeight,
                     behavior: "smooth" // animazione fluida
-                });
+                });  
             }, 100)
             // scorri automaticamente in basso per mostrare l'ultima mossa
             historyDiv.scrollTop = historyDiv.scrollHeight;
@@ -901,6 +907,12 @@
             });
 
             container.scrollTop = container.scrollHeight;
+            setTimeout(() => {
+                container.scrollTo({
+                    top: container.scrollHeight,
+                    behavior: "smooth" // animazione fluida
+                });  
+            }, 100)
         }
 
         async function sendMessage(text) {
