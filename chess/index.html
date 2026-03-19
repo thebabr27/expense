@@ -8,6 +8,31 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <style>
+        #overlay-message {
+            margin-top: 160px;
+        }
+
+        .games-list-group {
+            background-color: transparent;
+            border: 2px solid white;
+            color: rgb(235, 235, 235);
+            transition: .3s;
+        }
+
+        .games-list-group:hover {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+            transition: .3s;
+            color: white !important;
+        }
+
+        #game-selection-section {
+            display: none;
+        }
+
+        #game-board-section {
+            display: none;
+        }
+
         #formNewGameFromMate {
             display: none;
         }
@@ -49,6 +74,8 @@
         }
 
         #overlay {
+            margin-top: 50px;
+            padding-bottom: 100px;
             position: absolute;
             top: 0;
             left: 0;
@@ -394,27 +421,39 @@
         </div>
 
         <div id="app-section" class="row h-100">
-            <div class="col-12 p-0">
+            <div id="game-selection-section" class="col-12">
+                GAME
+                <div class="d-flex justify-content-end">
+                    <button id="logoutBtn" class="mx-1 btn btn-danger">Logout</button>
+                    <button id="newGameBtn" class="mx-1 btn btn-success">New Game</button>
 
+                </div>
+
+                <div id="games" class="list-group m-3"></div>
+            </div>
+            <div id="game-board-section" class=" col-12 p-0">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex">
                         <h2>♟ Scacchi</h2>
-                        <small class="mx-2">(v1.1)</small>
+                        <small class="mx-2">(v1.2)</small>
                     </div>
-                    <button id="logoutBtn" class="btn btn-danger">Logout</button>
-                    <button id="newGameBtn" class="btn btn-success">NewGame</button>
+                    <div class="d-flex">
+                        <button id="leaveGameBtn" class="mx-1 btn btn-primary">Leave Game</button>
+                    </div>
                 </div>
                 <div class="d-flex justify-content-between">
                     <div id="turn" class="mb-3 fw-bold">...</div>
                     <div id="check" class="fw-bold align-self-center"> </div>
                 </div>
-                <div id="games" class="list-group m-3"></div>
-
                 <div id="board" class="mx-auto"></div>
-
+            </div>
+            <div class=" col-12 p-0">
                 <div id="overlay">
                     <div class="hourglass frame"></div> <!-- bordo -->
                     <div class="hourglass sand"></div> <!-- sabbia -->
+                    <div id="overlay-message" class="position-absolute">
+                        
+                    </div>
                 </div>
                 <div id="checkMateOverlay" class="overlay hidden">
                     <div class="overlay-content">
@@ -476,6 +515,7 @@
         const checkElement = document.getElementById("check");
         const overlay = document.getElementById("overlay");
         const newGameBtn = document.getElementById("newGameBtn");
+        const leaveGameBtn = document.getElementById("leaveGameBtn");
         const modal = document.getElementById("modal");
         const openModalBtn = document.getElementById("openModalBtn");
         const modalInput = document.getElementById("modalInput");
@@ -488,6 +528,9 @@
         const formNewGameFromMate = document.getElementById("formNewGameFromMate");
         const checkMateOverlayButtons = document.getElementById("checkMateOverlayButtons");
         const checkMateOverlayInput = document.getElementById("checkMateOverlayInput");
+        const gameBoardSection = document.getElementById("game-board-section");
+        const gameSelectionSection = document.getElementById("game-selection-section");
+        const overlayMessage = document.getElementById("overlay-message");
 
         function showCheckmateOverlay(winnerEmail, currentTurn) {
             winnerText.textContent = currentTurn === 'white'
@@ -505,6 +548,22 @@
         triggerNewGameFromMate.addEventListener("click", async () => {
             show([formNewGameFromMate])
             hide([checkMateOverlayButtons])
+        });
+
+
+        leaveGameBtn.addEventListener("click", async () => {
+            gameId = "";
+            const snapshot = await get(dbRef);
+
+            if (!snapshot.exists()) return;
+
+            overlay.classList.remove("active");
+            const games = snapshot.val();
+
+            show([gameSelectionSection]);
+            hide([gameBoardSection]);
+
+            showGamesList(games); // 👈 ORA è corretto
         });
 
         newGameFromMate.addEventListener("click", async () => {
@@ -543,14 +602,23 @@
                 hide([authSection])
                 show([appSection])
 
+
                 onValue(dbRef, snapshot => {
                     const state = snapshot.val();
                     if (!state) return;
                     if (state && state.isNewGame) {
                         hideCheckmateOverlay();
                     }
+                    if (gameId && gameId !== "") {
+                        show([gameSelectionSection])
+                        hide([gameBoardSection])
+                        showGamesList(state);
+                    } else {
+                        hide([gameSelectionSection])
+                        show([gameBoardSection])
+                    }
 
-                    checkUserInGame(user.email, state)
+                    /* checkUserInGame(user.email, state) */
                 })
 
             } else {
@@ -565,10 +633,21 @@
             games.innerHTML = "";
             Object.keys(state).forEach(gameId => {
                 const game = state[gameId];
+                console.log(gameId)
 
+                const pieceIcon = "♟";
+                const whitePieceIcon = "♙";
                 const item = document.createElement("div");
-                item.className = "list-group-item list-group-item-action";
-                item.textContent = gameId;
+                item.className = "games-list-group list-group-item list-group-item-action";
+
+                // 🔹 controlli player
+                const hasWhite = game.players && game.players.white;
+                const hasBlack = game.players && game.players.black;
+                // 🔹 icone condizionali
+                const whiteIcon = hasWhite ? `<span class="text-light">♙</span>` : "";
+                const blackIcon = hasBlack ? `<span class="text-dark">♟</span>` : "";
+
+                item.innerHTML = `${gameId} ${whiteIcon} ${blackIcon}`;
                 item.style.cursor = "pointer";
                 console.log(gameId)
                 // Quando clicchi, chiama la funzione con il titolo
@@ -579,7 +658,7 @@
         }
 
         // Funzione che controlla se l'utente è già in una partita
-        async function checkUserInGame(userEmail,state) {
+        async function checkUserInGame(userEmail, state) {
             showGamesList(state)
             const chessRef = ref(db, '/chess');  // tutti i giochi
             const snapshot = await get(chessRef);
@@ -600,15 +679,10 @@
                 if (game.players.white === userEmail || game.players.black === userEmail) {
                     console.log(`Utente già in partita: ${gameId}`, game);
                     handleGameClick(gameId, userEmail)
-                    if (game && game.players && game.players.length == 2) {
-                        overlay.classList.remove("active");
-                    } else {
-                        overlay.classList.add("active");
-                    }
                 } else {
                     console.log("Utente non è in nessuna partita.");
-                    hideCheckmateOverlay();                    
-                    show([games])
+                    hideCheckmateOverlay();
+
                     boardElement.innerHTML = "";
                     return null; // non trovato
                 }
@@ -633,7 +707,7 @@
             // Se l'utente è già dentro, non fare nulla
             if (game.players.white === userEmail || game.players.black === userEmail) {
                 console.log("Sei già in questa partita");
-                hide([games])
+
                 return;
             }
 
@@ -641,11 +715,11 @@
             if (!game.players.white) {
                 game.players.white = userEmail;
                 console.log("Entrato come WHITE");
-                hide([games])
+
             } else if (!game.players.black) {
                 game.players.black = userEmail;
                 console.log("Entrato come BLACK");
-                hide([games])
+
             } else {
                 console.log("Partita piena");
                 return;
@@ -664,6 +738,13 @@
             get(gameRef)
                 .then(snapshot => {
                     if (snapshot.exists()) {
+                        show([gameBoardSection])
+                        hide([gameSelectionSection])
+                        if (!snapshot.val().players.black || !snapshot.val().players.white) {
+                            overlayMessage.innerHTML = "<h2>Attesa giocatore...</h2>"
+                        } else {
+                            overlayMessage.innerHTML = ""
+                        }
                         joinGame(gameId, userEmail)
                         drawBoard(userEmail, snapshot.val())
                     } else {
@@ -673,19 +754,6 @@
                 .catch(error => {
                     console.error("Errore nel leggere la partita:", error);
                 });
-            // Leggi una sola volta lo snapshot
-            /* get(gameRef)
-                .then(snapshot => {
-                    if (snapshot.exists()) {
-                        hide([games])
-                        drawBoard(currentUser.email, snapshot.val())
-                    } else {
-                        console.log("La partita non esiste:", gameId);
-                    }
-                })
-                .catch(error => {
-                    console.error("Errore nel leggere la partita:", error);
-                }); */
         }
 
         // ===== DATABASE HELPERS =====
@@ -710,6 +778,8 @@
         }
 
         async function getChessStateOnce() { const snap = await get(gameRef); return snap.exists() ? snap.val() : null; }
+
+        async function getDbStateOnce() { const snap = await get(dbRef); return snap.exists() ? snap.val() : null; }
 
         // ===== HANDLE CLICK =====
         async function handleClick(e, userId) {
@@ -862,9 +932,9 @@
                 checkElement.textContent = "";
             }
 
-            const isMyTurn = userColor && chessState.turn === userColor;
+            const isMyTurn = userColor && chessState.turn === userColor; 
 
-            if (!isMyTurn && !selected) {
+            if ((!isMyTurn && !selected) || !chessState.players.white || !chessState.players.black) {
                 overlay.classList.add("active");
             } else {
                 overlay.classList.remove("active");
