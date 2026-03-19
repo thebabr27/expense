@@ -37,7 +37,9 @@
             z-index: 999;
         }
 
-        #songTitle { align-self: center;}
+        #songTitle {
+            align-self: center;
+        }
 
         #musicPlayer {
             background: rgba(0, 0, 0, 0.5);
@@ -91,7 +93,7 @@
             padding: 8px;
             display: flex;
             flex-wrap: wrap;
-            width: 200px;
+            max-width: 340px;
             z-index: 10;
         }
 
@@ -716,10 +718,11 @@
                                 <button id="loopBtn" class="btn btn-secondary btn-sm rounded-pill">
                                     <i class="bi bi-arrow-repeat"></i>
                                 </button>
-                                <span id="songTitle" class="d-none d-md-block ms-2 text-light small">Nessuna traccia</span>
+                                <span id="songTitle" class="d-none d-md-block ms-2 text-light small">Nessuna
+                                    traccia</span>
                             </div>
                             <div class="d-flex justify-content-center">
-                            <span id="songTitle2" class="d-md-none ms-2 text-light small">Nessuna traccia</span>
+                                <span id="songTitle2" class="d-md-none ms-2 text-light small">Nessuna traccia</span>
                             </div>
                         </div>
 
@@ -859,8 +862,10 @@
             k: "assets/K_black.svg", q: "assets/R_black.svg", r: "assets/T_black.svg", n: "assets/C_black.svg", b: "assets/A_black.svg", p: "assets/P_black.svg"
         };
         // lista emoji base (puoi ampliarla)
-        const emojis = ["😀", "😂", "😍", "😎", "😭", "😡", "👍", "👎", "🔥", "💯", "♟", "♔", "♚"];
-
+        const emojis = [
+            "😀", "😂", "😍", "😎", "😭", "😡", "👍", "👎", "🔥", "💯", 
+            "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "💖", "💗", "💓", "💞", "💝"
+        ];
         const emojiBtn = document.getElementById("emojiBtn");
         const emojiPicker = document.getElementById("emojiPicker");
         const chatInput = document.getElementById("chatInput");
