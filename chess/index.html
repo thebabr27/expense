@@ -701,7 +701,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="d-flex flex-column">
                         <h4 class="m-0 mx-1" style="width: 110px;">♟ Scacchi</h4>
-                        <small class="mx-2">(v1.44)</small>
+                        <small class="mx-2">(v1.45)</small>
                     </div>
                     <div id="musicPlayer" class="d-flex align-items-center justify-content-center gap-2">
                         <div class="d-flex flex-column">
@@ -858,6 +858,10 @@
         const overlayMessage = document.getElementById("overlay-message");
 
 
+        let modalMode = "create"; // "create" | "delete"
+        let gameToDelete = null;
+        let stateRefForDelete = null;
+
         const pieces = {
             K: "assets/K_white.svg", Q: "assets/R_white.svg", R: "assets/T_white.svg", N: "assets/C_white.svg", B: "assets/A_white.svg", P: "assets/P_white.svg",
             k: "assets/K_black.svg", q: "assets/R_black.svg", r: "assets/T_black.svg", n: "assets/C_black.svg", b: "assets/A_black.svg", p: "assets/P_black.svg"
@@ -920,10 +924,10 @@
         playPauseBtn.addEventListener("click", () => {
             if (music.paused) {
                 music.play();
-                playPauseBtn.innerHTML = `<i class="bi bi-pause-fill"></i>`;
+                playPauseBtn.innerHTML = `<i class="bi bi-play-fill"></i>`;
             } else {
                 music.pause();
-                playPauseBtn.innerHTML = `<i class="bi bi-play-fill"></i>`;
+                playPauseBtn.innerHTML = `<i class="bi bi-pause-fill"></i>`;
             }
         });
 
@@ -932,7 +936,7 @@
             currentSongIndex = (currentSongIndex + 1) % playlist.length;
             loadSong(currentSongIndex);
             music.play();
-            playPauseBtn.innerHTML = `<i class="bi bi-pause-fill"></i>`;
+            playPauseBtn.innerHTML = `<i class="bi bi-play-fill"></i>`;
         });
 
         // ⏮ prev
@@ -940,7 +944,7 @@
             currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
             loadSong(currentSongIndex);
             music.play();
-            playPauseBtn.innerHTML = `<i class="bi bi-pause-fill"></i>`;
+            playPauseBtn.innerHTML = `<i class="bi bi-play-fill"></i>`;
         });
 
         // 🔁 autoplay next quando finisce
@@ -1020,7 +1024,10 @@
         loginBtn.addEventListener("click", async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await signInWithEmailAndPassword(auth, email, password); } catch (e) { alert(e.message); } });
         registerBtn.addEventListener("click", async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await createUserWithEmailAndPassword(auth, email, password); } catch (e) { alert(e.message); } });
         logoutBtn.addEventListener("click", async () => { await signOut(auth); });
-        newGameBtn.addEventListener("click", async () => { openModalBtn.click() });
+        newGameBtn.addEventListener("click", async () => {
+            openCreateGameModal()
+        });
+
         modalSaveBtn.addEventListener("click", async () => {
             const gameId = modalInput.value.trim();
 
@@ -1085,6 +1092,20 @@
             }
         });
 
+        function openCreateGameModal() {
+            modalMode = "create";
+
+            document.getElementById("textModalLabel").innerText = "Creazione partita";
+            document.getElementById("modalInput").style.display = "block";
+
+            document.getElementById("modalSaveBtn").innerText = "Crea";
+            document.getElementById("modalSaveBtn").classList.remove("btn-danger");
+            document.getElementById("modalSaveBtn").classList.add("btn-primary");
+
+            document.querySelector("#modal .modal-body label").innerText = "Nuova partita:";
+
+            document.getElementById("openModalBtn").click();
+        }
 
         // 🔹 carica canzone
         function loadSong(index) {
@@ -1400,15 +1421,18 @@
         }
 
         function showGamesList(state) {
-            // Pulisce la lista
             games.innerHTML = "";
 
             Object.keys(state).forEach(gameId => {
                 const game = state[gameId];
-                console.log(gameId);
 
+                // 🔹 wrapper esterno
+                const wrapper = document.createElement("div");
+                wrapper.className = "d-flex align-items-center mb-2";
+
+                // 🔹 item partita (clickabile)
                 const item = document.createElement("div");
-                item.className = "games-list-group list-group-item list-group-item-action";
+                item.className = "games-list-group list-group-item flex-grow-1";
 
                 // 🔹 controlli player
                 const hasWhite = game.players && game.players.white;
@@ -1416,19 +1440,16 @@
                 const isMeWhite = hasWhite && game.players.white === currentUser.email;
                 const isMeBlack = hasBlack && game.players.black === currentUser.email;
 
-
-                // 🔹 icone condizionali
+                // 🔹 icone
                 let whiteIcon = "";
                 let blackIcon = "";
 
-                // bianco
                 if (hasWhite) {
                     whiteIcon = (game.players.white === "computer")
-                        ? `<span class="text-light">💻</span>`  // PC per il computer
-                        : `<span class="text-light">♙</span>`; // pedone per umano
+                        ? `<span class="text-light">💻</span>`
+                        : `<span class="text-light">♙</span>`;
                 }
 
-                // nero
                 if (hasBlack) {
                     blackIcon = (game.players.black === "computer")
                         ? `<span class="text-dark">💻</span>`
@@ -1439,17 +1460,67 @@
 
                 // 🔹 gestione clickabilità
                 if (hasWhite && hasBlack && !isMeWhite && !isMeBlack) {
-                    // partita piena e non sono tra i giocatori → non cliccabile
                     item.style.cursor = "not-allowed";
-                    item.innerHTML += "(Partita piena)"
-                    item.classList.add("disabled"); // puoi aggiungere uno stile grigio se vuoi
+                    item.innerHTML += " (Partita piena)";
+                    item.classList.add("disabled");
                 } else {
                     item.style.cursor = "pointer";
                     item.addEventListener("click", () => handleGameClick(gameId, currentUser.email));
                 }
 
-                games.appendChild(item);
+                // 🗑️ bottone delete (FUORI)
+                const deleteBtn = document.createElement("button");
+                deleteBtn.className = "btn btn-danger btn-sm ms-2"; // 👈 margin a sinistra
+                deleteBtn.innerHTML = `<i class="bi bi-trash"></i>`;
+
+                deleteBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+
+                    modalMode = "delete";
+                    gameToDelete = gameId;
+                    stateRefForDelete = state;
+
+                    // 🔹 modifica UI modal
+                    document.getElementById("textModalLabel").innerText = "Elimina partita";
+                    document.getElementById("modalInput").style.display = "none";
+
+                    document.getElementById("modalSaveBtn").innerText = "Elimina";
+                    document.getElementById("modalSaveBtn").classList.remove("btn-primary");
+                    document.getElementById("modalSaveBtn").classList.add("btn-danger");
+
+                    // 🔹 testo
+                    document.querySelector("#modal .modal-body label").innerText =
+                        `Vuoi eliminare la partita "${gameId}"?`;
+
+                    // 🔹 apri modal
+                    document.getElementById("openModalBtn").click();
+                });
+
+                // 🔹 append
+                wrapper.appendChild(item);
+                wrapper.appendChild(deleteBtn);
+
+                games.appendChild(wrapper);
             });
+        }
+
+        async function deleteGame(gameId, state) {
+            try {
+                // 🔹 crea copia dello state
+                const newState = { ...state };
+
+                // 🔹 rimuovi la partita
+                delete newState[gameId];
+
+                // 🔹 riscrivi tutto su Firebase
+                const chessRef = ref(db, `/chess`);
+                await set(chessRef, newState);
+
+                console.log("Partita eliminata:", gameId);
+            } catch (error) {
+                console.error("Errore eliminazione:", error);
+                alert("Errore durante l'eliminazione");
+            }
         }
 
         // Funzione che controlla se l'utente è già in una partita
@@ -1717,8 +1788,8 @@
 
             await set(gameRef, newState);
             hideCheckmateOverlay();
-            if ( currentState.players.white === "computer" && currentState.isNewGame === true) {
-                drawBoard('computer', currentState )
+            if (currentState.players.white === "computer" && currentState.isNewGame === true) {
+                drawBoard('computer', currentState)
             }
         }
 
