@@ -689,7 +689,7 @@
             <div id="game-selection-section" class="col-12">
                 GAME
                 <div class="d-flex justify-content-end">
-                    <h3 class="mx-1">Ciao Marco</h3>
+                    <h3 id="hello" class="mx-1">Ciao Marco</h3>
                     <button id="logoutBtn" class="mx-1 btn btn-danger">Logout</button>
                     <button id="newGameBtn" class="mx-1 btn btn-success">New Game</button>
 
@@ -856,6 +856,7 @@
         const gameBoardSection = document.getElementById("game-board-section");
         const gameSelectionSection = document.getElementById("game-selection-section");
         const overlayMessage = document.getElementById("overlay-message");
+        const hello = document.getElementById("hello");
 
 
         let modalMode = "create"; // "create" | "delete"
@@ -953,10 +954,6 @@
                 nextBtn.click();
             }
         });
-
-        // 🔹 init
-        loadSong(currentSongIndex);
-        music.volume = 0.3;
 
         document.addEventListener("click", () => {
             if (music.paused) {
@@ -1422,6 +1419,7 @@
 
         function showGamesList(state) {
             games.innerHTML = "";
+            hello.innerText = "Ciao " + currentUser.email.split('@')[0];
 
             Object.keys(state).forEach(gameId => {
                 const game = state[gameId];
@@ -1681,6 +1679,9 @@
         }
 
         function handleGameClick(title, userEmail) {
+            // 🔹 init
+            loadSong(currentSongIndex);
+            music.volume = 0.3;
             // Ottieni il riferimento alla partita specifica
             gameId = title;
             gameRef = ref(db, `/chess/${gameId}`);
