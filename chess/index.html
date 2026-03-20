@@ -701,7 +701,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="d-flex flex-column">
                         <h4 class="m-0 mx-1" style="width: 110px;">♟ Scacchi</h4>
-                        <small class="mx-2">(v1.43)</small>
+                        <small class="mx-2">(v1.44)</small>
                     </div>
                     <div id="musicPlayer" class="d-flex align-items-center justify-content-center gap-2">
                         <div class="d-flex flex-column">
@@ -864,7 +864,7 @@
         };
         // lista emoji base (puoi ampliarla)
         const emojis = [
-            "😀", "😂", "😍", "😎", "😭", "😡", "👍", "👎", "🔥", "💯", 
+            "😀", "😂", "😍", "😎", "😭", "😡", "👍", "👎", "🔥", "💯", "♟",
             "❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "💖", "💗", "💓", "💞", "💝"
         ];
         const emojiBtn = document.getElementById("emojiBtn");
@@ -873,6 +873,7 @@
         let currentUser;
         let currentGame;
         let gamesList = [];
+        let checkMateColor = "";
         const music = document.getElementById("bgMusic");
         const playPauseBtn = document.getElementById("playPauseBtn");
         const nextBtn = document.getElementById("nextSongBtn");
@@ -890,7 +891,10 @@
             { src: "audio/mountain-path.mp3", title: "Mountain Path" },
             { src: "audio/pure-talent.mp3", title: "Pure Talent" },
             { src: "audio/quiet-reverie.mp3", title: "Quiet Reverie" },
-            { src: "audio/stealth-breacher.mp3", title: "Stealth Breacher" }
+            { src: "audio/stealth-breacher.mp3", title: "Stealth Breacher" },
+            { src: "audio/acoustic-blues.mp3", title: "Acoustic Blues" },
+            { src: "audio/one-touch.mp3", title: "One Touch" },
+            { src: "audio/shuffle-boogie.mp3", title: "Shuffle Boogie" }
 
         ];
 
@@ -1280,24 +1284,36 @@
                     timeStr = `${hours}:${minutes}`;
                 }
 
-                // 🔹 pedone + testo + orario
+                // 🔹 icona del pezzo
                 const pieceIcon = item.color === "white" ? "♙" : "♟";
-                moveDiv.innerHTML = `${timeStr} ${pieceIcon} ${item.text}`; // es. "14:23 ♙ Re in A4" o "- ♟ Cavallo in C6"
+
+                // 🔹 testo della mossa con cattura se presente
+                let moveText;
+                if (item.captured) {
+                    const capturedIcon = item.captured.color === "white" ? "♙" : "♟";
+                    moveText = `${pieceToText(item.piece)} cattura ${pieceToText(item.captured.piece)} in ${coordsToNotation(item.toRow, item.toCol)}`;
+                    moveDiv.innerHTML = `${timeStr} ${pieceIcon} ${moveText}`;
+                } else {
+                    moveDiv.innerHTML = `${timeStr} ${pieceIcon} ${item.text}`;
+                }
 
                 historyDiv.appendChild(moveDiv);
             });
+
             setTimeout(() => {
                 historyDiv.scrollTo({
                     top: historyDiv.scrollHeight,
                     behavior: "smooth" // animazione fluida
                 });
-            }, 100)
+            }, 100);
+
             // scorri automaticamente in basso per mostrare l'ultima mossa
             historyDiv.scrollTop = historyDiv.scrollHeight;
         }
 
         function showCheckmateOverlay(winnerEmail, currentTurn) {
-            winnerText.textContent = currentTurn === 'white'
+            console.log("showCheckmateOverlay", checkMateColor, winnerEmail, currentTurn)
+            checkMateColor === 'white'
                 ? `Vincono... i Bianchi (${winnerEmail}!!!)`
                 : `Vincono... i Neri (${winnerEmail}!!!)`
                 ;
@@ -1700,7 +1716,12 @@
             };
 
             await set(gameRef, newState);
+            hideCheckmateOverlay();
+            if ( currentState.players.white === "computer" && currentState.isNewGame === true) {
+                drawBoard('computer', currentState )
+            }
         }
+
         // ===== DATABASE HELPERS =====
         async function initChessGame(userId) {
             console.log("new game starting...")
@@ -2147,16 +2168,12 @@
 
             return false;
         }
+
         /**
- * Controlla se il giocatore color è in scacco matto
- * board: matrice 8x8
- * color: "white" o "black"
- */
-        /**
- * Controlla se il giocatore color è in scacco matto
- * board: matrice 8x8
- * color: "white" o "black"
- */
+         * Controlla se il giocatore color è in scacco matto
+         * board: matrice 8x8
+         * color: "white" o "black"
+         */
         function isCheckmate(board, color) {
             // 1️⃣ Se il re NON è in scacco → non è scacco matto
             if (!isCheck(board, color)) return false;
@@ -2194,6 +2211,7 @@
                 return false; // non è scacco matto
             } else {
                 console.log(`${color} è in scacco matto!`);
+                checkMateColor = color;
                 return true; // scacco matto
             }
         }
