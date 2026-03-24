@@ -720,7 +720,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="d-flex flex-column">
                         <h4 class="m-0 mx-1" style="width: 110px;">♟ Scacchi</h4>
-                        <small class="mx-2">(v1.48)</small>
+                        <small class="mx-2">(v1.49)</small>
                     </div>
                     <div id="musicPlayer" class="d-flex align-items-center justify-content-center gap-2">
                         <div class="d-flex flex-column">
@@ -1102,8 +1102,9 @@
                 await initChessGame(currentUser.email);
 
             } else {
-                console.log(modalMode, modalMode !== 'delete')
-                deleteGame(gameId, snapshot)
+                const snapshot = await get(dbRef);
+                console.log(modalMode, modalMode !== 'delete', gameToDelete, snapshot.val())
+                deleteGame(gameToDelete, snapshot.val())
             }
             // 🔹 chiudi modale
             modalCloseBtn.click();
@@ -1139,13 +1140,13 @@
                     } else {
                         hide([gameSelectionSection])
                         show([gameBoardSection])
-                        if (state[gameId] && state[gameId].players 
-                        && state[gameId].players.white !== 'computer' 
-                        && state[gameId].players.black !== 'computer') {
+                        if (state[gameId] && state[gameId].players
+                            && state[gameId].players.white !== 'computer'
+                            && state[gameId].players.black !== 'computer') {
                             drawBoard(currentUser.email, state[gameId]);
                         }
                         if (state[gameId] && state[gameId].players && state[gameId].players.white && state[gameId].players.black) {
-                            hide([checkMateOverlayButtons])
+                            /* hide([checkMateOverlayButtons]) */
                         }
                     }
 
@@ -1264,19 +1265,12 @@
 
             return moves;
         }
+
         function randomMove(moves) {
             return moves[Math.floor(Math.random() * moves.length)];
         }
+
         function mediumMove(moves) {
-            const captureMoves = moves.filter(m => m.captured);
-
-            if (captureMoves.length > 0) {
-                return randomMove(captureMoves);
-            }
-
-            return randomMove(moves);
-        }
-        function hardMove(moves) {
             const pieceValue = {
                 p: 1,
                 n: 3,
@@ -1304,6 +1298,105 @@
 
             return bestMove || randomMove(moves);
         }
+
+        function hardMove(moves, state) {
+            let bestMove = null;
+            let bestScore = -Infinity;
+
+            for (const move of moves) {
+                const newState = makeMove(state, move);
+
+                const score = minimax(newState, 2, false);
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = move;
+                }
+            }
+
+            return bestMove || randomMove(moves);
+        }
+        function makeMove(state, move) {
+            const newState = structuredClone(state);
+
+            const piece = newState.board[move.fromRow][move.fromCol];
+
+            // sicurezza (debug utile)
+            if (!piece) {
+                console.error("❌ Nessun pezzo nella posizione di partenza", move);
+                return newState;
+            }
+
+            // muovi il pezzo
+            newState.board[move.toRow][move.toCol] = piece;
+            newState.board[move.fromRow][move.fromCol] = null;
+
+            // cambio turno
+            newState.turn = state.turn === "white" ? "black" : "white";
+
+            return newState;
+        }
+
+        function minimax(state, depth, isMaximizing) {
+            if (depth === 0) {
+                return evaluateBoard(state);
+            }
+
+            const moves = getAllValidMoves(state.board, state.turn);
+
+            if (moves.length === 0) {
+                return evaluateBoard(state);
+            }
+
+            if (isMaximizing) {
+                let maxEval = -Infinity;
+
+                for (const move of moves) {
+                    const newState = makeMove(state, move);
+                    const evalScore = minimax(newState, depth - 1, false);
+                    maxEval = Math.max(maxEval, evalScore);
+                }
+
+                return maxEval;
+            } else {
+                let minEval = Infinity;
+
+                for (const move of moves) {
+                    const newState = makeMove(state, move);
+                    const evalScore = minimax(newState, depth - 1, true);
+                    minEval = Math.min(minEval, evalScore);
+                }
+
+                return minEval;
+            }
+        } function evaluateBoard(state) {
+            const pieceValue = {
+                p: 1,
+                n: 3,
+                b: 3,
+                r: 5,
+                q: 9,
+                k: 100
+            };
+
+            let score = 0;
+
+            state.board.forEach(row => {
+                row.forEach(piece => {
+                    if (!piece) return;
+
+                    const type = piece.toLowerCase(); // 'P' → 'p'
+                    const value = pieceValue[type] || 0;
+
+                    const isWhite = piece === piece.toUpperCase();
+
+                    score += isWhite ? value : -value;
+                });
+            });
+
+            return score;
+        }
+
         function chooseMoveByDifficulty(moves, chessState) {
             const difficulty = chessState.pcDifficulty || "easy";
 
@@ -1315,7 +1408,7 @@
                     return mediumMove(moves);
 
                 case "hard":
-                    return hardMove(moves);
+                    return hardMove(moves, chessState);
 
                 default:
                     return randomMove(moves);
@@ -1577,6 +1670,7 @@
         }
 
         async function deleteGame(gameId, state) {
+            console.log(state[gameId])
             try {
                 // 🔹 copia dello state
                 const newState = { ...state };
@@ -1584,13 +1678,14 @@
                 // 🔹 recupera la partita da eliminare
                 const deletedGame = state[gameId];
 
-                if (modalMode !== 'create') {
+                console.log("game to delete", gameId)
+                if (modalMode == 'create') {
                     console.warn("Partita non trovata:", gameId);
                     return;
                 }
 
                 // 🔹 salva la partita nel trash
-                const trashRef = ref(db, `/chess/trash/${gameId}`);
+                const trashRef = ref(db, `/chessTrash/${gameId}`);
                 await set(trashRef, deletedGame);
 
                 // 🔹 rimuovi la partita dallo state
