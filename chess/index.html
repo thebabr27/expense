@@ -720,7 +720,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="d-flex flex-column">
                         <h4 class="m-0 mx-1" style="width: 110px;">♟ Scacchi</h4>
-                        <small class="mx-2">(v1.46)</small>
+                        <small class="mx-2">(v1.47)</small>
                     </div>
                     <div id="musicPlayer" class="d-flex align-items-center justify-content-center gap-2">
                         <div class="d-flex flex-column">
@@ -1141,6 +1141,9 @@
                         show([gameBoardSection])
                         if (state[gameId].players.white !== 'computer' && state[gameId].players.black !== 'computer') {
                             drawBoard(currentUser.email, state[gameId]);
+                        }
+                        if (state.players.white && state.players.black) {
+                            hide([checkMateOverlayButtons])
                         }
                     }
 
