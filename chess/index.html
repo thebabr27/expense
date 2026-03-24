@@ -26,6 +26,32 @@
             border-radius: 10px;
         }
 
+        #gameTabs {
+            min-height: 10px;
+            border-bottom: none;
+        }
+
+        #gameTabs .nav-link {
+            background-color: transparent;
+            border: none;
+            color: #888;
+            /* grigio */
+            transition: color 0.2s ease;
+        }
+
+        /* stato hover (opzionale ma consigliato) */
+        #gameTabs .nav-link:hover {
+            color: #ccc;
+        }
+
+        /* tab attivo */
+        #gameTabs .nav-link.active {
+            color: #fff;
+            /* bianco */
+            background-color: transparent;
+            border: none;
+        }
+
         #leaveGameBtn {
             height: 40px;
         }
@@ -124,13 +150,6 @@
             z-index: 1;
         }
 
-        #chat #chatMessages {
-            overflow-y: auto;
-            height: calc(100% - 40px);
-            /* lascia spazio per l'input */
-            margin-bottom: 10px;
-        }
-
         #chat-input-wrapper {
             margin: 0 15px;
             position: sticky;
@@ -196,9 +215,12 @@
             font-size: 0.9rem;
         }
 
-        #history #movesContainer {
+        #chatMessages,
+        #movesContainer {
+            height: 100px;
             overflow-y: auto;
-            height: -webkit-fill-available;
+            max-height: 100px;
+            overflow-y: auto;
             margin-bottom: 20px;
         }
 
@@ -214,20 +236,17 @@
             display: flex;
             justify-content: space-between;
             padding: 2px 5px;
-            color: white;
+            color: white !important;
             background: transparent;
         }
 
-        #history .move.white {
-            color: #f5f5f5;
-            /* bianco */
-            background: transparent;
+        .his-white {
+            color: white !important;
         }
 
-        #history .move.black {
-            color: #6f6f6f;
-            font-weight: 600;
-            /* giallo per il nero */
+        .his-black {
+            background: rgba(255, 255, 255, .2);
+            color: black;
         }
 
         /* casella di partenza: quadratino */
@@ -654,7 +673,7 @@
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
-    overflow-x:hidden;
+    overflow:hidden;
     position: absolute">
         <div id="auth-section" class="row h-100">
             <div class="col-3 d-none d-md-block">
@@ -701,7 +720,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="d-flex flex-column">
                         <h4 class="m-0 mx-1" style="width: 110px;">♟ Scacchi</h4>
-                        <small class="mx-2">(v1.45)</small>
+                        <small class="mx-2">(v1.46)</small>
                     </div>
                     <div id="musicPlayer" class="d-flex align-items-center justify-content-center gap-2">
                         <div class="d-flex flex-column">
@@ -748,13 +767,31 @@
                         <div id="board" class="mx-auto"></div>
                     </div>
                     <div class="col-12 col-md-5">
-                        <div id="history">
-                            <h5 class="text-light">History</h5>
-                            <div id="movesContainer"></div>
-                        </div>
-                        <div id="chat" class="mt-2">
-                            <h5 class="text-light">Chat</h5>
-                            <div id="chatMessages"></div>
+                        <!-- Tabs -->
+                        <ul class="nav nav-tabs" id="gameTabs">
+                            <li class="nav-item">
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#chatTab">
+                                    Chat
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link " data-bs-toggle="tab" data-bs-target="#historyTab">
+                                    History
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Contenuto tabs -->
+                        <div class="tab-content mt-2">
+                            <!-- History -->
+                            <div class="tab-pane fade show active" id="chatTab">
+                                <div id="chatMessages"></div>
+                            </div>
+
+                            <!-- Chat -->
+                            <div class="tab-pane fade" id="historyTab">
+                                <div id="movesContainer"></div>
+                            </div>
                         </div>
 
                         <div id="chat-input-wrapper" class="d-flex position-relative">
@@ -777,6 +814,10 @@
                     </div>
                     <div id="checkMateOverlay" class="overlay hidden">
                         <div class="overlay-content">
+                            <button id="toggleOverlayBtn" class="btn btn-secondary"
+                                style="position: fixed; top: 10px; right: 10px; z-index: 9999;">
+                                Mostra scacchiera
+                            </button>
                             <h2>♔ Scacco matto!</h2>
                             <h3 id="winnerText"></h3>
 
@@ -822,6 +863,7 @@
         let gameId = "game4";
         let dbRef = ref(db, `/chess`);
         let gameRef = ref(db, `/chess/${gameId}`);
+        let chatRef = ref(db, `/chess/${gameId}/chat`);
         let selected;
         let gameSelected = false;
 
@@ -857,6 +899,7 @@
         const gameSelectionSection = document.getElementById("game-selection-section");
         const overlayMessage = document.getElementById("overlay-message");
         const hello = document.getElementById("hello");
+        const toggleOverlayBtn = document.getElementById("toggleOverlayBtn");
 
 
         let modalMode = "create"; // "create" | "delete"
@@ -963,6 +1006,19 @@
         }, { once: true });
 
         // Eventi pulsanti     
+        toggleOverlayBtn.addEventListener("mousedown", () => {
+            checkMateOverlay.style.opacity = "0";
+        });
+
+        toggleOverlayBtn.addEventListener("mouseup", () => {
+            checkMateOverlay.style.opacity = "1";
+        });
+
+        // opzionale: sicurezza se esci dal bottone mentre tieni premuto
+        toggleOverlayBtn.addEventListener("mouseleave", () => {
+            checkMateOverlay.style.opacity = "1";
+        });
+
         sendChatBtn.addEventListener("click", () => {
             sendMessage(chatInput.value);
             chatInput.value = "";
@@ -1036,14 +1092,19 @@
             const gameRefCheck = ref(db, `/chess/${gameId}`);
             const snapshot = await get(gameRefCheck);
 
-            if (snapshot.exists()) {
-                alert("Esiste già una partita con questo nome!");
-                return;
+            if (modalMode !== 'delete') {
+                if (snapshot.exists()) {
+                    alert("Esiste già una partita con questo nome!");
+                    return;
+                }
+
+                // 🔹 crea partita
+                await initChessGame(currentUser.email);
+
+            } else {
+                console.log(modalMode, modalMode !== 'delete')
+                deleteGame(gameId, snapshot)
             }
-
-            // 🔹 crea partita
-            await initChessGame(currentUser.email);
-
             // 🔹 chiudi modale
             modalCloseBtn.click();
         });
@@ -1061,13 +1122,17 @@
 
 
                 onValue(dbRef, snapshot => {
-
+                    if (!snapshot.val()) {
+                        show([gameSelectionSection])
+                        hide([gameBoardSection])
+                    }
+                    console.log(snapshot.val())
                     const state = snapshot.val();
                     if (!state) return;
                     if (state && state.isNewGame) {
                         hideCheckmateOverlay();
                     }
-                    if (!gameSelected) {
+                    if (!gameSelected || !snapshot.val()) {
                         show([gameSelectionSection])
                         hide([gameBoardSection])
                         showGamesList(state);
@@ -1079,6 +1144,8 @@
                         }
                     }
 
+                    updateChat(state);
+                    updateHistory(state);
                     /* checkUserInGame(user.email, state) */
                 })
 
@@ -1284,16 +1351,17 @@
             const historyDiv = document.getElementById("movesContainer");
             if (!historyDiv) return;
 
-            // svuota la lista tranne l'h5
-            historyDiv.querySelectorAll(".move").forEach(el => el.remove());
+            // 🔹 svuota completamente (più sicuro)
+            historyDiv.innerHTML = "";
 
             if (!chessState.history || chessState.history.length === 0) return;
 
+            const fragment = document.createDocumentFragment();
+
             chessState.history.forEach(item => {
                 const moveDiv = document.createElement("div");
-                moveDiv.classList.add("move", item.color); // item.color = "white" o "black"
+                moveDiv.className = `move his-${item.color}`;
 
-                // 🔹 ottieni orario della mossa o trattino se non c'è
                 let timeStr = "??:??";
                 if (item.time) {
                     const time = new Date(item.time);
@@ -1302,38 +1370,31 @@
                     timeStr = `${hours}:${minutes}`;
                 }
 
-                // 🔹 icona del pezzo
                 const pieceIcon = item.color === "white" ? "♙" : "♟";
 
-                // 🔹 testo della mossa con cattura se presente
-                let moveText;
                 if (item.captured) {
-                    const capturedIcon = item.captured.color === "white" ? "♙" : "♟";
-                    moveText = `${pieceToText(item.piece)} cattura ${pieceToText(item.captured.piece)} in ${coordsToNotation(item.toRow, item.toCol)}`;
-                    moveDiv.innerHTML = `${timeStr} ${pieceIcon} ${moveText}`;
+                    moveDiv.textContent =
+                        `${timeStr} ${pieceIcon} ${pieceToText(item.piece)} cattura ${pieceToText(item.captured.piece)} in ${coordsToNotation(item.toRow, item.toCol)}`;
                 } else {
-                    moveDiv.innerHTML = `${timeStr} ${pieceIcon} ${item.text}`;
+                    moveDiv.textContent = `${timeStr} ${pieceIcon} ${item.text}`;
                 }
 
-                historyDiv.appendChild(moveDiv);
+                fragment.appendChild(moveDiv);
             });
 
-            setTimeout(() => {
-                historyDiv.scrollTo({
-                    top: historyDiv.scrollHeight,
-                    behavior: "smooth" // animazione fluida
-                });
-            }, 100);
+            historyDiv.appendChild(fragment);
 
-            // scorri automaticamente in basso per mostrare l'ultima mossa
-            historyDiv.scrollTop = historyDiv.scrollHeight;
+            // 🔹 scroll SOLO se visibile
+            if (historyDiv.offsetParent !== null) {
+                historyDiv.scrollTop = historyDiv.scrollHeight;
+            }
         }
-
-        function showCheckmateOverlay(winnerEmail, currentTurn) {
-            console.log("showCheckmateOverlay", checkMateColor, winnerEmail, currentTurn)
-            checkMateColor === 'white'
-                ? `Vincono... i Bianchi (${winnerEmail}!!!)`
-                : `Vincono... i Neri (${winnerEmail}!!!)`
+        function showCheckmateOverlay(players) {
+            console.log(checkMateColor, players)
+            let winnerEmail = players[checkMateColor];
+            checkMateColor === 'black'
+                ? winnerText.innerHTML = `Vincono... i Bianchi (${players['white'].split('@')[0]}!!!)`
+                : winnerText.innerHTML = `Vincono... i Neri (${players['black'].split('@')[0]}!!!)`
                 ;
             checkMateOverlay.classList.remove("hidden");
         }
@@ -1343,55 +1404,61 @@
         }
 
         function updateChat(chessState) {
+            console.log("updateChat chiamata", chessState.chat);
             const container = document.getElementById("chatMessages");
-            if (!container) {
-                console.log("chatMessages NON trovato");
-                return;
-            }
+            if (!container) return;
 
             container.innerHTML = "";
 
-            if (!chessState.chat || chessState.chat.length === 0) {
-                console.log("Nessun messaggio");
-                return;
-            }
+            if (!chessState.chat || chessState.chat.length === 0) return;
 
-            console.log("Chat:", chessState.chat);
+            const fragment = document.createDocumentFragment();
 
             chessState.chat.forEach(msg => {
                 const isMe = msg.user === currentUser.email;
 
-                // 🔹 wrapper (serve per allineamento)
                 const wrapper = document.createElement("div");
-                wrapper.classList.add("chat-message-wrapper");
-                wrapper.classList.add(isMe ? "my-wrapper" : "other-wrapper");
+                wrapper.className = `chat-message-wrapper ${isMe ? "my-wrapper" : "other-wrapper"}`;
 
-                // 🔹 messaggio vero
                 const div = document.createElement("div");
-                div.classList.add("chat-message");
-                div.classList.add(isMe ? "my-message" : "other-message");
+                div.className = `chat-message ${isMe ? "my-message" : "other-message"}`;
 
-                // layout: nome a sinistra, orario a destra sopra al testo
-                div.innerHTML = `
-            <div class="chat-message-header" style="display:flex; justify-content: space-between; font-size:0.75rem; margin-bottom: 2px;">
-                <span class="chat-username">${isMe ? "Tu" : msg.user.split('@')[0]}</span>
-                <span class="chat-time text-muted">${msg.time || "-"}</span>
-            </div>
-            <div class="chat-message-text">${msg.text}</div>
-        `;
+                // 🔹 evita innerHTML annidato instabile
+                const header = document.createElement("div");
+                header.className = "chat-message-header";
+                header.style.display = "flex";
+                header.style.justifyContent = "space-between";
+                header.style.fontSize = "0.75rem";
+                header.style.marginBottom = "2px";
 
+                const username = document.createElement("span");
+                username.className = "chat-username";
+                username.textContent = isMe ? "Tu" : msg.user.split("@")[0];
+
+                const time = document.createElement("span");
+                time.className = "chat-time text-muted";
+                time.textContent = msg.time || "-";
+
+                const text = document.createElement("div");
+                text.className = "chat-message-text";
+                text.textContent = msg.text;
+
+                header.appendChild(username);
+                header.appendChild(time);
+
+                div.appendChild(header);
+                div.appendChild(text);
                 wrapper.appendChild(div);
-                container.appendChild(wrapper);
+
+                fragment.appendChild(wrapper);
             });
 
-            // scroll automatico
-            container.scrollTop = container.scrollHeight;
-            setTimeout(() => {
-                container.scrollTo({
-                    top: container.scrollHeight,
-                    behavior: "smooth"
-                });
-            }, 100);
+            container.appendChild(fragment);
+
+            // 🔹 scroll SOLO se visibile
+            if (container.offsetParent !== null) {
+                container.scrollTop = container.scrollHeight;
+            }
         }
 
         async function sendMessage(text) {
@@ -1415,6 +1482,8 @@
             });
 
             await saveChessState(state);
+            updateChat(state);
+            updateHistory(state);
         }
 
         function showGamesList(state) {
@@ -1504,17 +1573,30 @@
 
         async function deleteGame(gameId, state) {
             try {
-                // 🔹 crea copia dello state
+                // 🔹 copia dello state
                 const newState = { ...state };
 
-                // 🔹 rimuovi la partita
+                // 🔹 recupera la partita da eliminare
+                const deletedGame = state[gameId];
+
+                if (modalMode !== 'create') {
+                    console.warn("Partita non trovata:", gameId);
+                    return;
+                }
+
+                // 🔹 salva la partita nel trash
+                const trashRef = ref(db, `/chess/trash/${gameId}`);
+                await set(trashRef, deletedGame);
+
+                // 🔹 rimuovi la partita dallo state
                 delete newState[gameId];
 
-                // 🔹 riscrivi tutto su Firebase
+                // 🔹 aggiorna lo state principale
                 const chessRef = ref(db, `/chess`);
                 await set(chessRef, newState);
 
-                console.log("Partita eliminata:", gameId);
+                console.log("Partita spostata nel trash e eliminata:", gameId);
+
             } catch (error) {
                 console.error("Errore eliminazione:", error);
                 alert("Errore durante l'eliminazione");
@@ -1789,7 +1871,10 @@
 
             await set(gameRef, newState);
             hideCheckmateOverlay();
+            const newSnapshot = await get(gameRef);
+            console.log(newSnapshot)
             if (currentState.players.white === "computer" && currentState.isNewGame === true) {
+                console.log("entered")
                 drawBoard('computer', currentState)
             }
         }
@@ -1949,12 +2034,32 @@
             const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
             return files[c] + (8 - r);
         }
-
         function saveChessState(state) {
             if (state.isNewGame) {
                 delete state.isNewGame;
                 hideCheckmateOverlay();
             }
+
+            // 🔹 copia della board per sicurezza
+            const board = state.board.map(row => [...row]);
+
+            // 🔹 promozione pedoni bianchi (P -> Q nella riga 0)
+            for (let col = 0; col < 8; col++) {
+                if (board[0][col] === "P") {
+                    board[0][col] = "Q";
+                }
+            }
+
+            // 🔹 promozione pedoni neri (p -> q nella riga 7)
+            for (let col = 0; col < 8; col++) {
+                if (board[7][col] === "p") {
+                    board[7][col] = "q";
+                }
+            }
+
+            // 🔹 aggiorna lo state
+            state.board = board;
+
             return set(gameRef, state);
         }
 
@@ -1985,7 +2090,7 @@
             if (playerInCheckmate) {
                 // chi ha vinto? L’altro giocatore 
                 if (chessState.players[currentTurn]) {
-                    showCheckmateOverlay(chessState.players[currentTurn], currentTurn);
+                    showCheckmateOverlay(chessState.players);
                 }
             } else {
                 hideCheckmateOverlay();
