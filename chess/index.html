@@ -720,7 +720,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="d-flex flex-column">
                         <h4 class="m-0 mx-1" style="width: 110px;">♟ Scacchi</h4>
-                        <small class="mx-2">(v1.47)</small>
+                        <small class="mx-2">(v1.48)</small>
                     </div>
                     <div id="musicPlayer" class="d-flex align-items-center justify-content-center gap-2">
                         <div class="d-flex flex-column">
@@ -782,7 +782,7 @@
                         </ul>
 
                         <!-- Contenuto tabs -->
-                        <div class="tab-content mt-2">
+                        <div class="tab-content m-3">
                             <!-- History -->
                             <div class="tab-pane fade show active" id="chatTab">
                                 <div id="chatMessages"></div>
@@ -1139,10 +1139,12 @@
                     } else {
                         hide([gameSelectionSection])
                         show([gameBoardSection])
-                        if (state[gameId].players.white !== 'computer' && state[gameId].players.black !== 'computer') {
+                        if (state[gameId] && state[gameId].players 
+                        && state[gameId].players.white !== 'computer' 
+                        && state[gameId].players.black !== 'computer') {
                             drawBoard(currentUser.email, state[gameId]);
                         }
-                        if (state.players.white && state.players.black) {
+                        if (state[gameId] && state[gameId].players && state[gameId].players.white && state[gameId].players.black) {
                             hide([checkMateOverlayButtons])
                         }
                     }
