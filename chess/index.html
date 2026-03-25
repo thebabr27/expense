@@ -1008,9 +1008,16 @@
         // Eventi pulsanti     
         toggleOverlayBtn.addEventListener("mousedown", () => {
             checkMateOverlay.style.opacity = "0";
+        }); 
+        toggleOverlayBtn.addEventListener("touchstart", () => {
+            checkMateOverlay.style.opacity = "0";
         });
 
         toggleOverlayBtn.addEventListener("mouseup", () => {
+            checkMateOverlay.style.opacity = "1";
+        });
+
+        toggleOverlayBtn.addEventListener("touchend", () => {
             checkMateOverlay.style.opacity = "1";
         });
 
@@ -1187,7 +1194,6 @@
 
         function isDrawByNoMoves(board, color) {
             const moves = getAllValidMoves(board, color);
-            console.log(moves)
             return moves.length === 0;
         }
 
@@ -1463,7 +1469,7 @@
             // 🔹 svuota completamente (più sicuro)
             historyDiv.innerHTML = "";
 
-            if (!chessState.history || chessState.history.length === 0) return;
+            if (!chessState || (!chessState.history || chessState.history.length === 0)) return;
 
             const fragment = document.createDocumentFragment();
 
@@ -1513,13 +1519,13 @@
         }
 
         function updateChat(chessState) {
-            console.log("updateChat chiamata", chessState.chat);
+            //console.log("updateChat chiamata", chessState.chat);
             const container = document.getElementById("chatMessages");
             if (!container) return;
 
             container.innerHTML = "";
 
-            if (!chessState.chat || chessState.chat.length === 0) return;
+            if (!chessState || (!chessState.chat || chessState.chat.length === 0)) return;
 
             const fragment = document.createDocumentFragment();
 
@@ -2475,7 +2481,7 @@
 
             // 1️⃣ Se il re NON è in scacco → non è scacco matto
             if (!isCheck(board, color)) {
-                console.log(isDrawByNoMoves(board, color))
+                console.log("isDrawByNoMoves" , isDrawByNoMoves(board, color))
                 if (isDrawByNoMoves(board, color)) {
                     console.log("IS A DRAW")
                 } else if (isStalemate(board, color)) {
