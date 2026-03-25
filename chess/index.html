@@ -720,7 +720,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <div class="d-flex flex-column">
                         <h4 class="m-0 mx-1" style="width: 110px;">♟ Scacchi</h4>
-                        <small class="mx-2">(v1.49)</small>
+                        <small class="mx-2">(v1.50)</small>
                     </div>
                     <div id="musicPlayer" class="d-flex align-items-center justify-content-center gap-2">
                         <div class="d-flex flex-column">
@@ -1150,8 +1150,8 @@
                         }
                     }
 
-                    updateChat(state);
-                    updateHistory(state);
+                    updateChat(state[gameId]);
+                    updateHistory(state[gameId]);
                     /* checkUserInGame(user.email, state) */
                 })
 
@@ -1183,6 +1183,17 @@
             music.src = song.src;
             songTitle.textContent = song.title;
             songTitle2.textContent = song.title;
+        }
+
+        function isDrawByNoMoves(board, color) {
+            const moves = getAllValidMoves(board, color);
+            console.log(moves)
+            return moves.length === 0;
+        }
+
+        function isStalemate(board, color) {
+            const moves = getAllValidMoves(board, color);// funzione che controlla se il re è sotto scacco
+            return moves.length === 0;
         }
 
         // ======================
@@ -1965,6 +1976,7 @@
                 board: initialBoard,
                 turn: "white",
                 history: [],
+                chat: currentState.chat,
                 selected: null,
                 isNewGame: true            // utile per nascondere overlay checkmate
             };
@@ -1973,9 +1985,16 @@
             hideCheckmateOverlay();
             const newSnapshot = await get(gameRef);
             console.log(newSnapshot)
-            if (currentState.players.white === "computer" && currentState.isNewGame === true) {
-                console.log("entered")
-                drawBoard('computer', currentState)
+            if (newState.isNewGame === true) {
+                const userColor =
+                    newState.players.white === userId ? "white" :
+                        newState.players.black === userId ? "black" : null;
+                const isMyTurn = userColor && newState.turn === userColor;
+                if (isMyTurn) {
+                    drawBoard(newState.players['white'], newState)
+                } else {
+                    drawBoard('computer', newState)
+                }
             }
         }
 
@@ -2452,8 +2471,19 @@
          * color: "white" o "black"
          */
         function isCheckmate(board, color) {
+            console.log(board, color)
+
             // 1️⃣ Se il re NON è in scacco → non è scacco matto
-            if (!isCheck(board, color)) return false;
+            if (!isCheck(board, color)) {
+                console.log(isDrawByNoMoves(board, color))
+                if (isDrawByNoMoves(board, color)) {
+                    console.log("IS A DRAW")
+                } else if (isStalemate(board, color)) {
+                    console.log("E' STALLO")
+                } else {
+                    return false;
+                }
+            }
 
             const possibleMoves = []; // array per memorizzare le mosse valide
 
