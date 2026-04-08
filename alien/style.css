@@ -1,0 +1,102 @@
+body {
+    margin: 0;
+    height: 100vh;
+    background: #87ceeb;
+    /* cielo */
+    overflow: hidden;
+}
+
+#game {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #87ceeb;
+}
+
+/* piattaforme */
+.platform {
+    position: absolute;
+    height: 20px;
+    background: #654321;
+    border: 2px solid #000;
+}
+
+#scene {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+#walker {
+    position: absolute;
+    bottom: 0;
+    left: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform-origin: bottom center;
+    transform: scaleX(2)
+}
+
+.head {
+    width: 30px;
+    height: 30px;
+    background: #f5d6c6;
+    border-radius: 50%;
+    position: absolute;
+    top: -120px;
+    position: absolute;
+}
+
+.torso {
+    width: 20px;
+    height: 50px;
+    background: #ff5733;
+    margin-bottom: 5px;
+    z-index: 2;
+    top: -90px;
+    position: absolute;
+}
+
+.arm {
+    position: absolute;
+    width: 8px;
+    height: 40px;
+    background: #33c1ff;
+    transform-origin: top center;
+}
+
+.left-arm {
+    left: -15px;
+    top: -90px;
+    left: 4px;
+    z-index: 1;
+}
+
+.right-arm {
+    right: -15px;
+    top: -90px;
+    left: 0px;
+    z-index: 3;
+}
+
+.leg {
+    position: absolute;
+    width: 10px;
+    height: 50px;
+    top: -40px;
+    background: #33ff77;
+    transform-origin: top center;
+}
+
+.left-leg {
+    left: -5px;
+    left: 4px;
+    z-index: 1;
+}
+
+.right-leg {
+    right: -5px;
+    left: 0px;
+    z-index: 3;
+}

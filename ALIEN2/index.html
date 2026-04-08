@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Game Demo</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #87CEEB;
+        }
+
+        #gameCanvas {
+            display: block;
+            margin: 0;
+            background: #87CEEB;
+            width: 100%;
+            max-width: 1200px;
+            border: 4px solid green;
+            cursor: crosshair;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="display: flex; justify-content: center;">
+        <canvas id="gameCanvas" width="800" height="500"></canvas>
+    </div>
+
+    <script>
+        // =========================
+        // --- Canvas & Context ---
+        // =========================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let currentPlayerFrame = null; // il frame attuale del player da disegnare
+        // --- Carica nuovi frame "sayHello" ---
+        // Prepariamo i frame per sayHello
+        const sayHelloFramesRight = [];
+        const sayHelloFramesLeft = [];
+
+        const img = new Image();
+        img.src = `assets/frameSh.svg`;
+        sayHelloFramesRight[0] = img;
+
+        img.onload = () => {
+            const canvasTemp = document.createElement('canvas');
+            canvasTemp.width = img.width;
+            canvasTemp.height = img.height;
+            const ctxTemp = canvasTemp.getContext('2d');
+
+            ctxTemp.translate(img.width, 0); // trasla a destra
+            ctxTemp.scale(-1, 1);            // specchia orizzontalmente
+            ctxTemp.drawImage(img, 0, 0);
+
+            const flipped = new Image();
+            flipped.src = canvasTemp.toDataURL();
+            sayHelloFramesLeft[0] = flipped;
+        };
+        // --- Timer per azione sayHello ---
+        let sayHelloTimer = 0;
+        let activeButton = null;
+        // =========================
+        // --- Livelli & Piattaforme ---
+        // =========================
+        const levels = [
+            // --- Level 1: destra ---
+            {
+                platforms: [
+                    { x: 0 * 80, y: 7 * 70 - 20, width: 10 * 80, height: 20, type: "normal" },  // piattaforma base riga 7
+                    { x: 3 * 80, y: (6 * 70) - 10, width: 4 * 80, height: 20, type: 'solid' }, // piattaforma nera vicino al suolo 2
+                    /* { x: 1 * 80, y: 4 * 70, width: 3 * 80, height: 20, type: "normal" }, */        // piattaforma centro riga 4
+                    { x: 0 * 80, y: 5 * 70, width: 10 * 80, height: 20, type: "solid" },         // piattaforma nuova “grigia scura” riga 5
+                    { x: 0 * 80, y: 3 * 70, width: 10 * 80, height: 20, type: "normal" },        // piattaforma destra riga 5
+                    { x: 2 * 80, y: 2 * 70, width: 3 * 80, height: 20, type: "solid" },         // piattaforma grigia riga 3
+                    { x: 6 * 80, y: 1 * 70, width: 4 * 80, height: 20, type: "normal" },        // piattaforma pulsante alto riga
+                ],
+                ladders: [
+                    { x: 9 * 80, platformIndex: 1, height: 60, width: 20 }
+                ], buttons: [
+                    {
+                        x: 5 * 80,
+                        id: "B1",
+                        platformIndex: 1,
+                        width: 20,
+                        height: 20,
+                        pressed: false,
+                        targets: ["T1", "T2"],  // indica quale trapdoor attivare
+                        mode: "ON"
+                    }
+                ],
+                spikes: [
+                    {
+                        x: 6 * 80,
+                        platformIndex: 1,
+                        width: 40,
+                        height: 20,
+                        active: true
+                    }
+                ],
+                trapdoors: [
+                    {
+                        x: 2 * 80,
+                        platformIndex: 3,
+                        width: 60,
+                        height: 20,
+                        open: false,
+                        angle: 0,
+                        targetAngle: 0,
+                        id: "T1",        // identificatore univoco
+                        triggers: ["B1"] // quale button può attivarla
+                    },
+
+                    {
+                        x: 3 * 80,
+                        platformIndex: 2,
+                        width: 60,
+                        height: 20,
+                        open: false,
+                        angle: 0,
+                        targetAngle: 0,
+                        id: "T2",        // identificatore univoco
+                        triggers: ["B1"] // quale button può attivarla
+                    }
+                ],
+                doors: [
+                    { x: 7 * 80, platformIndex: 2, width: 50, height: 80, open: null, id: "D2", triggers: ["B1"], mode: "OR" },
+                ],
+                lever: { x: 1 * 80, platformIndex: 2, angle: -45, width: 50, height: 20, targetAngle: 45, targets: ["T1"], mode: 'TOGGLE' },
+                npcs: [
+                    {
+                        x: 550,           // posizione orizzontale iniziale
+                        y: 20, // posizione verticale iniziale (pavimento)
+                        width: 50,        // larghezza NPC
+                        height: 50,
+                        dx: 2,             // velocità iniziale
+                        speed: 2,
+                        onGround: true,
+                        facingRight: true,
+                        state: "walk",      // walk / idle / sayHello / follow
+                        frameIndex: 0,
+                        frameCounter: 0,
+                        sayHelloTimer: 0,
+                        following: false
+                    },
+                ]
+            }
+            ,
+
+            // --- Level 2: alto ---
+            {
+                platforms: [
+                    { x: 0 * 80, y: 7 * 70 - 20, width: 10 * 80, height: 20, type: "normal" },  // piattaforma base riga 7
+                ],
+
+                doors: [
+                    { x: 7 * 80, platformIndex: 0, width: 50, height: 80, open: false, id: "D2", triggers: ["B1"], mode: "OR" },
+                ],
+
+            }
+
+        ];
+
+        //offset
+        const spikeOffset = 20;
+
+        let currentLevelIndex = 0;
+        const ladderImg = new Image();
+        ladderImg.src = 'assets/ladder.svg'; // percorso della tua immagine
+        const trapdoorImg = new Image();
+        trapdoorImg.src = 'assets/trapdoor.svg'; // metti la tua texture
+        const doorClosedImg = new Image();
+        doorClosedImg.src = 'assets/door-closed.svg';
+
+        const doorOpenImg = new Image();
+        doorOpenImg.src = 'assets/door-open.svg';
+        // =========================
+        // --- Player ---
+        // =========================
+        const player = {
+            x: 50,
+            y: 400,
+            width: 50,
+            height: 50,
+            dx: 0,
+            dy: 0,
+            speed: 4,
+            jumpForce: 10,
+            onGround: false,
+            dead: false
+        };
+        const gravity = 0.8;
+        let isCrouching = false;
+        let facingRight = true;
+        let activeTriggers = [];
+
+        // =========================
+        // --- Controlli ---
+        // =========================
+        const keys = { left: false, right: false, up: false };
+        // =========================
+        // --- Controllo tasti ---
+        let jumpPressed = false;
+        // audio
+        const sounds = {
+            button: new Audio('assets/sounds/button-click.mp3'),
+            lever: new Audio('assets/sounds/lever.mp3'),
+            ladder: new Audio('assets/sounds/ladder-steps.mp3'),
+            hello: new Audio('assets/sounds/hello.mp3'),
+            jump: new Audio('assets/sounds/jump.mp3')
+        };
+        sounds.ladder.loop = true
+        function soundPlay(soundName) {
+
+            const sound = sounds[soundName];
+
+            sound.play().catch(() => { });
+        }
+        function resetSounds() {
+            setTimeout(() => {
+                Object.values(sounds).forEach(sound => {
+                    sound.pause();
+                    sound.currentTime = 0;
+                });
+            }, 400);
+        }
+        // Evita che i suoni si sovrappongano troppo
+        /* sounds.ladder.loop = true; */
+        // =========================
+        // --- Listener tasti ---
+        // =========================
+        document.addEventListener('keydown', e => {
+            if (player.dead) return;
+
+            switch (e.code) {
+                case 'ArrowLeft': keys.left = true; break;
+                case 'ArrowRight': keys.right = true; break;
+                case 'ArrowUp': keys.up = true; break;
+                case 'ArrowDown':
+                    keys.down = true;
+                    if (!onLadder && player.onGround) isCrouching = true;
+                    break;
+                case 'Space':
+                    if (!onLadder) jumpPressed = true;
+                    break;
+                case 'KeyA': keys.sayHello = true; break;    // input singolo
+                case 'KeyE': keys.interact = true; break;    // input singolo
+            }
+        });
+
+        document.addEventListener('keyup', e => {
+            /* sounds.ladder.pause();
+            sounds.ladder.currentTime = 0; */
+            if (player.dead) return;
+
+            switch (e.code) {
+                case 'ArrowLeft': keys.left = false; break;
+                case 'ArrowRight': keys.right = false; break;
+                case 'ArrowUp': keys.up = false; break;
+                case 'ArrowDown':
+                    keys.down = false;
+                    isCrouching = false;
+                    break;
+                case 'Space': jumpPressed = false; break;
+            }
+        });
+
+        // =========================
+        // --- Setup Actions --- 
+        // =========================
+        function setupActions() {
+            levels.forEach(level => {
+                // --- Leva ---
+                if (level.lever) {
+                    level.lever.action = function () {
+                        isPullingLever = true;
+                        activeLever = this;
+                        leverFrame = 0;
+                        leverCounter = 0;
+
+                        // Angolo inverso
+                        this.targetAngle = (this.angle > 0) ? -45 : 45;
+
+                        // Posiziona il player vicino alla leva
+                        const platform = getCurrentPlatforms()[this.platformIndex];
+                        player.y = platform.y - player.height;
+                        player.x = (player.x < this.x) ? this.x - player.width - 5 : this.x + 25;
+
+                        // Eventuali trigger
+                        if (this.targets) toggleDoors(this.targets);
+                    }
+                }
+
+                // --- Pulsanti ---
+                if (level.buttons) {
+                    level.buttons.forEach(button => {
+                        button.action = function () {
+                            isPushingButton = true;
+                            activeButton = this;
+                            pushButtonFrameIndex = 0;
+                            pushButtonFrameCounter = 0;
+
+                            // Posiziona player davanti al pulsante
+                            const platform = getCurrentPlatforms()[this.platformIndex];
+                            player.y = platform.y - player.height;
+                            player.x = (player.x < this.x) ? this.x - player.width + 10 : this.x + this.width - 10;
+
+                            // Eventuali trigger
+                            if (this.targets) toggleDoors(this.targets);
+                        }
+                    });
+                }
+            });
+        }
+        function isNear(obj, xTolerance = 50, yTolerance = 40) {
+            const playerCenterX = player.x + player.width / 2;
+            const playerCenterY = player.y + player.height / 2;
+            const objCenterX = obj.x + obj.width / 2;
+            const objCenterY = obj.y + obj.height / 2;
+
+            const dx = Math.abs(playerCenterX - objCenterX);
+            const dy = Math.abs(playerCenterY - objCenterY);
+
+            return dx <= xTolerance && dy <= yTolerance;
+        }
+        // =========================
+        // --- Funzione Interact ---
+        // =========================
+        // Controlla se player è vicino a un oggetto
+        function isNear(obj) {
+            const distanceX = Math.abs((player.x + player.width / 2) - (obj.x + obj.width / 2));
+            const distanceY = Math.abs((player.y + player.height) - (obj.y + obj.height)); // base oggetto
+            return distanceX < 50 && distanceY < 20; // puoi regolare soglia
+        }
+        function isNearLever(lever) {
+            return Math.abs(player.x - lever.x) < 60;
+        }
+
+        function isNearButton(button) {
+            const center = button.x + button.width / 2;
+            return Math.abs(player.x + player.width / 2 - center) < 60;
+        }
+
+        function startButton(button) {
+            if (isPushingButton) return;
+
+            isPushingButton = true;
+            activeButton = button;
+
+            pushButtonFrameIndex = 0;
+            pushButtonFrameCounter = 0;
+
+            const platform = getCurrentPlatforms()[button.platformIndex];
+            player.y = platform.y - player.height;
+            player.x = facingRight
+                ? button.x - player.width + 10
+                : button.x + button.width - 10;
+        }
+        function startLever(lever) {
+            if (isPullingLever) return;
+
+            isPullingLever = true;
+            activeLever = lever;
+
+            leverFrame = 0;
+            leverCounter = 0;
+
+            const platform = getCurrentPlatforms()[lever.platformIndex];
+            player.y = platform.y - player.height;
+
+            // Decidi il lato e salva targetX invece di teletrasportare subito
+            if (lever.targetAngle > lever.angle) {
+                // animazione verso destra → player a sinistra
+                player.targetX = lever.x - player.width - 5;
+                facingRight = true;
+            } else {
+                // animazione verso sinistra → player a destra
+                player.targetX = lever.x + 25;
+                facingRight = false;
+            }
+        }
+        function applyButtonEffect(button) {
+            switch (button.mode) {
+                case "ON":
+                    button.pressed = true;
+                    break;
+
+                case "TOGGLE":
+                    button.pressed = !button.pressed;
+                    break;
+
+                case "TRICOLOR":
+                    button.state = (button.state + 1) % 3;
+                    break;
+            }
+
+            if (button.targets) {
+                toggleTrapdoors(button.targets, button);
+            }
+        }
+        function applyLeverEffect(lever) {
+
+            if (lever.mode === "TOGGLE") {
+                // leva classica (rimane)
+                lever.active = !lever.active;
+                lever.targetAngle = lever.active ? 45 : -45;
+            }
+
+            else if (lever.mode === "HOLD") {
+                // leva a molla
+                lever.active = true;
+                lever.targetAngle = 45;
+            }
+
+            if (lever.targets) {
+                toggleTrapdoors(lever.targets);
+            }
+        }
+        function applyLeverEffect(lever) {
+            lever.active = !lever.active; // 🔥 stato logico
+
+            lever.targetAngle = lever.active ? 45 : -45;
+
+            if (lever.targets) {
+                toggleTrapdoors(lever.targets);
+            }
+        }
+        // =========================
+        // --- Animazioni ---
+        // =========================
+        // =========================
+        // --- Caricamento frame NPC ---
+        // =========================
+        // =========================
+        // --- NPC inizializzazione ---
+        // ========================= 
+        const npcFramesRight = [];
+        const npcFramesLeft = [];
+        const npcJumpRight = new Image();
+        const npcJumpLeft = new Image();
+        const npcRollRight = [];
+        const npcRollLeft = [];
+        const npcIdleRight = new Image();
+        const npcIdleLeft = new Image();
+
+        // --- animazioni camminata NPC ---
+
+        for (let i = 0; i <= 9; i++) {
+            loadNPCFrame('frameSh', npcFramesRight, npcFramesLeft, 0);
+        }
+
+        // --- frame salto NPC ---
+        npcJumpRight.src = 'assets/frameAx.svg';
+        npcJumpRight.onload = () => {
+            const c = document.createElement('canvas');
+            c.width = npcJumpRight.width;
+            c.height = npcJumpRight.height;
+            const ctxTemp = c.getContext('2d');
+            ctxTemp.translate(npcJumpRight.width, 0);
+            ctxTemp.scale(-1, 1);
+            ctxTemp.drawImage(npcJumpRight, 0, 0);
+            npcJumpLeft.src = c.toDataURL();
+        }
+
+        // --- frame rotolata NPC ---
+        const rollFrameLettersX = ['K', 'L', 'M', 'N'];
+        rollFrameLettersX.forEach((letter, i) => {
+            const img = new Image();
+            img.src = `assets/frame${letter}x.svg`;
+            npcRollRight[i] = img;
+
+            const canvasTemp = document.createElement('canvas');
+            const ctxTemp = canvasTemp.getContext('2d');
+            img.onload = () => {
+                canvasTemp.width = img.width;
+                canvasTemp.height = img.height;
+                ctxTemp.translate(img.width, 0);
+                ctxTemp.scale(-1, 1);
+                ctxTemp.drawImage(img, 0, 0);
+                const flipped = new Image();
+                flipped.src = canvasTemp.toDataURL();
+                npcRollLeft[i] = flipped;
+            }
+        });
+
+        // --- frame idle NPC ---
+        npcIdleRight.src = 'assets/frameJx.svg';
+        npcIdleRight.onload = () => {
+            const canvasTemp = document.createElement('canvas');
+            canvasTemp.width = npcIdleRight.width;
+            canvasTemp.height = npcIdleRight.height;
+            const ctxTemp = canvasTemp.getContext('2d');
+            ctxTemp.translate(npcIdleRight.width, 0);
+            ctxTemp.scale(-1, 1);
+            ctxTemp.drawImage(npcIdleRight, 0, 0);
+            npcIdleLeft.src = canvasTemp.toDataURL();
+        }
+
+        // =========================
+        // --- NPC update completo ---
+        // =========================
+        function updateNPC(npc) {
+            if (!npc) return;
+
+            const gravity = 0.5;
+            const speed = npc.speed || 2;
+            const floorY = canvas.height - npc.height;
+
+            // --- Gravità iniziale ---
+            npc.onGround = false;
+
+            // Costruiamo tutte le superfici come per il player
+            let allSurfaces = [...levels[currentLevelIndex].platforms];
+
+            let ignorePlatIndex = -1;
+
+            // Controllo trapdoor sotto l'NPC
+            if (levels[currentLevelIndex].trapdoors) {
+                for (let trap of levels[currentLevelIndex].trapdoors) {
+                    const platform = allSurfaces[trap.platformIndex];
+                    if (!platform) continue;
+
+                    const npcBottom = npc.y + npc.height;
+                    const npcTop = npc.y;
+                    const npcRight = npc.x + npc.width;
+                    const npcLeft = npc.x;
+
+                    const trapLeft = trap.x;
+                    const trapRight = trap.x + trap.width;
+                    const trapY = platform.y;
+                    const trapHeight = trap.height || platform.height;
+
+                    const aboveTrapdoor =
+                        npcBottom > trapY &&
+                        npcTop < trapY + trapHeight &&
+                        npcRight > trapLeft &&
+                        npcLeft < trapRight;
+
+                    if (aboveTrapdoor && trap.open) {
+                        ignorePlatIndex = trap.platformIndex;
+                    }
+                }
+            }
+
+            // Collisioni piattaforme e trapdoors (verticale e orizzontale)
+            for (let i = 0; i < allSurfaces.length; i++) {
+                let plat = allSurfaces[i];
+
+                // Salta piattaforme solid in caso di NPC accovacciato (se previsto)
+                if (plat.type === 'solid' && npc.isCrouching) continue;
+
+                // Collisione verticale
+                if (i !== ignorePlatIndex) {
+                    if (
+                        npc.x + npc.width > plat.x &&
+                        npc.x < plat.x + plat.width &&
+                        npc.y + npc.height > plat.y &&
+                        npc.y + npc.height < plat.y + plat.height &&
+                        npc.dy >= 0
+                    ) {
+                        npc.y = plat.y - npc.height;
+                        npc.dy = 0;
+                        npc.onGround = true;
+                    }
+                }
+
+                // Collisione orizzontale
+                if (
+                    npc.y + npc.height > plat.y &&
+                    npc.y < plat.y + plat.height
+                ) {
+                    if (npc.dx > 0 && npc.x + npc.width > plat.x && npc.x < plat.x)
+                        npc.x = plat.x - npc.width;
+                    if (npc.dx < 0 && npc.x < plat.x + plat.width && npc.x + npc.width > plat.x + plat.width)
+                        npc.x = plat.x + plat.width;
+                }
+            }
+
+            // Gravità se non su piattaforma
+            if (!npc.onGround) {
+                npc.dy = (npc.dy || 0) + gravity;
+                npc.y += npc.dy;
+                if (npc.y >= floorY) {
+                    npc.y = floorY;
+                    npc.dy = 0;
+                    npc.onGround = true;
+                }
+            }
+
+            // --- Movimento verso il player ---
+            const dx = (player.x + player.width / 2) - (npc.x + npc.width / 2);
+            const distance = Math.abs(dx);
+            const closeDistance = 90;
+            if (distance <= closeDistance) {
+                npc.facingRight = dx > 0;
+                const safeDistanceX = 40;
+                if (distance > safeDistanceX) {
+                    npc.dx = dx > 0 ? speed : -speed;
+                    npc.state = 'walk';
+                } else {
+                    npc.dx = 0;
+                    npc.state = 'idle';
+                }
+            } else {
+                npc.dx = dx > 0 ? speed : -speed;
+                npc.facingRight = npc.dx > 0;
+                npc.state = 'walk';
+            }
+
+            // --- Movimento con collisione porte ---
+            let nextX = npc.x + npc.dx;
+            for (let door of levels[currentLevelIndex].doors) {
+                if (!door.isOpen) {
+                    const verticalOverlap = npc.y + npc.height > door.y + 2 && npc.y < door.y + door.height - 2;
+                    const willCollide =
+                        nextX < door.x + door.width &&
+                        nextX + npc.width > door.x &&
+                        verticalOverlap;
+                    if (willCollide) {
+                        if (npc.dx > 0) nextX = door.x - npc.width;
+                        else if (npc.dx < 0) nextX = door.x + door.width;
+                        npc.dx = 0;
+                    }
+                }
+            }
+            npc.x = nextX;
+
+            // --- Aggiornamento animazione ---
+            npc.frameCounter = (npc.frameCounter || 0) + 1;
+            if (npc.frameCounter >= 5) {
+                if (npc.state === 'walk') {
+                    npc.frameIndex = (npc.frameIndex + 1) % npcFramesRight.length;
+                } else {
+                    npc.frameIndex = 0;
+                }
+                npc.frameCounter = 0;
+            }
+        }
+
+        // =========================
+        // --- NPC draw ---
+        // =========================
+        function drawNPC(npc) {
+            if (!npc) return;
+
+            let frame;
+            switch (npc.state) {
+                case 'walk':
+                    frame = npc.facingRight ? npcFramesRight[npc.frameIndex] : npcFramesLeft[npc.frameIndex];
+                    break;
+                case 'sayHello':
+                    frame = npc.facingRight ? sayHelloFramesRight[0] : sayHelloFramesLeft[0];
+                    break;
+                default:
+                    frame = npc.facingRight ? npcFramesRight[0] : npcFramesLeft[0];
+            }
+
+            if (frame && frame.complete) {
+                ctx.drawImage(frame, npc.x, npc.y, npc.width, npc.height);
+            }
+        }
+        // --- Animazione morte ---
+        const deathLetters = ['XX', 'YY']; // qui puoi aggiungere tutti i frame della morte
+        const deathFramesRight = [];
+        const deathFramesLeft = [];
+        let deathFrameIndex = 0;
+        let deathFrameCounter = 0;
+        let isDead = false;
+
+        deathLetters.forEach((letter, i) => {
+            const img = new Image();
+            img.src = `assets/frame${letter}.svg`;
+            deathFramesRight[i] = img;
+
+            img.onload = () => {
+                const canvasTemp = document.createElement('canvas');
+                canvasTemp.width = img.width;
+                canvasTemp.height = img.height;
+                const ctxTemp = canvasTemp.getContext('2d');
+
+                ctxTemp.translate(img.width, 0);
+                ctxTemp.scale(-1, 1);
+                ctxTemp.drawImage(img, 0, 0);
+
+                const flipped = new Image();
+                flipped.src = canvasTemp.toDataURL();
+                deathFramesLeft[i] = flipped;
+            };
+        });
+        const pushButtonFramesRight = [];
+        const pushButtonFramesLeft = [];
+
+        const pushButtonLetters = ['P', 'Q', 'R', 'R', 'S'];
+
+        let pushButtonFrameIndex = 0;
+        let pushButtonFrameCounter = 0;
+        let isPushingButton = false;
+
+        pushButtonLetters.forEach((letter, i) => {
+            const img = new Image();
+            img.src = `assets/frame${letter}.svg`;
+            pushButtonFramesRight[i] = img;
+
+            // flip orizzontale
+            img.onload = () => {
+                const canvasTemp = document.createElement('canvas');
+                canvasTemp.width = img.width;
+                canvasTemp.height = img.height;
+                const ctxTemp = canvasTemp.getContext('2d');
+
+                ctxTemp.translate(img.width, 0);
+                ctxTemp.scale(-1, 1);
+                ctxTemp.drawImage(img, 0, 0);
+
+                const flipped = new Image();
+                flipped.src = canvasTemp.toDataURL();
+                pushButtonFramesLeft[i] = flipped;
+            };
+        });
+        const climbFramesRight = [], climbFramesLeft = [];
+        const climbLetters = ['C', 'D', 'E', 'F', 'G', 'H'];
+        climbLetters.forEach((letter, i) => {
+            const img = new Image();
+            img.src = `assets/frame${letter}.svg`;
+            climbFramesRight[i] = img;
+
+            img.onload = () => {
+                const canvasTemp = document.createElement('canvas');
+                canvasTemp.width = img.width;
+                canvasTemp.height = img.height;
+                const ctxTemp = canvasTemp.getContext('2d');
+                ctxTemp.translate(img.width, 0);
+                ctxTemp.scale(-1, 1);
+                ctxTemp.drawImage(img, 0, 0);
+                const flipped = new Image();
+                flipped.src = canvasTemp.toDataURL();
+                climbFramesLeft[i] = flipped;
+            }
+        });
+        let climbFrameIndex = 0;
+        let climbFrameCounter = 0;
+        let onLadder = false;
+        const framesRight = [], framesLeft = [];
+        const jumpFrameRight = new Image(), jumpFrameLeft = new Image();
+        const pullLeverRight = [], pullLeverLeft = [];
+        const rollFramesRight = [], rollFramesLeft = [];
+        let rollFrameIndex = 0; let rollFrameCounter = 0;
+        const rollIdleRight = new Image(), rollIdleLeft = new Image();
+        let currentFrame = 0, frameCounter = 0;
+        let isPullingLever = false, leverFrame = 0, leverCounter = 0, activeLever = null;
+        let deathParticles = [];
+        // --- Carica animazioni movimento --- 
+        for (let i = 0; i <= 9; i++) {
+            loadFrame(`frame${i}`, framesRight, framesLeft, i);
+        }
+
+        // --- Carica frame salto ---
+        jumpFrameRight.src = 'assets/frameA.svg';
+        jumpFrameRight.onload = () => {
+            const c = document.createElement('canvas');
+            c.width = jumpFrameRight.width;
+            c.height = jumpFrameRight.height;
+            const ctxTemp = c.getContext('2d');
+            ctxTemp.translate(jumpFrameRight.width, 0);
+            ctxTemp.scale(-1, 1);
+            ctxTemp.drawImage(jumpFrameRight, 0, 0);
+            jumpFrameLeft.src = c.toDataURL();
+        }
+
+        // --- Carica animazioni leva ---
+        const leverFrames = ['V', 'W', 'X', 'Y', 'Z'];
+        leverFrames.forEach((letter, i) => {
+            const img = new Image();
+            img.src = `assets/frame${letter}.svg`;
+            pullLeverRight[i] = img;
+
+            const flipped = new Image();
+            img.onload = () => {
+                const c = document.createElement('canvas');
+                c.width = img.width;
+                c.height = img.height;
+                const ct = c.getContext('2d');
+                ct.translate(c.width, 0);
+                ct.scale(-1, 1);
+                ct.drawImage(img, 0, 0);
+                flipped.src = c.toDataURL();
+            }
+            pullLeverLeft[i] = flipped;
+        });
+
+        // --- Carica frame rotolata ---
+        const rollFrameLetters = ['K', 'L', 'M', 'N'];
+        rollFrameLetters.forEach((letter, i) => {
+            const img = new Image();
+            img.src = `assets/frame${letter}.svg`;
+            rollFramesRight[i] = img;
+
+            const canvasTemp = document.createElement('canvas');
+            const ctxTemp = canvasTemp.getContext('2d');
+            img.onload = () => {
+                canvasTemp.width = img.width;
+                canvasTemp.height = img.height;
+                ctxTemp.translate(img.width, 0);
+                ctxTemp.scale(-1, 1);
+                ctxTemp.drawImage(img, 0, 0);
+                const flipped = new Image();
+                flipped.src = canvasTemp.toDataURL();
+                rollFramesLeft[i] = flipped;
+            }
+        });
+        rollIdleRight.src = 'assets/frameJ.svg';
+        rollIdleRight.onload = () => {
+            const canvasTemp = document.createElement('canvas');
+            canvasTemp.width = rollIdleRight.width;
+            canvasTemp.height = rollIdleRight.height;
+            const ctxTemp = canvasTemp.getContext('2d');
+            ctxTemp.translate(rollIdleRight.width, 0);
+            ctxTemp.scale(-1, 1);
+            ctxTemp.drawImage(rollIdleRight, 0, 0);
+            rollIdleLeft.src = canvasTemp.toDataURL();
+        }
+
+        function loadFrame(frameName, rightArray, leftArray, index = 0) {
+            const img = new Image();
+            img.src = `assets/${frameName}.svg`; // default, nessuna "x"
+            rightArray[index] = img;
+
+            img.onload = () => {
+                const canvasTemp = document.createElement('canvas');
+                canvasTemp.width = img.width;
+                canvasTemp.height = img.height;
+                const ctxTemp = canvasTemp.getContext('2d');
+                ctxTemp.translate(img.width, 0);
+                ctxTemp.scale(-1, 1);
+                ctxTemp.drawImage(img, 0, 0);
+                const imgFlipped = new Image();
+                imgFlipped.src = canvasTemp.toDataURL();
+                leftArray[index] = imgFlipped;
+            };
+        }
+
+        // Funzione generica per caricare frame NPC con "x"
+        function loadNPCFrame(frameName, rightArray, leftArray, index = 0) {
+            const img = new Image();
+            img.src = `assets/${frameName}x.svg`; // aggiunge automaticamente la "x"
+            rightArray[index] = img;
+
+            img.onload = () => {
+                const canvasTemp = document.createElement('canvas');
+                canvasTemp.width = img.width;
+                canvasTemp.height = img.height;
+                const ctxTemp = canvasTemp.getContext('2d');
+                ctxTemp.translate(img.width, 0);
+                ctxTemp.scale(-1, 1);
+                ctxTemp.drawImage(img, 0, 0);
+                const flipped = new Image();
+                flipped.src = canvasTemp.toDataURL();
+                leftArray[index] = flipped;
+            };
+        }
+
+        // --- Esempio di caricamento ---
+        for (let i = 0; i <= 9; i++) loadNPCFrame(`frame${i}`, npcFramesRight, npcFramesLeft, i);
+        /* loadNPCFrame('frameSh', sayHelloFramesRight, sayHelloFramesLeft, 0); // sayHello
+        ['XX', 'YY'].forEach((letter, i) => loadNPCFrame(`frame${letter}`, deathFramesRight, deathFramesLeft, i)); // morte
+ */
+        function spawnDeathParticles(x, y) {
+            for (let i = 0; i < 15; i++) { // 15 schizzi
+                deathParticles.push({
+                    x: x + player.width / 2,
+                    y: y + player.height / 2,
+                    dx: (Math.random() - 0.5) * 5, // velocità orizzontale casuale
+                    dy: (Math.random() - 1) * 5,   // velocità verticale casuale
+                    size: Math.random() * 4 + 2,   // dimensione variabile
+                    alpha: 1                        // trasparenza
+                });
+            }
+        }
+        function drawDeathParticles() {
+            deathParticles.forEach((p, i) => {
+                ctx.fillStyle = `rgba(200,0,0,${p.alpha})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Movimento particelle
+                p.x += p.dx;
+                p.y += p.dy;
+                p.dy += 0.2; // gravità
+                p.alpha -= 0.03; // dissolvenza
+
+                if (p.alpha <= 0) deathParticles.splice(i, 1);
+            });
+        }
+        function advanceFrame() {
+            frameCounter++;
+            if (frameCounter >= 5) {
+                currentFrame++;
+                if (currentFrame >= framesRight.length) currentFrame = 0;
+                frameCounter = 0;
+            }
+        }
+        function toggleDoors(activeTriggers) {
+            const level = levels[currentLevelIndex];
+            if (!level.doors) return;
+
+            level.doors.forEach(door => {
+                if (!door.triggers || door.triggers.length === 0) return;
+
+                if (door.mode === "AND") {
+                    door.open = door.triggers.every(t => activeTriggers.includes(t));
+                } else {
+                    door.open = door.triggers.some(t => activeTriggers.includes(t));
+                }
+            });
+        }
+
+        function toggleTrapdoors(targetIds, button = null) {
+            const level = levels[currentLevelIndex];
+            level?.trapdoors?.forEach(trap => {
+                if (targetIds && targetIds.includes(trap.id)) {
+                    if (button && button.mode === "TRICOLOR") {
+                        // esempio: stato 1 = apri, stato 2 = chiudi
+                        trap.open = (button.state === 1);
+                        trap.targetAngle = trap.open ? 90 : 0;
+                    } else {
+                        trap.open = !trap.open;
+                        trap.targetAngle = trap.open ? 90 : 0;
+                    }
+                }
+            });
+        }
+
+        // =========================
+        // --- Funzioni ausiliarie ---
+        // =========================
+        function getCurrentPlatforms() {
+            return levels[currentLevelIndex].platforms;
+        }
+        function getCurrentLadders() {
+            return levels[currentLevelIndex].ladders || [];
+        }
+        function drawDoors() {
+            const level = levels[currentLevelIndex];
+            if (!level.doors) return;
+
+            const platforms = getCurrentPlatforms();
+
+            level.doors.forEach(door => {
+                const platform = platforms[door.platformIndex];
+                const doorY = platform ? platform.y - door.height : door.y;
+
+                if (door.open) {
+                    ctx.drawImage(doorOpenImg, door.x, doorY, door.width, door.height);
+                } else {
+                    ctx.drawImage(doorClosedImg, door.x, doorY, door.width, door.height);
+
+                }
+            });
+        }
+
+        function drawLadders() {
+            const ladders = getCurrentLadders();
+            const platforms = getCurrentPlatforms();
+
+            if (!ladders) return;
+
+            ladders.forEach(l => {
+                const platform = platforms[l.platformIndex];
+                if (!platform) return;
+
+                const ladderTop = platform.y - 60;      // parte dalla piattaforma
+                l.top = ladderTop;
+                const ladderHeight = l.height;     // scende verso il basso
+
+                if (ladderImg.complete) {
+                    const size = l.width;
+                    let yPos = ladderTop;
+                    const repetitions = Math.ceil(ladderHeight / size);
+
+                    for (let i = 0; i < repetitions; i++) {
+                        ctx.drawImage(ladderImg, l.x, yPos, size, size);
+                        yPos += size;
+                    }
+                } else {
+                    // fallback debug
+                    ctx.fillStyle = "red";
+                    ctx.fillRect(l.x, ladderTop, l.width, ladderHeight);
+                }
+            });
+        }
+
+        function drawSpikes() {
+            const level = levels[currentLevelIndex];
+            if (!level.spikes) return;
+
+            const platforms = getCurrentPlatforms();
+
+            level.spikes.forEach(spike => {
+                const platform = platforms[spike.platformIndex];
+                const spikeY = platform.y; // sopra piattaforma
+
+                ctx.fillStyle = "gray";
+                ctx.beginPath();
+
+                const step = spike.width / 4;
+
+                for (let i = 0; i < 4; i++) {
+                    ctx.moveTo(spike.x + i * step, spikeY + spike.height - spikeOffset);
+                    ctx.lineTo(spike.x + (i + 0.5) * step, spikeY - spikeOffset);
+                    ctx.lineTo(spike.x + (i + 1) * step, spikeY + spike.height - spikeOffset);
+                }
+
+                ctx.fill();
+            });
+        }
+
+        function drawTrapdoor(trap) {
+            const platforms = getCurrentPlatforms();
+            const platform = platforms[trap.platformIndex];
+            const trapY = platform.y; // appoggiata alla piattaforma
+
+            ctx.save();
+
+            ctx.translate(trap.x, trapY);
+            ctx.rotate(trap.angle * Math.PI / 180);
+
+            const size = 20;
+            const repetitionsX = Math.ceil(trap.width / size);
+            const repetitionsY = Math.ceil(trap.height / size);
+
+            if (trapdoorImg && trapdoorImg.complete) {
+                for (let i = 0; i < repetitionsY; i++) {
+                    for (let j = 0; j < repetitionsX; j++) {
+                        ctx.drawImage(trapdoorImg, j * size, i * size, size, size);
+                    }
+                }
+            } else {
+                ctx.fillStyle = trap.open ? "#654321" : "#8B4513";
+                ctx.fillRect(0, 0, trap.width, trap.height);
+            }
+
+            ctx.restore();
+        }
+
+        function drawLever(lever) {
+            const platform = getCurrentPlatforms()[lever.platformIndex];
+            const baseY = platform.y;
+            const height = 30;
+            const x = lever.x, y = baseY - height;
+
+            // base
+            ctx.beginPath();
+            ctx.fillStyle = "black";
+            ctx.arc(x + 10, baseY, 10, Math.PI, 0);
+            ctx.fill();
+
+            // asta con rotazione
+            ctx.save();
+            ctx.translate(x + 10, baseY);
+            ctx.rotate(lever.angle * Math.PI / 180);
+            ctx.fillStyle = "brown";
+            ctx.fillRect(-2, -height, 4, height);
+
+            // maniglia
+            ctx.beginPath();
+            ctx.fillStyle = "red";
+            ctx.arc(0, -height, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+        function getLadderTop(ladder) {
+            const platforms = getCurrentPlatforms();
+            const platform = platforms[ladder.platformIndex];
+            if (!platform) return 0; // fallback
+            return platform.y; // base piattaforma
+        }
+        function findPlatformByHeight(y) {
+            const platforms = getCurrentPlatforms(); // tutte le piattaforme attuali
+
+            for (let i = 0; i < platforms.length; i++) {
+                const plat = platforms[i];
+
+                // Consideriamo solo piattaforme solide
+                /* if (plat.type !== 'solid') continue; */
+
+                // Controlla se il punto y è all'interno della piattaforma
+                if (y >= plat.y && y <= plat.y + plat.height) {
+                    return i; // ritorna l'indice della piattaforma
+                }
+            }
+
+            return -1; // nessuna piattaforma trovata
+        }
+
+        let ladderSoundPlaying = false; // fuori dall'update, mantiene stato suoni scale
+
+        function update() {
+            const level = levels[currentLevelIndex];
+            const platforms = getCurrentPlatforms();
+
+            // =========================
+            // --- Say Hello NPC ---
+            // =========================
+            if (sayHelloTimer > 0) {
+                imgToDraw = facingRight ? sayHelloFramesRight[0] : sayHelloFramesLeft[0];
+                if (sayHelloTimer === 60 && level.npcs) {
+                    level.npcs.forEach(npc => {
+                        const dx = (player.x + player.width / 2) - (npc.x + npc.width / 2);
+                        const dy = (player.y + player.height / 2) - (npc.y + npc.height / 2);
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < 80) {
+                            npc.facingRight = dx > 0;
+                            npc.sayHelloTimer = 60;
+                        }
+                    });
+                }
+                sayHelloTimer--;
+                if (sayHelloTimer <= 0) currentFrame = 0;
+            }
+
+            // =========================
+            // --- Controllo scale ---
+            // =========================
+            onLadder = false;
+            const ladders = getCurrentLadders();
+            for (let ladder of ladders) {
+                const platform = platforms[ladder.platformIndex];
+                if (!platform) continue;
+
+                const ladderTop = ladder.top;
+                const ladderBottom = ladderTop + ladder.height;
+                const playerTop = player.y;
+                const playerBottom = player.y + player.height;
+
+                if (playerBottom > ladderTop && playerTop < ladderBottom &&
+                    player.x + player.width > ladder.x && player.x < ladder.x + ladder.width) {
+                    onLadder = true;
+                    player.dy = 0; // disabilita gravità verticale solo per scalare
+                }
+
+                if (!onLadder) continue;
+
+                let movingOnLadder = false;
+                if (keys.up) { player.y -= player.speed; movingOnLadder = true; }
+                if (keys.down) { player.y += player.speed; movingOnLadder = true; }
+
+                break;
+            }
+
+            // =========================
+            // --- Gravità e salto ---
+            // =========================
+            if (!onLadder) {
+                player.dy += gravity;
+                player.y += player.dy;
+
+                if (jumpPressed && player.onGround && !isCrouching) {
+                    player.dy = -player.jumpForce;
+                    resetSounds()
+                    soundPlay('jump')
+                }
+            }
+
+            // =========================
+            // --- Movimento orizzontale e rotolata ---
+            // =========================
+            player.dx = 0;
+            if (!isPullingLever && !isPushingButton) { // solo blocco X se animazione leva/pulsante
+                if (keys.left) { player.dx = -player.speed; advanceFrame(); facingRight = false; }
+                if (keys.right) { player.dx = player.speed; advanceFrame(); facingRight = true; }
+            }
+            player.x += player.dx;
+
+            if (isCrouching && player.dx != 0) {
+                rollFrameCounter++;
+                if (rollFrameCounter >= 5) {
+                    rollFrameIndex++;
+                    if (rollFrameIndex >= rollFramesRight.length) rollFrameIndex = 0;
+                    rollFrameCounter = 0;
+                }
+            } else { rollFrameIndex = 0; }
+
+
+            if (isCrouching) {
+                resetSounds()
+                soundPlay('ladder')
+            } else if (isPushingButton) {
+                resetSounds()
+                soundPlay('button')
+            } else if (isPullingLever) {
+                resetSounds()
+                soundPlay('lever')
+            }
+            // =========================
+            // --- Interazioni leve / pulsanti ---
+            // =========================
+            if (!onLadder && keys.interact) {
+                // --- Leva ---
+                if (!isPullingLever && level.lever) {
+                    const lever = level.lever;
+                    const platform = platforms[lever.platformIndex];
+                    const dx = Math.abs((player.x + player.width / 2) - (lever.x + lever.width / 2));
+                    const dy = Math.abs((player.y + player.height) - platform.y);
+
+                    if (dx < 50 && dy < 20) {
+                        isPullingLever = true;
+                        leverFrame = 0;
+                        leverCounter = 0;
+                        activeLever = lever;
+
+                        // --- usa l'angle reale della leva come punto di partenza ---
+                        activeLever.angle = lever.angle;
+
+                        // --- CASISTICA LEVA ---
+                        // Determina il target in base al tipo di leva
+                        let targetAngle;
+                        if (lever.mode === "HOLD") {
+                            // HOLD → il player tira la leva e resta nella nuova posizione
+                            targetAngle = -activeLever.angle;
+                        } else if (lever.mode === "TOGGLE") {
+                            // TOGGLE → il player tira la leva e tornerà dopo un breve delay
+                            targetAngle = -activeLever.angle;
+                            activeLever.returnDelay = 100; // ms prima di tornare alla posizione originale
+                        }
+                        activeLever._currentTarget = targetAngle; // proprietà temporanea per animazione
+                        // Determina lato in base all'angolo della leva
+                        // Angle negativo → leva punta a sinistra → il player sta a destra
+                        // Angle positivo → leva punta a destra → il player sta a sinistra
+                        const leverCenterX = (lever.x - 15) + lever.width / 2;
+                        const offsetX = 20;
+                        console.log(player.x)
+
+                        if (activeLever.angle < 0) {
+                            // leva punta a sinistra → player a destra
+                            player.x = leverCenterX + offsetX;
+                            facingRight = false;
+                        } else {
+                            // leva punta a destra → player a sinistra
+                            player.x = leverCenterX - player.width - offsetX;
+                            facingRight = true;
+                        }
+
+                        // Allinea il player alla piattaforma
+                        player.y = platform.y - player.height;
+
+                        keys.interact = false;
+                        console.log("Lever triggered:", activeLever);
+                        return;
+                    }
+                }
+
+                // --- Pulsanti ---
+                if (!isPushingButton && level.buttons) {
+                    for (let button of level.buttons) {
+                        const platform = platforms[button.platformIndex];
+                        const dx = Math.abs((player.x + player.width / 2) - (button.x + button.width / 2));
+                        const dy = Math.abs((player.y + player.height) - platform.y);
+                        if (dx < 50 && dy < 60) {
+                            isPushingButton = true;
+                            pushButtonFrameIndex = 0;
+                            pushButtonFrameCounter = 0;
+                            activeButton = button;
+
+                            // Posizione player solo X
+                            player.x = facingRight ? button.x - player.width + 10 : button.x + button.width - 10;
+                            player.dx = 0;
+
+                            keys.interact = false;
+                            console.log("Button triggered:", activeButton);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // ========================= 
+            // --- Animazione leva ---
+            // =========================
+            if (isPullingLever && activeLever) {
+
+                leverCounter++;
+                if (leverCounter >= 5) { leverFrame++; leverCounter = 0; }
+
+                // progress da 0 a 1
+                let progress = Math.min(leverFrame / pullLeverRight.length, 1);
+
+                // calcola angolo dinamico verso il target temporaneo
+                activeLever.angle = activeLever.angle + (activeLever._currentTarget - activeLever.angle) * progress;
+
+                // Fine animazione principale
+                if (leverFrame >= pullLeverRight.length) {
+                    isPullingLever = false;
+                    leverFrame = 0;
+
+                    if (activeLever.mode === "TOGGLE") {
+                        // TOGGLE: salva riferimenti locali
+                        const lever = activeLever;
+                        const returnDelay = lever.returnDelay || 500;
+                        const startAngle = lever.angle; // angolo finale della leva
+                        const leverTargets = lever.targets;
+
+                        // La leva tornerà dopo delay
+                        setTimeout(() => {
+                            lever.angle = -startAngle; // torna indietro
+                            if (leverTargets) toggleTrapdoors(leverTargets);
+                            console.log("TOGGLE lever returned:", lever);
+                        }, returnDelay);
+
+                        // Non azzerare subito activeLever, resta valido fino al ritorno
+                    }
+                    else if (activeLever.mode === "HOLD") {
+                        // HOLD: salva l'angolo finale
+                        activeLever.angle = activeLever._currentTarget;
+                        if (activeLever.targets) toggleTrapdoors(activeLever.targets);
+                        console.log("HOLD lever finished:", activeLever);
+
+                        // Ora possiamo liberare activeLever
+                        activeLever = null;
+                    }
+                }
+            }
+
+            // =========================
+            // --- Animazione pulsante ---
+            // =========================
+            if (isPushingButton && activeButton) {
+
+                pushButtonFrameCounter++;
+                if (pushButtonFrameCounter >= 5) {
+                    pushButtonFrameIndex++;
+                    pushButtonFrameCounter = 0;
+
+                    if (pushButtonFrameIndex >= pushButtonFramesRight.length) {
+                        isPushingButton = false;
+                        pushButtonFrameIndex = 0;
+
+                        if (activeButton) {
+                            applyButtonEffect(activeButton);
+                            activeButton = null;
+                        }
+                    }
+                }
+            }
+
+            // =========================
+            // --- Collisioni piattaforme e botole ---
+            // =========================
+            player.onGround = false;
+
+            let allSurfaces = [...platforms];
+            if (level.trapdoors) level.trapdoors.forEach(t => t.angle += (t.targetAngle - t.angle) * 0.2);
+
+            let ignorePlatIndex = -1; // indice della piattaforma da ignorare in verticale
+
+            // Controllo trapdoor sotto il player
+            if (level.trapdoors) {
+                for (let trap of level.trapdoors) {
+                    const platform = platforms[trap.platformIndex];
+                    if (!platform) continue;
+
+                    const playerBottom = player.y + player.height;
+                    const playerTop = player.y;
+                    const playerRight = player.x + player.width;
+                    const playerLeft = player.x;
+
+                    const trapLeft = trap.x;
+                    const trapRight = trap.x + trap.width;
+                    const trapY = platform.y;
+                    const trapHeight = trap.height || platform.height;
+
+                    const aboveTrapdoor =
+                        playerBottom > trapY &&
+                        playerTop < trapY + trapHeight &&
+                        playerRight > trapLeft &&
+                        playerLeft < trapRight;
+
+                    if (aboveTrapdoor && trap.open) {
+                        // ignora collisione verticale solo con questa piattaforma
+                        ignorePlatIndex = trap.platformIndex;
+                    }
+                }
+            }
+
+            // Collisioni piattaforme
+            for (let i = 0; i < allSurfaces.length; i++) {
+                let plat = allSurfaces[i];
+
+                if (plat.type === 'solid' && isCrouching) continue;
+
+                // Collisione verticale
+                if (i !== ignorePlatIndex) {
+                    if (
+                        player.x + player.width > plat.x &&
+                        player.x < plat.x + plat.width &&
+                        player.y + player.height > plat.y &&
+                        player.y + player.height < plat.y + plat.height &&
+                        player.dy >= 0
+                    ) {
+                        player.y = plat.y - player.height;
+                        player.dy = 0;
+                        player.onGround = true;
+                    }
+                }
+
+                // Collisione orizzontale
+                if (
+                    player.y + player.height > plat.y &&
+                    player.y < plat.y + plat.height
+                ) {
+                    if (player.dx > 0 && player.x + player.width > plat.x && player.x < plat.x)
+                        player.x = plat.x - player.width;
+                    if (player.dx < 0 && player.x < plat.x + plat.width && player.x + player.width > plat.x + plat.width)
+                        player.x = plat.x + plat.width;
+                }
+            }
+
+            // =========================
+            // --- Collisioni spike ---
+            // =========================
+            if (level.spikes) {
+                level.spikes.forEach(spike => {
+                    if (spike.active && player.x + player.width > spike.x && player.x < spike.x + spike.width &&
+                        player.y < 300 && player.y > 280) deathOfPlayer();
+                });
+            }
+
+            // =========================
+            // --- Porte & trigger ---
+            // =========================
+            let activeTriggers = [];
+            if (level.lever && level.lever.active && level.lever.targets) activeTriggers.push(...level.lever.targets);
+            if (level.buttons) level.buttons.forEach(b => { if (b.pressed && b.targets) activeTriggers.push(...b.targets); });
+            if (level.trapdoors) level.trapdoors.forEach(t => { if (t.open) activeTriggers.push(t.id); });
+            toggleDoors(activeTriggers);
+
+            // =========================
+            // --- Cambio livello & limiti ---
+            // =========================
+            if (player.dx > 0 && player.x + player.width >= canvas.width) {
+                if (currentLevelIndex < levels.length - 1) { currentLevelIndex++; player.x = 5; player.y = levels[currentLevelIndex].platforms[0].y - player.height; }
+                else player.x = canvas.width - player.width;
+            }
+            if (player.dx < 0 && player.x <= 0) {
+                if (currentLevelIndex > 0) { currentLevelIndex--; player.x = canvas.width - player.width - 5; player.y = levels[currentLevelIndex].platforms[0].y - player.height; }
+                else player.x = 0;
+            }
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+            if (player.y < 0) player.y = 0;
+            if (player.y + player.height > canvas.height) player.y = canvas.height - player.height;
+        }
+
+
+        function deathOfPlayer() {
+            if (player.dead) return;
+            player.dead = true;
+
+            // Ferma il movimento
+            player.dx = 0;
+            player.dy = 0;
+
+            // Genera particelle rosse
+            spawnDeathParticles(player.x, player.y);
+
+            // Imposta frame morte
+            imgToDraw = facingRight ? deathFramesRight[0] : deathFramesLeft[0];
+        }
+
+        // =========================
+        // --- Draw ---
+        // =========================
+        function drawButton(button) {
+            const platform = getCurrentPlatforms()[button.platformIndex];
+            const baseY = platform.y - 60;
+            const radius = 5; // arrotondamento bordi quadrati
+            const palettoHeight = button.height / 2; // altezza paletto
+            const palettoWidth = button.width / 2;
+            const palettoX = button.x + button.width / 4;
+            const palettoY = baseY - palettoHeight;
+
+            // --- Paletto ---
+            ctx.fillStyle = "#2E8B57"; // verde scuro
+            ctx.fillRect(palettoX, palettoY, palettoWidth, palettoHeight);
+
+            // --- Corpo pulsante sopra il paletto ---
+            const buttonTop = palettoY - button.height;
+            const buttonBottom = palettoY;
+
+            if (button.mode === "TRICOLOR") {
+                // quadrato arrotondato
+                ctx.fillStyle = ["gray", "red", "#32CD32"][button.state || 0];
+                ctx.beginPath();
+                ctx.moveTo(button.x + radius, buttonTop);
+                ctx.lineTo(button.x + button.width - radius, buttonTop);
+                ctx.quadraticCurveTo(button.x + button.width, buttonTop, button.x + button.width, buttonTop + radius);
+                ctx.lineTo(button.x + button.width, buttonBottom - radius);
+                ctx.quadraticCurveTo(button.x + button.width, buttonBottom, button.x + button.width - radius, buttonBottom);
+                ctx.lineTo(button.x + radius, buttonBottom);
+                ctx.quadraticCurveTo(button.x, buttonBottom, button.x, buttonBottom - radius);
+                ctx.lineTo(button.x, buttonTop + radius);
+                ctx.quadraticCurveTo(button.x, buttonTop, button.x + radius, buttonTop);
+                ctx.closePath();
+                ctx.fill();
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = "#000";
+                ctx.stroke();
+            } else {
+                // pulsante tondo
+                ctx.beginPath();
+                if (button.mode === "ON") {
+                    ctx.fillStyle = button.pressed ? "#90EE90" : "#32CD32"; // verde chiaro se premuto
+                } else if (button.mode === "TOGGLE") {
+                    ctx.fillStyle = button.pressed ? "#FF6347" : "#32CD32"; // rosso se premuto, giallo altrimenti
+                }
+                ctx.arc(button.x + button.width / 2, buttonTop + button.height / 2, button.width / 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = "#006400";
+                ctx.stroke();
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = 'green';
+            const platforms = getCurrentPlatforms();
+            const ladders = getCurrentLadders();
+            const level = levels[currentLevelIndex];
+            // =========================
+            // Disegna piattaforme considerando trapdoor
+            // =========================
+            platforms.forEach((p, index) => {
+                const trapdoors = level.trapdoors?.filter(t =>
+                    t.platformIndex === index && t.open
+                ) || [];
+
+                ctx.fillStyle = (p.type === "solid") ? "#333" : "green";
+
+                if (trapdoors.length === 0) {
+                    ctx.fillRect(p.x, p.y, p.width, p.height);
+                    return;
+                }
+
+                trapdoors.sort((a, b) => a.x - b.x);
+
+                let currentX = p.x;
+
+                for (let t of trapdoors) {
+                    const segmentWidth = t.x - currentX;
+
+                    if (segmentWidth > 0) {
+                        ctx.fillRect(currentX, p.y, segmentWidth, p.height);
+                    }
+
+                    currentX = t.x + t.width;
+                }
+
+                const remainingWidth = (p.x + p.width) - currentX;
+
+                if (remainingWidth > 0) {
+                    ctx.fillRect(currentX, p.y, remainingWidth, p.height);
+                }
+            });
+
+
+            if (level.ladders) {
+                level.ladders.forEach(t => drawLadders(t));
+            }
+
+            if (level.doors) {
+                level.doors.forEach(t => drawDoors(t));
+            }
+            // Poi disegna le botole sopra la piattaforma
+            if (level.trapdoors) {
+                level.trapdoors.forEach(t => drawTrapdoor(t));
+            }
+            // Leva
+            if (level.lever) drawLever(level.lever);
+            //botole
+            if (level.trapdoors) {
+                level.trapdoors.forEach(t => drawTrapdoor(t));
+            }
+            //spike
+            if (level.spikes) {
+                level.spikes.forEach(t => drawSpikes(t));
+            }
+            // Pulsanti 
+            if (level.buttons) {
+                level.buttons.forEach(b => drawButton(b));
+            }
+            // Player
+            let imgToDraw;
+
+            // PRIORITÀ: morte, leva, scala, salto, pushButton, rotolata, cammino
+            if (player.dead) {  // nuova condizione per morte
+                // Gestione animazione morte
+                if (!deathFrameCounter) deathFrameCounter = 0;
+                if (!deathFrameIndex) deathFrameIndex = 0;
+
+                deathFrameCounter++;
+                if (deathFrameCounter >= 5) { // velocità animazione
+                    deathFrameIndex++;
+                    deathFrameCounter = 0;
+                    if (deathFrameIndex >= deathFramesRight.length) deathFrameIndex = deathFramesRight.length - 1; // rimane sull'ultimo frame
+                }
+
+                imgToDraw = facingRight
+                    ? deathFramesRight[deathFrameIndex]  // frame XX/YY per destra
+                    : deathFramesLeft[deathFrameIndex];  // frame XX/YY per sinistra
+            } else if (sayHelloTimer > 0) {
+                soundPlay('hello')
+                // Mostra il frame corretto in base alla direzione
+                imgToDraw = facingRight
+                    ? sayHelloFramesRight[0]
+                    : sayHelloFramesLeft[0];
+            } else if (isPullingLever && pullLeverRight[leverFrame]) {
+                imgToDraw = facingRight ? pullLeverRight[leverFrame] : pullLeverLeft[leverFrame];
+            } else if (onLadder) {
+                imgToDraw = facingRight ? climbFramesRight[climbFrameIndex] : climbFramesLeft[climbFrameIndex];
+            } else if (!player.onGround) {
+                imgToDraw = facingRight ? jumpFrameRight : jumpFrameLeft;
+            } else if (isPushingButton) {  // <-- aggiunto qui 
+                imgToDraw = facingRight
+                    ? pushButtonFramesRight[pushButtonFrameIndex]
+                    : pushButtonFramesLeft[pushButtonFrameIndex];
+
+            } else if (isCrouching) {
+                imgToDraw = (player.dx != 0)
+                    ? (facingRight ? rollFramesRight[rollFrameIndex] : rollFramesLeft[rollFrameIndex])
+                    : (facingRight ? rollIdleRight : rollIdleLeft);
+            } else {
+                imgToDraw = facingRight ? framesRight[currentFrame] : framesLeft[currentFrame];
+            }
+
+            // Disegna il player
+            if (imgToDraw) ctx.drawImage(imgToDraw, player.x, player.y, player.width, player.height);
+
+            drawDeathParticles();
+        }
+
+        // =========================
+        // --- Game Loop ---
+        // =========================
+        function gameLoop() {
+            update();       // update player 
+            draw();         // draw player e tutto il resto 
+            if (levels[currentLevelIndex].npcs) {
+                levels[currentLevelIndex].npcs.forEach(npc => {
+                    updateNPC(npc); // <-- qui devi passare l'oggetto npc
+                    drawNPC(npc);
+                });
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Chiama setupActions all’avvio
+        setupActions();
+        gameLoop();
+
+    </script>
+
+</body>
+
+</html>
