@@ -542,22 +542,178 @@
         // --- NPC update completo ---
         // =========================
         function updateNPC(npc) {
-            const level = levels[currentLevelIndex];
-            const platforms = getCurrentPlatforms();
-            const ladders = getCurrentLadders();
+            if (!npc) return;
 
-            handleLadder(npc, platforms, ladders, {}); // input vuoto
-            handleNPCMovement(npc);                   // logica di AI orizzontale / verticale
-            applyGravity(npc, gravity, false);        // salto solo se NPC può
-            npc.x += npc.dx;
-            updateNPCAnimation(npc);
-            const ignorePlatIndex = handleTrapdoorCollisions(npc, platforms, level.trapdoors);
-            const effectivePlatforms = platforms.filter((_, i) => i !== ignorePlatIndex);
-            handlePlatformCollisions(npc, effectivePlatforms);
-            handleSpikeCollisions(npc, platforms, level.spikes);
-            handleTriggers(level);                     // opzionale, se vuoi che NPC apra porte
-            constrainToCanvas(npc, canvas);
+            const gravity = 0.5;
+            const speed = npc.speed || 2;
+            const floorY = canvas.height - npc.height;
+
+            // --- Gravità iniziale ---
+            npc.onGround = false;
+
+            // Costruiamo tutte le superfici come per il player
+            let allSurfaces = [...levels[currentLevelIndex].platforms];
+
+            let ignorePlatIndex = -1;
+
+            // Controllo trapdoor sotto l'NPC
+            if (levels[currentLevelIndex].trapdoors) {
+                for (let trap of levels[currentLevelIndex].trapdoors) {
+                    const platform = allSurfaces[trap.platformIndex];
+                    if (!platform) continue;
+
+                    const npcBottom = npc.y + npc.height;
+                    const npcTop = npc.y;
+                    const npcRight = npc.x + npc.width;
+                    const npcLeft = npc.x;
+
+                    const trapLeft = trap.x;
+                    const trapRight = trap.x + trap.width;
+                    const trapY = platform.y;
+                    const trapHeight = trap.height || platform.height;
+
+                    const aboveTrapdoor =
+                        npcBottom > trapY &&
+                        npcTop < trapY + trapHeight &&
+                        npcRight > trapLeft &&
+                        npcLeft < trapRight;
+
+                    if (aboveTrapdoor && trap.open) {
+                        ignorePlatIndex = trap.platformIndex;
+                    }
+                }
+            }
+
+            // Collisioni piattaforme e trapdoors (verticale e orizzontale)
+            for (let i = 0; i < allSurfaces.length; i++) {
+                let plat = allSurfaces[i];
+
+
+                // Collisione verticale
+                if (i !== ignorePlatIndex) {
+                    if (
+                        npc.x + npc.width > plat.x &&
+                        npc.x < plat.x + plat.width &&
+                        npc.y + npc.height > plat.y &&
+                        npc.y + npc.height < plat.y + plat.height &&
+                        npc.dy >= 0
+                    ) {
+                        npc.y = plat.y - npc.height;
+                        npc.dy = 0;
+                        npc.onGround = true;
+                    }
+                }
+
+                // Collisione orizzontale
+                if (
+                    npc.y + npc.height > plat.y &&
+                    npc.y < plat.y + plat.height
+                ) {
+                    if (npc.dx > 0 && npc.x + npc.width > plat.x && npc.x < plat.x)
+                        npc.x = plat.x - npc.width;
+                    if (npc.dx < 0 && npc.x < plat.x + plat.width && npc.x + npc.width > plat.x + plat.width)
+                        npc.x = plat.x + plat.width;
+                }
+            }
+
+            // Gravità se non su piattaforma
+            if (!npc.onGround) {
+                npc.dy = (npc.dy || 0) + gravity;
+                npc.y += npc.dy;
+                if (npc.y >= floorY) {
+                    npc.y = floorY;
+                    npc.dy = 0;
+                    npc.onGround = true;
+                }
+            }
+
+            // --- Movimento verso il player e stato rotolamento ---
+            const dx = (player.x + player.width / 2) - (npc.x + npc.width / 2);
+            const distance = Math.abs(dx);
+            const closeDistance = 90;
+
+            // Verifica se il player sta rotolando e il NPC è sotto la stessa piattaforma
+            let underLowPlatform = false;
+            for (let plat of levels[currentLevelIndex].platforms) {
+                if (npc.x + npc.width > plat.x &&
+                    npc.x < plat.x + plat.width &&
+                    npc.y + npc.height <= plat.y &&
+                    npc.y + npc.height + 10 >= plat.y // NPC sotto la piattaforma (10px buffer)
+                ) {
+                    underLowPlatform = true;
+                    break;
+                }
+            }
+
+            if (player.isRolling && underLowPlatform) {
+                // NPC rotola
+                npc.state = 'roll';
+                npc.dx = player.x > npc.x ? player.speed || 2 : -(player.speed || 2);
+                npc.facingRight = npc.dx > 0;
+            } else {
+                // Comportamento normale verso il player
+                if (distance <= closeDistance) {
+                    npc.facingRight = dx > 0;
+                    const safeDistanceX = 40;
+                    if (distance > safeDistanceX) {
+                        npc.dx = dx > 0 ? speed : -speed;
+                        npc.state = 'walk';
+                    } else {
+                        npc.dx = 0;
+                        npc.state = 'idle';
+                    }
+                } else {
+                    npc.dx = dx > 0 ? speed : -speed;
+                    npc.facingRight = npc.dx > 0;
+                    npc.state = 'walk';
+                }
+            }
+
+            // --- Movimento con collisione porte ---
+            let nextX = npc.x + npc.dx;
+            for (let door of levels[currentLevelIndex].doors) {
+                if (!door.isOpen) {
+                    const verticalOverlap = npc.y + npc.height > door.y + 2 && npc.y < door.y + door.height - 2;
+                    const willCollide =
+                        nextX < door.x + door.width &&
+                        nextX + npc.width > door.x &&
+                        verticalOverlap;
+                    if (willCollide) {
+                        if (npc.dx > 0) nextX = door.x - npc.width;
+                        else if (npc.dx < 0) nextX = door.x + door.width;
+                        npc.dx = 0;
+                    }
+                }
+            }
+            npc.x = nextX;
+
+            // --- Aggiornamento animazione NPC ---
+            npc.frameCounter = (npc.frameCounter || 0) + 1;
+
+            if (npc.frameCounter >= 5) {
+                if (npc.state === 'walk') {
+                    // Animazione camminata
+                    if (npc.facingRight) {
+                        npc.frameIndex = (npc.frameIndex + 1) % npcFramesRight.length;
+                    } else {
+                        npc.frameIndex = (npc.frameIndex + 1) % npcFramesLeft.length;
+                    }
+                } else if (npc.state === 'roll') {
+                    // Animazione rotolamento
+                    if (npc.facingRight) {
+                        npc.frameIndex = (npc.frameIndex + 1) % npcRollRight.length;
+                    } else {
+                        npc.frameIndex = (npc.frameIndex + 1) % npcRollLeft.length;
+                    }
+                } else {
+                    // Animazione idle
+                    npc.frameIndex = 0;
+                }
+
+                npc.frameCounter = 0;
+            }
         }
+        
         // =========================
         // --- Ottieni NPC vicini al player ---
         // =========================
