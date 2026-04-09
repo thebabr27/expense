@@ -252,7 +252,7 @@
             button: new Audio('assets/sounds/button-click.mp3'),
             lever: new Audio('assets/sounds/lever.mp3'),
             ladder: new Audio('assets/sounds/ladder-steps.mp3'),
-            hello: new Audio('assets/sounds/hello.mp3'),
+            hello: new Audio('assets/sounds/heyy.mp3'),
             jump: new Audio('assets/sounds/jump.mp3'),
             dead: new Audio('assets/sounds/dead.mp3')
         };
@@ -290,7 +290,9 @@
                 case 'Space':
                     if (!player.onLadder) jumpPressed = true;
                     break;
-                case 'KeyA': keys.sayHello = true; break;    // input singolo
+                case 'KeyA':
+                    if (sayHelloTimer <= 0) sayHelloTimer = 60; // 1 secondo di animazione
+                    break;
                 case 'KeyE': keys.interact = true; break;    // input singolo
             }
         });
@@ -540,176 +542,21 @@
         // --- NPC update completo ---
         // =========================
         function updateNPC(npc) {
-            if (!npc) return;
+            const level = levels[currentLevelIndex];
+            const platforms = getCurrentPlatforms();
+            const ladders = getCurrentLadders();
 
-            const gravity = 0.5;
-            const speed = npc.speed || 2;
-            const floorY = canvas.height - npc.height;
-
-            // --- Gravità iniziale ---
-            npc.onGround = false;
-
-            // Costruiamo tutte le superfici come per il player
-            let allSurfaces = [...levels[currentLevelIndex].platforms];
-
-            let ignorePlatIndex = -1;
-
-            // Controllo trapdoor sotto l'NPC
-            if (levels[currentLevelIndex].trapdoors) {
-                for (let trap of levels[currentLevelIndex].trapdoors) {
-                    const platform = allSurfaces[trap.platformIndex];
-                    if (!platform) continue;
-
-                    const npcBottom = npc.y + npc.height;
-                    const npcTop = npc.y;
-                    const npcRight = npc.x + npc.width;
-                    const npcLeft = npc.x;
-
-                    const trapLeft = trap.x;
-                    const trapRight = trap.x + trap.width;
-                    const trapY = platform.y;
-                    const trapHeight = trap.height || platform.height;
-
-                    const aboveTrapdoor =
-                        npcBottom > trapY &&
-                        npcTop < trapY + trapHeight &&
-                        npcRight > trapLeft &&
-                        npcLeft < trapRight;
-
-                    if (aboveTrapdoor && trap.open) {
-                        ignorePlatIndex = trap.platformIndex;
-                    }
-                }
-            }
-
-            // Collisioni piattaforme e trapdoors (verticale e orizzontale)
-            for (let i = 0; i < allSurfaces.length; i++) {
-                let plat = allSurfaces[i];
-
-
-                // Collisione verticale
-                if (i !== ignorePlatIndex) {
-                    if (
-                        npc.x + npc.width > plat.x &&
-                        npc.x < plat.x + plat.width &&
-                        npc.y + npc.height > plat.y &&
-                        npc.y + npc.height < plat.y + plat.height &&
-                        npc.dy >= 0
-                    ) {
-                        npc.y = plat.y - npc.height;
-                        npc.dy = 0;
-                        npc.onGround = true;
-                    }
-                }
-
-                // Collisione orizzontale
-                if (
-                    npc.y + npc.height > plat.y &&
-                    npc.y < plat.y + plat.height
-                ) {
-                    if (npc.dx > 0 && npc.x + npc.width > plat.x && npc.x < plat.x)
-                        npc.x = plat.x - npc.width;
-                    if (npc.dx < 0 && npc.x < plat.x + plat.width && npc.x + npc.width > plat.x + plat.width)
-                        npc.x = plat.x + plat.width;
-                }
-            }
-
-            // Gravità se non su piattaforma
-            if (!npc.onGround) {
-                npc.dy = (npc.dy || 0) + gravity;
-                npc.y += npc.dy;
-                if (npc.y >= floorY) {
-                    npc.y = floorY;
-                    npc.dy = 0;
-                    npc.onGround = true;
-                }
-            }
-
-            // --- Movimento verso il player e stato rotolamento ---
-            const dx = (player.x + player.width / 2) - (npc.x + npc.width / 2);
-            const distance = Math.abs(dx);
-            const closeDistance = 90;
-
-            // Verifica se il player sta rotolando e il NPC è sotto la stessa piattaforma
-            let underLowPlatform = false;
-            for (let plat of levels[currentLevelIndex].platforms) {
-                if (npc.x + npc.width > plat.x &&
-                    npc.x < plat.x + plat.width &&
-                    npc.y + npc.height <= plat.y &&
-                    npc.y + npc.height + 10 >= plat.y // NPC sotto la piattaforma (10px buffer)
-                ) {
-                    underLowPlatform = true;
-                    break;
-                }
-            }
-
-            if (player.isRolling && underLowPlatform) {
-                // NPC rotola
-                npc.state = 'roll';
-                npc.dx = player.x > npc.x ? player.speed || 2 : -(player.speed || 2);
-                npc.facingRight = npc.dx > 0;
-            } else {
-                // Comportamento normale verso il player
-                if (distance <= closeDistance) {
-                    npc.facingRight = dx > 0;
-                    const safeDistanceX = 40;
-                    if (distance > safeDistanceX) {
-                        npc.dx = dx > 0 ? speed : -speed;
-                        npc.state = 'walk';
-                    } else {
-                        npc.dx = 0;
-                        npc.state = 'idle';
-                    }
-                } else {
-                    npc.dx = dx > 0 ? speed : -speed;
-                    npc.facingRight = npc.dx > 0;
-                    npc.state = 'walk';
-                }
-            }
-
-            // --- Movimento con collisione porte ---
-            let nextX = npc.x + npc.dx;
-            for (let door of levels[currentLevelIndex].doors) {
-                if (!door.isOpen) {
-                    const verticalOverlap = npc.y + npc.height > door.y + 2 && npc.y < door.y + door.height - 2;
-                    const willCollide =
-                        nextX < door.x + door.width &&
-                        nextX + npc.width > door.x &&
-                        verticalOverlap;
-                    if (willCollide) {
-                        if (npc.dx > 0) nextX = door.x - npc.width;
-                        else if (npc.dx < 0) nextX = door.x + door.width;
-                        npc.dx = 0;
-                    }
-                }
-            }
-            npc.x = nextX;
-
-            // --- Aggiornamento animazione NPC ---
-            npc.frameCounter = (npc.frameCounter || 0) + 1;
-
-            if (npc.frameCounter >= 5) {
-                if (npc.state === 'walk') {
-                    // Animazione camminata
-                    if (npc.facingRight) {
-                        npc.frameIndex = (npc.frameIndex + 1) % npcFramesRight.length;
-                    } else {
-                        npc.frameIndex = (npc.frameIndex + 1) % npcFramesLeft.length;
-                    }
-                } else if (npc.state === 'roll') {
-                    // Animazione rotolamento
-                    if (npc.facingRight) {
-                        npc.frameIndex = (npc.frameIndex + 1) % npcRollRight.length;
-                    } else {
-                        npc.frameIndex = (npc.frameIndex + 1) % npcRollLeft.length;
-                    }
-                } else {
-                    // Animazione idle
-                    npc.frameIndex = 0;
-                }
-
-                npc.frameCounter = 0;
-            }
+            handleLadder(npc, platforms, ladders, {}); // input vuoto
+            handleNPCMovement(npc);                   // logica di AI orizzontale / verticale
+            applyGravity(npc, gravity, false);        // salto solo se NPC può
+            npc.x += npc.dx;
+            updateNPCAnimation(npc);
+            const ignorePlatIndex = handleTrapdoorCollisions(npc, platforms, level.trapdoors);
+            const effectivePlatforms = platforms.filter((_, i) => i !== ignorePlatIndex);
+            handlePlatformCollisions(npc, effectivePlatforms);
+            handleSpikeCollisions(npc, platforms, level.spikes);
+            handleTriggers(level);                     // opzionale, se vuoi che NPC apra porte
+            constrainToCanvas(npc, canvas);
         }
         // =========================
         // --- Ottieni NPC vicini al player ---
@@ -784,10 +631,10 @@
                     break;
                 case 'roll':  // aggiunto stato rotolamento
                     frame = npc.facingRight ? npcRollRight[npc.frameIndex] : npcRollLeft[npc.frameIndex];
-                    break;
+                    break;/* 
                 case 'sayHello':
                     frame = npc.facingRight ? sayHelloFramesRight[0] : sayHelloFramesLeft[0];
-                    break;
+                    break; */
                 default:
                     frame = npc.facingRight ? npcFramesRight[0] : npcFramesLeft[0];
             }
@@ -1248,17 +1095,9 @@
 
             return -1; // nessuna piattaforma trovata
         }
-
-        function update() {
-            const level = levels[currentLevelIndex];
-            const platforms = getCurrentPlatforms();
-            // =========================
-            // --- Controllo scale & ingresso ---
-            // =========================
+        function handleLadder(player, platforms, ladders, keys) {
             player.onLadder = false;
-            player.inLadderZone = false; // true se il player può iniziare a scendere
-
-            const ladders = getCurrentLadders();
+            player.inLadderZone = false;
 
             for (let ladder of ladders) {
                 const platform = platforms[ladder.platformIndex];
@@ -1266,56 +1105,40 @@
 
                 const ladderTop = ladder.top;
                 const ladderBottom = ladderTop + ladder.height;
-
                 const playerTop = player.y;
                 const playerBottom = player.y + player.height;
 
-                // --- Controllo se il player è dentro la zona X della scala ---
                 const inLadderX = (player.x + player.width) > ladder.x && player.x < (ladder.x + ladder.width);
-
-                // --- Controllo se il player è sopra la piattaforma della scala ---
                 const onPlatform = playerBottom >= platform.y - 1 && playerBottom <= platform.y + 5;
 
-                // --- Flag ingresso zona scala ---
                 if (onPlatform && inLadderX) {
                     player.inLadderZone = true;
-                    player.y += 5
-                    // Se preme giù, piccola spinta verso il basso per entrare nella scala
                     if (keys.down) {
-                        player.y += 1; // sposta il player di 1px verso il basso
-                        console.log("Player spinto nella scala!", player.x, player.y);
+                        player.y += 1;
                         player.onLadder = true;
                     }
                 }
 
-                // --- Controllo se il player sta effettivamente sulla scala ---
                 if (playerBottom > ladderTop && playerTop < ladderBottom && inLadderX) {
                     player.onLadder = true;
-                    player.dy = 0; // disabilita gravità verticale solo per scalare
-
-                    // Movimento verticale sulla scala
+                    player.dy = 0;
                     if (keys.up) {
-                        player.y -= player.speed
+                        player.y -= player.speed;
                         if (player.y < platforms[ladder.platformIndex].y - 45) {
                             player.onLadder = false;
                         }
-                    };
+                    }
                     if (keys.down) player.y += player.speed;
-
-                    break; // non serve controllare altre scale
+                    break;
                 }
             }
+        }
+        function handleSayHello(player, level) {
+            if (keys.sayHello && sayHelloTimer <= 0) {
+                sayHelloTimer = 60;   // durata animazione
+                keys.sayHello = false; // consuma il tasto
 
-            // --- Aggiorna accovacciamento solo se non stiamo entrando o scalando ---
-            if (!player.onLadder && !player.inLadderZone && keys.down) {
-                player.isCrouching = true;
-            }
-            // =========================
-            // --- Say Hello NPC ---
-            // =========================
-            if (sayHelloTimer > 0) {
-                imgToDraw = facingRight ? sayHelloFramesRight[0] : sayHelloFramesLeft[0];
-                if (sayHelloTimer === 60 && level.npcs) {
+                if (level.npcs) {
                     level.npcs.forEach(npc => {
                         const dx = (player.x + player.width / 2) - (npc.x + npc.width / 2);
                         const dy = (player.y + player.height / 2) - (npc.y + npc.height / 2);
@@ -1323,98 +1146,74 @@
                         if (distance < 80) {
                             npc.facingRight = dx > 0;
                             npc.sayHelloTimer = 60;
+                            console.log("NPC dice ciao!", npc);
                         }
                     });
                 }
+            }
+
+            // Gestione animazione sayHello
+            if (sayHelloTimer > 0) {
+                imgToDraw = facingRight ? sayHelloFramesRight[0] : sayHelloFramesLeft[0];
                 sayHelloTimer--;
                 if (sayHelloTimer <= 0) currentFrame = 0;
             }
-
-            if (keys.up && !player.isUnderPlatform) {
-                player.isCrouching = false;
-            }
-            // =========================
-            // --- Movimento orizzontale ---
-            // =========================
-            player.dx = 0;
-            let isMoving = false;
-
-            if (!isPullingLever && !isPushingButton) {
-                if (keys.left) {
-                    player.dx = -player.speed;
-                    facingRight = false;
-                    isMoving = true;
-                }
-                if (keys.right) {
-                    player.dx = player.speed;
-                    facingRight = true;
-                    isMoving = true;
-                }
-            }
-
-            // Calcolo posizione futura
+        }
+        function handleDoorCollision(player, platforms, doors) {
             let nextX = player.x + player.dx;
 
-            // =========================
-            // --- Collisioni porte ---
-            // =========================
-            if (level.doors) {
-                for (let door of level.doors) {
-                    if (!door.open) {
+            if (!doors) return nextX;
 
-                        const platform = platforms[door.platformIndex];
-                        if (!platform) continue;
+            for (let door of doors) {
+                if (door.open) continue;
 
-                        const doorX = door.x;
-                        const doorY = platform.y - door.height;
+                const platform = platforms[door.platformIndex];
+                if (!platform) continue;
 
-                        const doorLeft = doorX;
-                        const doorRight = doorX + door.width;
-                        const doorTop = doorY;
-                        const doorBottom = doorY + door.height;
+                const doorLeft = door.x;
+                const doorRight = door.x + door.width;
+                const doorTop = platform.y - door.height;
+                const doorBottom = doorTop + door.height;
 
-                        const playerLeft = nextX;
-                        const playerRight = nextX + player.width;
-                        const playerTop = player.y;
-                        const playerBottom = player.y + player.height;
+                const playerLeft = nextX;
+                const playerRight = nextX + player.width;
+                const playerTop = player.y;
+                const playerBottom = player.y + player.height;
 
-                        const overlap =
-                            playerRight > doorLeft &&
-                            playerLeft < doorRight &&
-                            playerBottom > doorTop &&
-                            playerTop < doorBottom;
+                const overlap =
+                    playerRight > doorLeft &&
+                    playerLeft < doorRight &&
+                    playerBottom > doorTop &&
+                    playerTop < doorBottom;
 
-                        if (overlap) {
-                            if (player.dx > 0) {
-                                nextX = doorLeft - player.width;
-                            } else if (player.dx < 0) {
-                                nextX = doorRight;
-                            }
-                            player.dx = 0;
-                        }
+                if (overlap) {
+                    if (player.dx > 0) {
+                        nextX = doorLeft - player.width;
+                    } else if (player.dx < 0) {
+                        nextX = doorRight;
                     }
+                    player.dx = 0;
                 }
             }
 
+            return nextX;
+        }
+        function applyGravity(player, gravity, jumpPressed) {
+            if (player.onLadder) return;
 
+            // Aggiorna velocità verticale e posizione
+            player.dy += gravity;
+            player.y += player.dy;
 
-            // =========================
-            // --- Gravità ---
-            // =========================
-            if (!player.onLadder) {
-                player.dy += gravity;
-                player.y += player.dy;
-
-                if (jumpPressed && player.onGround && !player.isCrouching) {
-                    player.dy = -player.jumpForce;
-                    resetSounds();
-                    soundPlay('jump');
-                }
+            // Salto
+            if (jumpPressed && player.onGround && !player.isCrouching) {
+                player.dy = -player.jumpForce;
+                resetSounds();
+                soundPlay('jump');
             }
-
-            // Applica la posizione finale
-            player.x = nextX;
-
+        }
+        function updatePlayerAnimationAndSounds(player, keys, isMoving, facingRight) {
+            // --- Animazione rotolata / camminata / fermo ---
             if (player.isCrouching && isMoving) {
                 // rotolata
                 rollFrameCounter++;
@@ -1430,33 +1229,29 @@
                 currentFrame = 0;
             }
 
+            // --- Animazione scala ---
             if (player.onLadder) {
-                // avanzamento frame solo se il player si muove sulla scala
                 if (keys.up || keys.down) {
                     climbFrameCounter++;
-                    if (climbFrameCounter >= 5) {  // ogni 5 update cambi frame
+                    if (climbFrameCounter >= 5) {
                         climbFrameIndex = (climbFrameIndex + 1) % climbFramesRight.length;
                         climbFrameCounter = 0;
                     }
                 } else {
-                    // fermo sulla scala → frame iniziale
-                    climbFrameIndex = 0;
+                    climbFrameIndex = 0; // fermo sulla scala
                 }
-                imgToDraw = facingRight ? climbFramesRight[climbFrameIndex] : climbFramesLeft[climbFrameIndex];
-            } else {
-                // =========================
-                // --- Gestione tasti UP ---
-                // =========================
-                if (keys.up) {
-                    if (player.isCrouching) {
-                        // Rialzati dall'accovacciata
-                        player.isCrouching = false;
-                         
-                    }
-                }
+
+                return facingRight
+                    ? climbFramesRight[climbFrameIndex]
+                    : climbFramesLeft[climbFrameIndex];
             }
 
-            // Suono rotolata o interazioni
+            // --- Rialzarsi dall'accovacciata ---
+            if (keys.up && player.isCrouching) {
+                player.isCrouching = false;
+            }
+
+            // --- Suoni ---
             if (player.isCrouching || player.onLadder) {
                 resetSounds();
                 soundPlay('ladder');
@@ -1467,145 +1262,127 @@
                 resetSounds();
                 soundPlay('lever');
             }
-            // =========================
-            // --- Interazioni leve / pulsanti ---
-            // =========================
-            if (!player.onLadder && keys.interact) {
-                // --- Leva ---
-                if (!isPullingLever && level.lever) {
-                    const lever = level.lever;
-                    const platform = platforms[lever.platformIndex];
-                    const dx = Math.abs((player.x + player.width / 2) - (lever.x + lever.width / 2));
-                    const dy = Math.abs((player.y + player.height) - platform.y);
 
-                    if (dx < 50 && dy < 20) {
-                        isPullingLever = true;
-                        leverFrame = 0;
-                        leverCounter = 0;
-                        activeLever = lever;
+            // Ritorna frame da disegnare
+            if (player.isCrouching && isMoving) {
+                return facingRight
+                    ? rollFramesRight[rollFrameIndex]
+                    : rollFramesLeft[rollFrameIndex];
+            } else if (isMoving) {
+                return facingRight
+                    ? framesRight[currentFrame]
+                    : framesLeft[currentFrame];
+            } else {
+                return facingRight
+                    ? framesRight[0]
+                    : framesLeft[0];
+            }
+        }
+        // =========================
+        // --- Gestione interazioni leve / pulsanti ---
+        // =========================
+        function handleInteractions(player, keys, platforms, level) {
+            if (player.onLadder || !keys.interact) return;
 
-                        // --- usa l'angle reale della leva come punto di partenza ---
-                        activeLever.angle = lever.angle;
+            // --- Leva ---
+            if (!isPullingLever && level.lever) {
+                const lever = level.lever;
+                const platform = platforms[lever.platformIndex];
+                const dx = Math.abs((player.x + player.width / 2) - (lever.x + lever.width / 2));
+                const dy = Math.abs((player.y + player.height) - platform.y);
 
-                        // --- CASISTICA LEVA ---
-                        // Determina il target in base al tipo di leva
-                        let targetAngle;
-                        if (lever.mode === "HOLD") {
-                            // HOLD → il player tira la leva e resta nella nuova posizione
-                            targetAngle = -activeLever.angle;
-                        } else if (lever.mode === "TOGGLE") {
-                            // TOGGLE → il player tira la leva e tornerà dopo un breve delay
-                            targetAngle = -activeLever.angle;
-                            activeLever.returnDelay = 100; // ms prima di tornare alla posizione originale
-                        }
-                        activeLever._currentTarget = targetAngle; // proprietà temporanea per animazione
-                        // Determina lato in base all'angolo della leva
-                        // Angle negativo → leva punta a sinistra → il player sta a destra
-                        // Angle positivo → leva punta a destra → il player sta a sinistra
-                        const leverCenterX = (lever.x - 15) + lever.width / 2;
-                        const offsetX = 20;
-                        console.log(player.x)
+                if (dx < 50 && dy < 20) {
+                    isPullingLever = true;
+                    leverFrame = 0;
+                    leverCounter = 0;
+                    activeLever = lever;
+                    activeLever.angle = lever.angle;
 
-                        if (activeLever.angle < 0) {
-                            // leva punta a sinistra → player a destra
-                            player.x = leverCenterX + offsetX;
-                            facingRight = false;
-                        } else {
-                            // leva punta a destra → player a sinistra
-                            player.x = leverCenterX - player.width - offsetX;
-                            facingRight = true;
-                        }
+                    let targetAngle = -activeLever.angle;
+                    if (lever.mode === "TOGGLE") activeLever.returnDelay = 100;
+                    activeLever._currentTarget = targetAngle;
 
-                        // Allinea il player alla piattaforma
-                        player.y = platform.y - player.height;
+                    const leverCenterX = (lever.x - 15) + lever.width / 2;
+                    const offsetX = 20;
 
-                        keys.interact = false;
-                        console.log("Lever triggered:", activeLever);
-                        return;
+                    if (activeLever.angle < 0) {
+                        player.x = leverCenterX + offsetX;
+                        facingRight = false;
+                    } else {
+                        player.x = leverCenterX - player.width - offsetX;
+                        facingRight = true;
                     }
-                }
 
-                // --- Pulsanti ---
-                if (!isPushingButton && level.buttons) {
-                    for (let button of level.buttons) {
-                        const platform = platforms[button.platformIndex];
-                        const dx = Math.abs((player.x + player.width / 2) - (button.x + button.width / 2));
-                        const dy = Math.abs((player.y + player.height) - platform.y);
-
-                        if (dx < 50 && dy < 60) {
-
-                            isPushingButton = true;
-                            pushButtonFrameIndex = 0;
-                            pushButtonFrameCounter = 0;
-                            activeButton = button;
-
-                            // Posizione player solo X
-                            player.x = facingRight
-                                ? button.x - player.width + 10
-                                : button.x + button.width - 10;
-
-                            player.dx = 0;
-
-                            keys.interact = false;
-                            console.log("Button triggered:", activeButton);
-                            return;
-                        }
-                    }
+                    player.y = platform.y - player.height;
+                    keys.interact = false;
+                    console.log("Lever triggered:", activeLever);
+                    return;
                 }
             }
 
-            // ========================= 
-            // --- Animazione leva ---
-            // =========================
-            if (isPullingLever && activeLever) {
+            // --- Pulsanti ---
+            if (!isPushingButton && level.buttons) {
+                for (let button of level.buttons) {
+                    const platform = platforms[button.platformIndex];
+                    const dx = Math.abs((player.x + player.width / 2) - (button.x + button.width / 2));
+                    const dy = Math.abs((player.y + player.height) - platform.y);
 
+                    if (dx < 50 && dy < 60) {
+                        isPushingButton = true;
+                        pushButtonFrameIndex = 0;
+                        pushButtonFrameCounter = 0;
+                        activeButton = button;
+
+                        player.x = facingRight
+                            ? button.x - player.width + 10
+                            : button.x + button.width - 10;
+                        player.dx = 0;
+
+                        keys.interact = false;
+                        console.log("Button triggered:", activeButton);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // =========================
+        // --- Aggiornamento animazioni leve / pulsanti ---
+        // =========================
+        function updateInteractionAnimations() {
+            // --- Animazione leva ---
+            if (isPullingLever && activeLever) {
                 leverCounter++;
                 if (leverCounter >= 5) { leverFrame++; leverCounter = 0; }
 
-                // progress da 0 a 1
                 let progress = Math.min(leverFrame / pullLeverRight.length, 1);
+                activeLever.angle += (activeLever._currentTarget - activeLever.angle) * progress;
 
-                // calcola angolo dinamico verso il target temporaneo
-                activeLever.angle = activeLever.angle + (activeLever._currentTarget - activeLever.angle) * progress;
-
-                // Fine animazione principale
                 if (leverFrame >= pullLeverRight.length) {
                     isPullingLever = false;
                     leverFrame = 0;
 
                     if (activeLever.mode === "TOGGLE") {
-                        // TOGGLE: salva riferimenti locali
                         const lever = activeLever;
-                        const returnDelay = lever.returnDelay || 500;
-                        const startAngle = lever.angle; // angolo finale della leva
+                        const startAngle = lever.angle;
                         const leverTargets = lever.targets;
 
-                        // La leva tornerà dopo delay
                         setTimeout(() => {
-                            lever.angle = -startAngle; // torna indietro
+                            lever.angle = -startAngle;
                             if (leverTargets) toggleTrapdoors(leverTargets);
                             console.log("TOGGLE lever returned:", lever);
-                        }, returnDelay);
-
-                        // Non azzerare subito activeLever, resta valido fino al ritorno
-                    }
-                    else if (activeLever.mode === "HOLD") {
-                        // HOLD: salva l'angolo finale
+                        }, lever.returnDelay || 500);
+                    } else if (activeLever.mode === "HOLD") {
                         activeLever.angle = activeLever._currentTarget;
                         if (activeLever.targets) toggleTrapdoors(activeLever.targets);
                         console.log("HOLD lever finished:", activeLever);
-
-                        // Ora possiamo liberare activeLever
                         activeLever = null;
                     }
                 }
             }
 
-            // =========================
             // --- Animazione pulsante ---
-            // =========================
             if (isPushingButton && activeButton) {
-
                 pushButtonFrameCounter++;
                 if (pushButtonFrameCounter >= 5) {
                     pushButtonFrameIndex++;
@@ -1616,77 +1393,35 @@
                         pushButtonFrameIndex = 0;
 
                         if (activeButton) {
-
                             applyButtonEffect(activeButton);
                             activeButton = null;
                         }
                     }
                 }
             }
-
-            let effectiveHeight = player.isCrouching ? player.height / 2 : player.height
-            // =========================
-            // --- Collisioni piattaforme e botole ---
-            // =========================
+        }
+        // =========================
+        // --- Collisioni piattaforme ---
+        // =========================
+        function handlePlatformCollisions(player, platforms) {
             player.onGround = false;
 
-            let allSurfaces = [...platforms];
-            if (level.trapdoors) level.trapdoors.forEach(t => t.angle += (t.targetAngle - t.angle) * 0.2);
-
-            let ignorePlatIndex = -1; // indice della piattaforma da ignorare in verticale
-
-            // Controllo trapdoor sotto il player
-            if (level.trapdoors) {
-                for (let trap of level.trapdoors) {
-                    const platform = platforms[trap.platformIndex];
-                    if (!platform) continue;
-
-                    const playerBottom = player.y + player.height;
-                    const playerTop = player.y;
-                    const playerRight = player.x + player.width;
-                    const playerLeft = player.x;
-
-                    const trapLeft = trap.x;
-                    const trapRight = trap.x + trap.width;
-                    const trapY = platform.y;
-                    const trapHeight = trap.height || platform.height;
-
-                    const aboveTrapdoor =
-                        playerBottom > trapY &&
-                        playerTop < trapY + trapHeight &&
-                        playerRight > trapLeft &&
-                        playerLeft < trapRight;
-
-                    if (aboveTrapdoor && trap.open) {
-                        // ignora collisione verticale solo con questa piattaforma
-                        ignorePlatIndex = trap.platformIndex;
-                    }
-                }
-            }
-            // Collisioni piattaforme
-            for (let i = 0; i < allSurfaces.length; i++) {
-                let plat = allSurfaces[i];
-
+            for (let plat of platforms) {
                 // Collisione verticale
-                if (i !== ignorePlatIndex) {
-                    if (!player.onLadder &&
-                        player.x + player.width > plat.x &&
-                        player.x < plat.x + plat.width &&
-                        player.y + player.height > plat.y &&
-                        player.y + player.height < plat.y + plat.height &&
-                        player.dy >= 0
-                    ) {
-                        player.y = plat.y - player.height;
-                        player.dy = 0;
-                        player.onGround = true;
-                    }
+                if (!player.onLadder &&
+                    player.x + player.width > plat.x &&
+                    player.x < plat.x + plat.width &&
+                    player.y + player.height > plat.y &&
+                    player.y + player.height < plat.y + plat.height &&
+                    player.dy >= 0
+                ) {
+                    player.y = plat.y - player.height;
+                    player.dy = 0;
+                    player.onGround = true;
                 }
 
-                // Collisione orizzontale 
-                if (
-                    player.y + player.height > plat.y &&
-                    player.y < plat.y + plat.height
-                ) {
+                // Collisione orizzontale
+                if (player.y + player.height > plat.y && player.y < plat.y + plat.height) {
                     if (player.isCrouching) {
                         player.isUnderPlatform = true;
                         if ((player.dx > 0 && player.x > plat.x + plat.width - 20)
@@ -1705,86 +1440,125 @@
                     }
                 }
             }
+        }
 
-            // =========================
-            // --- Collisioni spike ---
-            // =========================
-            if (level.spikes) {
-                level.spikes.forEach(spike => {
-                    if (!spike.active) return;
+        // =========================
+        // --- Collisioni trapdoors / botole ---
+        // =========================
+        function handleTrapdoorCollisions(player, platforms, trapdoors) {
+            if (!trapdoors) return -1;
 
-                    const platform = platforms[spike.platformIndex];
-                    if (!platform) return;
+            let ignorePlatIndex = -1;
 
-                    const platformY = platform.y;
+            trapdoors.forEach(trap => {
+                const platform = platforms[trap.platformIndex];
+                if (!platform) return;
 
-                    // buffer verticale per la collisione
-                    const spikeTop = platformY - spike.height; // se spike si trova sopra la piattaforma
-                    const spikeBottom = platformY;
+                const playerBottom = player.y + player.height;
+                const playerTop = player.y;
+                const playerRight = player.x + player.width;
+                const playerLeft = player.x;
 
-                    // collisione solo se il player è vicino alla y della piattaforma
-                    const playerBottom = player.y + player.height;
-                    const playerTop = player.y;
+                const trapLeft = trap.x;
+                const trapRight = trap.x + trap.width;
+                const trapY = platform.y;
+                const trapHeight = trap.height || platform.height;
 
-                    const verticalCollision = playerBottom > spikeTop && playerTop < spikeBottom;
-                    const horizontalCollision = player.x + player.width > spike.x && player.x < spike.x + spike.width;
+                const aboveTrapdoor =
+                    playerBottom > trapY &&
+                    playerTop < trapY + trapHeight &&
+                    playerRight > trapLeft &&
+                    playerLeft < trapRight;
 
-                    if (horizontalCollision && verticalCollision) {
-                        deathOfPlayer();
-                    }
-                });
-            }
+                if (aboveTrapdoor && trap.open) {
+                    ignorePlatIndex = trap.platformIndex;
+                }
 
-            // =========================
-            // --- Porte & trigger ---
-            // =========================
+                // Aggiorna angolo per animazione trapdoor
+                trap.angle += (trap.targetAngle - trap.angle) * 0.2;
+            });
+
+            return ignorePlatIndex;
+        }
+
+        // =========================
+        // --- Collisioni spike ---
+        // =========================
+        function handleSpikeCollisions(player, platforms, spikes) {
+            if (!spikes) return;
+
+            spikes.forEach(spike => {
+                if (!spike.active) return;
+                const platform = platforms[spike.platformIndex];
+                if (!platform) return;
+
+                const platformY = platform.y;
+                const spikeTop = platformY - spike.height;
+                const spikeBottom = platformY;
+
+                const playerBottom = player.y + player.height;
+                const playerTop = player.y;
+
+                const verticalCollision = playerBottom > spikeTop && playerTop < spikeBottom;
+                const horizontalCollision = player.x + player.width > spike.x && player.x < spike.x + spike.width;
+
+                if (verticalCollision && horizontalCollision) {
+                    deathOfPlayer();
+                }
+            });
+        }
+        // =========================
+        // --- Gestione porte e trigger ---
+        // =========================
+        function handleTriggers(level) {
             let activeTriggers = [];
 
-            // Lever
+            // --- Leve ---
             if (level.lever && level.lever.active && level.lever.targets) {
                 for (let id of level.lever.targets) {
                     if (!activeTriggers.includes(id)) activeTriggers.push(id);
                 }
             }
 
-            // Buttons
+            // --- Pulsanti ---
             if (level.buttons) {
                 level.buttons.forEach(b => {
-                    if (b.targets) {
+                    if (!b.targets) return;
 
-                        if (b.mode === "TRICOLOR") {
-                            // attivo se NON è grigio (state 0)
-                            if (b.state !== 0) {
-                                activeTriggers.push(...b.targets);
-                            }
-                        } else {
-                            // comportamento normale
-                            if (b.pressed) {
-                                activeTriggers.push(...b.targets);
-                            }
+                    if (b.mode === "TRICOLOR") {
+                        // TRICOLOR → attivo se NON è grigio (state 0)
+                        if (b.state !== 0) {
+                            activeTriggers.push(...b.targets);
                         }
-
+                    } else {
+                        // comportamento normale
+                        if (b.pressed) {
+                            activeTriggers.push(...b.targets);
+                        }
                     }
                 });
             }
 
-            // Trapdoors
+            // --- Trapdoors ---
             if (level.trapdoors) {
                 level.trapdoors.forEach(t => {
-                    if (t.open) {
-                        if (!activeTriggers.includes(t.id)) activeTriggers.push(t.id);
+                    if (t.open && !activeTriggers.includes(t.id)) {
+                        activeTriggers.push(t.id);
                     }
                 });
             }
 
+            // Aggiorna lo stato delle porte
             toggleDoors(activeTriggers);
-
-            // =========================
-            // --- Cambio livello & limiti ---
-            // =========================
+        }
+        // =========================
+        // --- Gestione cambio livello e limiti ---
+        // =========================
+        function handleLevelChange(player, levels, currentLevelIndex, canvas) {
             let newLevelIndex = currentLevelIndex;
             let enterFromRight = false;
 
+            // Cambio livello a destra
             if (player.dx > 0 && player.x + player.width >= canvas.width) {
                 if (currentLevelIndex < levels.length - 1) {
                     newLevelIndex = currentLevelIndex + 1;
@@ -1794,6 +1568,7 @@
                 }
             }
 
+            // Cambio livello a sinistra
             if (player.dx < 0 && player.x <= 0) {
                 if (currentLevelIndex > 0) {
                     newLevelIndex = currentLevelIndex - 1;
@@ -1812,6 +1587,99 @@
             // Limiti generali del canvas
             player.x = Math.max(0, Math.min(player.x, canvas.width - player.width));
             player.y = Math.max(0, Math.min(player.y, canvas.height - player.height));
+        }
+        // =========================
+        // --- Movimento orizzontale e collisioni porte ---
+        // =========================
+        function handleHorizontalMovement(player, keys, speed, isPullingLever, isPushingButton, platforms, doors) {
+            // Rialzati se premi su e non sei sotto una piattaforma
+            if (keys.up && !player.isUnderPlatform) {
+                player.isCrouching = false;
+            }
+
+            // Reset movimento orizzontale
+            player.dx = 0;
+            let isMoving = false;
+
+            // Movimento solo se non stiamo interagendo con leve o pulsanti
+            if (!isPullingLever && !isPushingButton) {
+                if (keys.left) {
+                    player.dx = -speed;
+                    facingRight = false;
+                    isMoving = true;
+                }
+                if (keys.right) {
+                    player.dx = speed;
+                    facingRight = true;
+                    isMoving = true;
+                }
+            }
+
+            // Calcolo posizione futura con collisione porte
+            const nextX = handleDoorCollision(player, platforms, doors);
+
+            return { nextX, isMoving };
+        } function update() {
+            // =========================
+            // --- Dati correnti livello ---
+            // =========================
+            const level = levels[currentLevelIndex];
+            const platforms = getCurrentPlatforms();
+            const ladders = getCurrentLadders();
+
+            // =========================
+            // --- Scale ---
+            // =========================
+            handleLadder(player, platforms, ladders, keys);
+
+            // =========================
+            // --- Saluto NPC ---
+            // =========================
+            handleSayHello(player, level);
+
+            // =========================
+            // --- Movimento orizzontale ---
+            // =========================
+            const { nextX, isMoving } = handleHorizontalMovement(
+                player, keys, player.speed, isPullingLever, isPushingButton, platforms, level.doors
+            );
+
+            // =========================
+            // --- Gravità e salto ---
+            // =========================
+            applyGravity(player, gravity, jumpPressed);
+
+            // Applica la posizione finale orizzontale
+            player.x = nextX;
+
+            // =========================
+            // --- Animazioni e suoni ---
+            // =========================
+            imgToDraw = updatePlayerAnimationAndSounds(player, keys, isMoving, facingRight);
+
+            // =========================
+            // --- Interazioni leve / pulsanti ---
+            // =========================
+            handleInteractions(player, keys, platforms, level);
+            updateInteractionAnimations();
+
+            // =========================
+            // --- Collisioni piattaforme / botole / spike ---
+            // =========================
+            const ignorePlatIndex = handleTrapdoorCollisions(player, platforms, level.trapdoors);
+            const effectivePlatforms = platforms.filter((_, i) => i !== ignorePlatIndex);
+            handlePlatformCollisions(player, effectivePlatforms);
+            handleSpikeCollisions(player, platforms, level.spikes);
+
+            // =========================
+            // --- Porte e trigger ---
+            // =========================
+            handleTriggers(level);
+
+            // =========================
+            // --- Cambio livello e limiti canvas ---
+            // =========================
+            handleLevelChange(player, levels, currentLevelIndex, canvas);
         }
 
 
