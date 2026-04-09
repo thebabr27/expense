@@ -44,7 +44,7 @@
         const img = new Image();
         img.src = `assets/frameSh.svg`;
         sayHelloFramesRight[0] = img;
-
+        let verticalOverlap = false;
         img.onload = () => {
             const canvasTemp = document.createElement('canvas');
             canvasTemp.width = img.width;
@@ -78,18 +78,7 @@
                     { x: 6 * 80, y: 1 * 70, width: 4 * 80, height: 20, type: "normal" },        // piattaforma pulsante alto riga
                 ],
                 ladders: [
-                    { x: 9 * 80, platformIndex: 1, height: 60, width: 20 }
-                ], buttons: [
-                    {
-                        x: 5 * 80,
-                        id: "B1",
-                        platformIndex: 1,
-                        width: 20,
-                        height: 20,
-                        pressed: false,
-                        targets: ["T1", "T2"],  // indica quale trapdoor attivare
-                        mode: "ON"
-                    }
+                    { x: 9 * 80, platformIndex: 2, height: 60, width: 20 }
                 ],
                 spikes: [
                     {
@@ -102,15 +91,14 @@
                 ],
                 trapdoors: [
                     {
-                        x: 2 * 80,
+                        x: 7 * 80,
                         platformIndex: 3,
                         width: 60,
                         height: 20,
                         open: false,
                         angle: 0,
                         targetAngle: 0,
-                        id: "T1",        // identificatore univoco
-                        triggers: ["B1"] // quale button può attivarla
+                        id: "T1",        // identificatore univoco 
                     },
 
                     {
@@ -121,12 +109,39 @@
                         open: false,
                         angle: 0,
                         targetAngle: 0,
-                        id: "T2",        // identificatore univoco
-                        triggers: ["B1"] // quale button può attivarla
+                        id: "T2",        // identificatore univoco 
+                    }
+                ],
+                buttons: [
+                    {
+                        x: 5 * 80,
+                        id: "B1",
+                        platformIndex: 1,
+                        width: 20,
+                        height: 20,
+                        pressed: false,
+                        targets: ["T1", "T2", "D1"],  // indica quale trapdoor attivare
+                        mode: "ON"
+                    },
+                    {
+                        x: 8 * 80,
+                        id: "B2",
+                        platformIndex: 0,
+                        width: 20,
+                        height: 20,
+                        pressed: false,
+                        targets: ["D3"],  // indica quale trapdoor attivare
+                        mode: "TRICOLOR",
+                        state: 0,
+
                     }
                 ],
                 doors: [
-                    { x: 7 * 80, platformIndex: 2, width: 50, height: 80, open: null, id: "D2", triggers: ["B1"], mode: "OR" },
+                    {
+                        x: 6 * 80, platformIndex: 2, width: 50, height: 80, open: null, id: "D3",
+                        triggerMode: "AND",
+                        triggers: ["B1", "B2"]
+                    },
                 ],
                 lever: { x: 1 * 80, platformIndex: 2, angle: -45, width: 50, height: 20, targetAngle: 45, targets: ["T1"], mode: 'TOGGLE' },
                 npcs: [
@@ -149,16 +164,40 @@
             }
             ,
 
-            // --- Level 2: alto ---
+            // --- Level 2: puzzle leve, pulsanti, porte, trapdoors e spikes ---
+            // --- Nuovo livello con piattaforme originali e oggetti ben posizionati ---
             {
                 platforms: [
-                    { x: 0 * 80, y: 7 * 70 - 20, width: 10 * 80, height: 20, type: "normal" },  // piattaforma base riga 7
+                    { x: 0 * 80, y: 7 * 70 - 20, width: 12 * 80, height: 20, type: "normal" },
+                    { x: 2 * 80, y: 6 * 70 - 10, width: 3 * 80, height: 20, type: 'solid' },
+                    { x: 6 * 80, y: 5 * 70, width: 4 * 80, height: 20, type: "normal" },
+                    { x: 0 * 80, y: 4 * 70, width: 4 * 80, height: 20, type: "solid" },
+                    { x: 8 * 80, y: 3 * 70, width: 4 * 80, height: 20, type: "normal" },
+                    { x: 3 * 80, y: 2 * 70, width: 3 * 80, height: 20, type: "solid" }
                 ],
-
+                ladders: [
+                    { x: 3 * 80, platformIndex: 1, width: 20, height: 60 },  // scala tra piattaforma 1 e 2
+                    { x: 9 * 80, platformIndex: 4, width: 20, height: 60 }   // scala piattaforma 4 e 5
+                ],
+                spikes: [
+                    { x: 5 * 80, platformIndex: 0, width: 40, height: 20, active: true },
+                    { x: 7 * 80, platformIndex: 2, width: 40, height: 20, active: true }
+                ],
+                trapdoors: [
+                    { x: 3.5 * 80, platformIndex: 1, width: 60, height: 20, open: false, angle: 0, targetAngle: 0, id: "T1" },
+                    { x: 8.5 * 80, platformIndex: 4, width: 60, height: 20, open: false, angle: 0, targetAngle: 0, id: "T2" }
+                ],
+                buttons: [
+                    { x: 2.2 * 80, platformIndex: 1, width: 20, height: 20, id: "B1", pressed: false, mode: "ON", targets: ["T1"] },
+                    { x: 8.2 * 80, platformIndex: 4, width: 20, height: 20, id: "B2", pressed: false, mode: "TRICOLOR", state: 0, targets: ["T2"] }
+                ],
                 doors: [
-                    { x: 7 * 80, platformIndex: 0, width: 50, height: 80, open: false, id: "D2", triggers: ["B1"], mode: "OR" },
+                    { x: 6 * 80, platformIndex: 2, width: 50, height: 80, id: "D3", triggerMode: "AND", triggers: ["B1", "B2"], open: false }
                 ],
-
+                lever: { x: 1 * 80, platformIndex: 3, width: 50, height: 20, angle: -45, targetAngle: 45, mode: "TOGGLE", targets: ["T2"] },
+                npcs: [
+                    { x: 400, y: 0, width: 50, height: 50, dx: 0, speed: 2, onGround: true, facingRight: true, state: "idle", frameIndex: 0, frameCounter: 0, sayHelloTimer: 0, following: false }
+                ]
             }
 
         ];
@@ -189,10 +228,15 @@
             speed: 4,
             jumpForce: 10,
             onGround: false,
-            dead: false
+            dead: false,
+            gravity: 0.8,      // spostiamo gravity dentro il player se vuoi usare player.gravity
+            isCrouching: false,
+            isUnderPlatform: false,
+            isRolling: false,
+            onLadder: false,
+            inLadderZone: false
         };
         const gravity = 0.8;
-        let isCrouching = false;
         let facingRight = true;
         let activeTriggers = [];
 
@@ -209,7 +253,8 @@
             lever: new Audio('assets/sounds/lever.mp3'),
             ladder: new Audio('assets/sounds/ladder-steps.mp3'),
             hello: new Audio('assets/sounds/hello.mp3'),
-            jump: new Audio('assets/sounds/jump.mp3')
+            jump: new Audio('assets/sounds/jump.mp3'),
+            dead: new Audio('assets/sounds/dead.mp3')
         };
         sounds.ladder.loop = true
         function soundPlay(soundName) {
@@ -240,10 +285,10 @@
                 case 'ArrowUp': keys.up = true; break;
                 case 'ArrowDown':
                     keys.down = true;
-                    if (!onLadder && player.onGround) isCrouching = true;
+                    if (!player.onLadder && player.onGround) player.isCrouching = true;
                     break;
                 case 'Space':
-                    if (!onLadder) jumpPressed = true;
+                    if (!player.onLadder) jumpPressed = true;
                     break;
                 case 'KeyA': keys.sayHello = true; break;    // input singolo
                 case 'KeyE': keys.interact = true; break;    // input singolo
@@ -261,7 +306,6 @@
                 case 'ArrowUp': keys.up = false; break;
                 case 'ArrowDown':
                     keys.down = false;
-                    isCrouching = false;
                     break;
                 case 'Space': jumpPressed = false; break;
             }
@@ -271,48 +315,48 @@
         // --- Setup Actions --- 
         // =========================
         function setupActions() {
-            levels.forEach(level => {
-                // --- Leva ---
-                if (level.lever) {
-                    level.lever.action = function () {
-                        isPullingLever = true;
-                        activeLever = this;
-                        leverFrame = 0;
-                        leverCounter = 0;
-
-                        // Angolo inverso
-                        this.targetAngle = (this.angle > 0) ? -45 : 45;
-
-                        // Posiziona il player vicino alla leva
-                        const platform = getCurrentPlatforms()[this.platformIndex];
-                        player.y = platform.y - player.height;
-                        player.x = (player.x < this.x) ? this.x - player.width - 5 : this.x + 25;
-
-                        // Eventuali trigger
-                        if (this.targets) toggleDoors(this.targets);
-                    }
-                }
-
-                // --- Pulsanti ---
-                if (level.buttons) {
-                    level.buttons.forEach(button => {
-                        button.action = function () {
-                            isPushingButton = true;
-                            activeButton = this;
-                            pushButtonFrameIndex = 0;
-                            pushButtonFrameCounter = 0;
-
-                            // Posiziona player davanti al pulsante
-                            const platform = getCurrentPlatforms()[this.platformIndex];
-                            player.y = platform.y - player.height;
-                            player.x = (player.x < this.x) ? this.x - player.width + 10 : this.x + this.width - 10;
-
-                            // Eventuali trigger
-                            if (this.targets) toggleDoors(this.targets);
-                        }
-                    });
-                }
-            });
+            /*    levels.forEach(level => {
+                   // --- Leva ---
+                   if (level.lever) {
+                       level.lever.action = function () {
+                           isPullingLever = true;
+                           activeLever = this;
+                           leverFrame = 0;
+                           leverCounter = 0;
+   
+                           // Angolo inverso
+                           this.targetAngle = (this.angle > 0) ? -45 : 45;
+   
+                           // Posiziona il player vicino alla leva
+                           const platform = getCurrentPlatforms()[this.platformIndex];
+                           player.y = platform.y - player.height;
+                           player.x = (player.x < this.x) ? this.x - player.width - 5 : this.x + 25;
+   
+                           // Eventuali trigger
+                           if (this.targets) toggleDoors(this.targets);
+                       }
+                   }
+   
+                   // --- Pulsanti ---
+                   if (level.buttons) {
+                       level.buttons.forEach(button => {
+                           button.action = function () {
+                               isPushingButton = true;
+                               activeButton = this;
+                               pushButtonFrameIndex = 0;
+                               pushButtonFrameCounter = 0;
+   
+                               // Posiziona player davanti al pulsante
+                               const platform = getCurrentPlatforms()[this.platformIndex];
+                               player.y = platform.y - player.height;
+                               player.x = (player.x < this.x) ? this.x - player.width + 10 : this.x + this.width - 10;
+   
+                               // Eventuali trigger
+                               if (this.targets) toggleDoors(this.targets);
+                           }
+                       });
+                   }
+               }); */
         }
         function isNear(obj, xTolerance = 50, yTolerance = 40) {
             const playerCenterX = player.x + player.width / 2;
@@ -393,11 +437,13 @@
 
                 case "TRICOLOR":
                     button.state = (button.state + 1) % 3;
+                    button.pressed = true;
                     break;
             }
 
             if (button.targets) {
                 toggleTrapdoors(button.targets, button);
+                toggleDoors(button.targets, button);
             }
         }
         function applyLeverEffect(lever) {
@@ -413,15 +459,6 @@
                 lever.active = true;
                 lever.targetAngle = 45;
             }
-
-            if (lever.targets) {
-                toggleTrapdoors(lever.targets);
-            }
-        }
-        function applyLeverEffect(lever) {
-            lever.active = !lever.active; // 🔥 stato logico
-
-            lever.targetAngle = lever.active ? 45 : -45;
 
             if (lever.targets) {
                 toggleTrapdoors(lever.targets);
@@ -484,6 +521,7 @@
                 npcRollLeft[i] = flipped;
             }
         });
+
 
         // --- frame idle NPC ---
         npcIdleRight.src = 'assets/frameJx.svg';
@@ -548,8 +586,6 @@
             for (let i = 0; i < allSurfaces.length; i++) {
                 let plat = allSurfaces[i];
 
-                // Salta piattaforme solid in caso di NPC accovacciato (se previsto)
-                if (plat.type === 'solid' && npc.isCrouching) continue;
 
                 // Collisione verticale
                 if (i !== ignorePlatIndex) {
@@ -589,24 +625,46 @@
                 }
             }
 
-            // --- Movimento verso il player ---
+            // --- Movimento verso il player e stato rotolamento ---
             const dx = (player.x + player.width / 2) - (npc.x + npc.width / 2);
             const distance = Math.abs(dx);
             const closeDistance = 90;
-            if (distance <= closeDistance) {
-                npc.facingRight = dx > 0;
-                const safeDistanceX = 40;
-                if (distance > safeDistanceX) {
-                    npc.dx = dx > 0 ? speed : -speed;
-                    npc.state = 'walk';
-                } else {
-                    npc.dx = 0;
-                    npc.state = 'idle';
+
+            // Verifica se il player sta rotolando e il NPC è sotto la stessa piattaforma
+            let underLowPlatform = false;
+            for (let plat of levels[currentLevelIndex].platforms) {
+                if (npc.x + npc.width > plat.x &&
+                    npc.x < plat.x + plat.width &&
+                    npc.y + npc.height <= plat.y &&
+                    npc.y + npc.height + 10 >= plat.y // NPC sotto la piattaforma (10px buffer)
+                ) {
+                    underLowPlatform = true;
+                    break;
                 }
-            } else {
-                npc.dx = dx > 0 ? speed : -speed;
+            }
+
+            if (player.isRolling && underLowPlatform) {
+                // NPC rotola
+                npc.state = 'roll';
+                npc.dx = player.x > npc.x ? player.speed || 2 : -(player.speed || 2);
                 npc.facingRight = npc.dx > 0;
-                npc.state = 'walk';
+            } else {
+                // Comportamento normale verso il player
+                if (distance <= closeDistance) {
+                    npc.facingRight = dx > 0;
+                    const safeDistanceX = 40;
+                    if (distance > safeDistanceX) {
+                        npc.dx = dx > 0 ? speed : -speed;
+                        npc.state = 'walk';
+                    } else {
+                        npc.dx = 0;
+                        npc.state = 'idle';
+                    }
+                } else {
+                    npc.dx = dx > 0 ? speed : -speed;
+                    npc.facingRight = npc.dx > 0;
+                    npc.state = 'walk';
+                }
             }
 
             // --- Movimento con collisione porte ---
@@ -627,18 +685,92 @@
             }
             npc.x = nextX;
 
-            // --- Aggiornamento animazione ---
+            // --- Aggiornamento animazione NPC ---
             npc.frameCounter = (npc.frameCounter || 0) + 1;
+
             if (npc.frameCounter >= 5) {
                 if (npc.state === 'walk') {
-                    npc.frameIndex = (npc.frameIndex + 1) % npcFramesRight.length;
+                    // Animazione camminata
+                    if (npc.facingRight) {
+                        npc.frameIndex = (npc.frameIndex + 1) % npcFramesRight.length;
+                    } else {
+                        npc.frameIndex = (npc.frameIndex + 1) % npcFramesLeft.length;
+                    }
+                } else if (npc.state === 'roll') {
+                    // Animazione rotolamento
+                    if (npc.facingRight) {
+                        npc.frameIndex = (npc.frameIndex + 1) % npcRollRight.length;
+                    } else {
+                        npc.frameIndex = (npc.frameIndex + 1) % npcRollLeft.length;
+                    }
                 } else {
+                    // Animazione idle
                     npc.frameIndex = 0;
                 }
+
                 npc.frameCounter = 0;
             }
         }
+        // =========================
+        // --- Ottieni NPC vicini al player ---
+        // =========================
+        function getNearbyNPCIndexes(player, level, maxDistance = 120) {
+            const nearbyIndexes = [];
+            const npcs = level.npcs || [];
+            for (let i = 0; i < npcs.length; i++) {
+                const npc = npcs[i];
+                const dx = (player.x + player.width / 2) - (npc.x + npc.width / 2);
+                const dy = (player.y + player.height / 2) - (npc.y + npc.height / 2);
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance <= maxDistance) {
+                    nearbyIndexes.push(i);
+                }
+            }
+            console.log(nearbyIndexes);
 
+            return nearbyIndexes;
+        }
+        // =========================
+        // --- Cambio livello con NPC tramite indici ---
+        // ========================= 
+        function changeLevel(newLevelIndex, npcIndexes = [], enterFromRight = false) {
+            const oldLevel = levels[currentLevelIndex];
+            const newLevel = levels[newLevelIndex];
+            currentLevelIndex = newLevelIndex;
+
+            const startPlat = newLevel.platforms[0];
+
+            // Posizionamento player
+            if (startPlat) {
+                player.x = enterFromRight ? canvas.width - player.width - 5 : 5;
+                player.y = startPlat.y - player.height;
+            }
+
+            // Assicuriamoci che newLevel abbia l'array npcs
+            if (!newLevel.npcs) newLevel.npcs = [];
+
+            // Trasferisci NPC indicati dagli indici
+            const transferringNPCs = npcIndexes.map(i => oldLevel.npcs[i]);
+
+            // Rimuovili dall'array del vecchio livello (in ordine inverso)
+            npcIndexes.sort((a, b) => b - a).forEach(i => oldLevel.npcs.splice(i, 1));
+
+            // Aggiungi NPC al nuovo livello accanto al player
+            for (let npc of transferringNPCs) {
+                const offsetX = enterFromRight ? - (npc.width + 5) : (player.width + 5);
+                const offsetY = 0; // stesso piano del player, puoi regolare se vuoi sopra/sotto
+                newLevel.npcs.push({
+                    ...npc,
+                    x: player.x + offsetX,
+                    y: player.y + offsetY,
+                    dx: 0,
+                    dy: 0,
+                    facingRight: npc.x < player.x, // se era a sinistra del player mantiene la direzione
+                    state: 'walk',
+                    frameCounter: 0
+                });
+            }
+        }
         // =========================
         // --- NPC draw ---
         // =========================
@@ -649,6 +781,9 @@
             switch (npc.state) {
                 case 'walk':
                     frame = npc.facingRight ? npcFramesRight[npc.frameIndex] : npcFramesLeft[npc.frameIndex];
+                    break;
+                case 'roll':  // aggiunto stato rotolamento
+                    frame = npc.facingRight ? npcRollRight[npc.frameIndex] : npcRollLeft[npc.frameIndex];
                     break;
                 case 'sayHello':
                     frame = npc.facingRight ? sayHelloFramesRight[0] : sayHelloFramesLeft[0];
@@ -719,6 +854,9 @@
                 pushButtonFramesLeft[i] = flipped;
             };
         });
+        let climbFrameIndex = 0;
+        let climbFrameCounter = 0;
+        player.onLadder = false;
         const climbFramesRight = [], climbFramesLeft = [];
         const climbLetters = ['C', 'D', 'E', 'F', 'G', 'H'];
         climbLetters.forEach((letter, i) => {
@@ -739,9 +877,6 @@
                 climbFramesLeft[i] = flipped;
             }
         });
-        let climbFrameIndex = 0;
-        let climbFrameCounter = 0;
-        let onLadder = false;
         const framesRight = [], framesLeft = [];
         const jumpFrameRight = new Image(), jumpFrameLeft = new Image();
         const pullLeverRight = [], pullLeverLeft = [];
@@ -906,15 +1041,34 @@
             const level = levels[currentLevelIndex];
             if (!level.doors) return;
 
-            level.doors.forEach(door => {
-                if (!door.triggers || door.triggers.length === 0) return;
+            for (let door of level.doors) {
+                if (!door.triggers || !door.triggerMode) continue;
 
-                if (door.mode === "AND") {
-                    door.open = door.triggers.every(t => activeTriggers.includes(t));
-                } else {
-                    door.open = door.triggers.some(t => activeTriggers.includes(t));
+                let triggersActive = [];
+
+                for (let triggerId of door.triggers) {
+                    // cerca il bottone corrispondente
+                    const button = level.buttons.find(b => b.id === triggerId);
+                    if (!button) continue;
+
+                    let isActive = false;
+                    if (button.mode === "TRICOLOR") {
+                        // TRICOLOR attivo solo se state === 2
+                        isActive = button.state === 2;
+                    } else if (button.mode === "ON" || button.mode === "TOGGLE") {
+                        // ON o TOGGLE attivo se pressed = true
+                        isActive = button.pressed === true;
+                    }
+
+                    triggersActive.push(isActive);
                 }
-            });
+
+                if (door.triggerMode === "AND") {
+                    door.open = triggersActive.length > 0 && triggersActive.every(a => a);
+                } else if (door.triggerMode === "OR") {
+                    door.open = triggersActive.some(a => a);
+                }
+            }
         }
 
         function toggleTrapdoors(targetIds, button = null) {
@@ -971,7 +1125,7 @@
                 const platform = platforms[l.platformIndex];
                 if (!platform) return;
 
-                const ladderTop = platform.y - 60;      // parte dalla piattaforma
+                const ladderTop = platform.y;      // parte dalla piattaforma
                 l.top = ladderTop;
                 const ladderHeight = l.height;     // scende verso il basso
 
@@ -1095,12 +1249,67 @@
             return -1; // nessuna piattaforma trovata
         }
 
-        let ladderSoundPlaying = false; // fuori dall'update, mantiene stato suoni scale
-
         function update() {
             const level = levels[currentLevelIndex];
             const platforms = getCurrentPlatforms();
+            // =========================
+            // --- Controllo scale & ingresso ---
+            // =========================
+            player.onLadder = false;
+            player.inLadderZone = false; // true se il player può iniziare a scendere
 
+            const ladders = getCurrentLadders();
+
+            for (let ladder of ladders) {
+                const platform = platforms[ladder.platformIndex];
+                if (!platform) continue;
+
+                const ladderTop = ladder.top;
+                const ladderBottom = ladderTop + ladder.height;
+
+                const playerTop = player.y;
+                const playerBottom = player.y + player.height;
+
+                // --- Controllo se il player è dentro la zona X della scala ---
+                const inLadderX = (player.x + player.width) > ladder.x && player.x < (ladder.x + ladder.width);
+
+                // --- Controllo se il player è sopra la piattaforma della scala ---
+                const onPlatform = playerBottom >= platform.y - 1 && playerBottom <= platform.y + 5;
+
+                // --- Flag ingresso zona scala ---
+                if (onPlatform && inLadderX) {
+                    player.inLadderZone = true;
+                    player.y += 5
+                    // Se preme giù, piccola spinta verso il basso per entrare nella scala
+                    if (keys.down) {
+                        player.y += 1; // sposta il player di 1px verso il basso
+                        console.log("Player spinto nella scala!", player.x, player.y);
+                        player.onLadder = true;
+                    }
+                }
+
+                // --- Controllo se il player sta effettivamente sulla scala ---
+                if (playerBottom > ladderTop && playerTop < ladderBottom && inLadderX) {
+                    player.onLadder = true;
+                    player.dy = 0; // disabilita gravità verticale solo per scalare
+
+                    // Movimento verticale sulla scala
+                    if (keys.up) {
+                        player.y -= player.speed
+                        if (player.y < platforms[ladder.platformIndex].y - 45) {
+                            player.onLadder = false;
+                        }
+                    };
+                    if (keys.down) player.y += player.speed;
+
+                    break; // non serve controllare altre scale
+                }
+            }
+
+            // --- Aggiorna accovacciamento solo se non stiamo entrando o scalando ---
+            if (!player.onLadder && !player.inLadderZone && keys.down) {
+                player.isCrouching = true;
+            }
             // =========================
             // --- Say Hello NPC ---
             // =========================
@@ -1121,83 +1330,147 @@
                 if (sayHelloTimer <= 0) currentFrame = 0;
             }
 
+            if (keys.up && !player.isUnderPlatform) {
+                player.isCrouching = false;
+            }
             // =========================
-            // --- Controllo scale ---
+            // --- Movimento orizzontale ---
             // =========================
-            onLadder = false;
-            const ladders = getCurrentLadders();
-            for (let ladder of ladders) {
-                const platform = platforms[ladder.platformIndex];
-                if (!platform) continue;
+            player.dx = 0;
+            let isMoving = false;
 
-                const ladderTop = ladder.top;
-                const ladderBottom = ladderTop + ladder.height;
-                const playerTop = player.y;
-                const playerBottom = player.y + player.height;
-
-                if (playerBottom > ladderTop && playerTop < ladderBottom &&
-                    player.x + player.width > ladder.x && player.x < ladder.x + ladder.width) {
-                    onLadder = true;
-                    player.dy = 0; // disabilita gravità verticale solo per scalare
+            if (!isPullingLever && !isPushingButton) {
+                if (keys.left) {
+                    player.dx = -player.speed;
+                    facingRight = false;
+                    isMoving = true;
                 }
-
-                if (!onLadder) continue;
-
-                let movingOnLadder = false;
-                if (keys.up) { player.y -= player.speed; movingOnLadder = true; }
-                if (keys.down) { player.y += player.speed; movingOnLadder = true; }
-
-                break;
+                if (keys.right) {
+                    player.dx = player.speed;
+                    facingRight = true;
+                    isMoving = true;
+                }
             }
 
+            // Calcolo posizione futura
+            let nextX = player.x + player.dx;
+
             // =========================
-            // --- Gravità e salto ---
+            // --- Collisioni porte ---
             // =========================
-            if (!onLadder) {
+            if (level.doors) {
+                for (let door of level.doors) {
+                    if (!door.open) {
+
+                        const platform = platforms[door.platformIndex];
+                        if (!platform) continue;
+
+                        const doorX = door.x;
+                        const doorY = platform.y - door.height;
+
+                        const doorLeft = doorX;
+                        const doorRight = doorX + door.width;
+                        const doorTop = doorY;
+                        const doorBottom = doorY + door.height;
+
+                        const playerLeft = nextX;
+                        const playerRight = nextX + player.width;
+                        const playerTop = player.y;
+                        const playerBottom = player.y + player.height;
+
+                        const overlap =
+                            playerRight > doorLeft &&
+                            playerLeft < doorRight &&
+                            playerBottom > doorTop &&
+                            playerTop < doorBottom;
+
+                        if (overlap) {
+                            if (player.dx > 0) {
+                                nextX = doorLeft - player.width;
+                            } else if (player.dx < 0) {
+                                nextX = doorRight;
+                            }
+                            player.dx = 0;
+                        }
+                    }
+                }
+            }
+
+
+
+            // =========================
+            // --- Gravità ---
+            // =========================
+            if (!player.onLadder) {
                 player.dy += gravity;
                 player.y += player.dy;
 
-                if (jumpPressed && player.onGround && !isCrouching) {
+                if (jumpPressed && player.onGround && !player.isCrouching) {
                     player.dy = -player.jumpForce;
-                    resetSounds()
-                    soundPlay('jump')
+                    resetSounds();
+                    soundPlay('jump');
                 }
             }
 
-            // =========================
-            // --- Movimento orizzontale e rotolata ---
-            // =========================
-            player.dx = 0;
-            if (!isPullingLever && !isPushingButton) { // solo blocco X se animazione leva/pulsante
-                if (keys.left) { player.dx = -player.speed; advanceFrame(); facingRight = false; }
-                if (keys.right) { player.dx = player.speed; advanceFrame(); facingRight = true; }
-            }
-            player.x += player.dx;
+            // Applica la posizione finale
+            player.x = nextX;
 
-            if (isCrouching && player.dx != 0) {
+            if (player.isCrouching && isMoving) {
+                // rotolata
                 rollFrameCounter++;
                 if (rollFrameCounter >= 5) {
-                    rollFrameIndex++;
-                    if (rollFrameIndex >= rollFramesRight.length) rollFrameIndex = 0;
+                    rollFrameIndex = (rollFrameIndex + 1) % rollFramesRight.length;
                     rollFrameCounter = 0;
                 }
-            } else { rollFrameIndex = 0; }
+            } else if (isMoving) {
+                // camminata
+                advanceFrame();
+            } else {
+                // fermo
+                currentFrame = 0;
+            }
 
+            if (player.onLadder) {
+                // avanzamento frame solo se il player si muove sulla scala
+                if (keys.up || keys.down) {
+                    climbFrameCounter++;
+                    if (climbFrameCounter >= 5) {  // ogni 5 update cambi frame
+                        climbFrameIndex = (climbFrameIndex + 1) % climbFramesRight.length;
+                        climbFrameCounter = 0;
+                    }
+                } else {
+                    // fermo sulla scala → frame iniziale
+                    climbFrameIndex = 0;
+                }
+                imgToDraw = facingRight ? climbFramesRight[climbFrameIndex] : climbFramesLeft[climbFrameIndex];
+            } else {
+                // =========================
+                // --- Gestione tasti UP ---
+                // =========================
+                if (keys.up) {
+                    if (player.isCrouching) {
+                        // Rialzati dall'accovacciata
+                        player.isCrouching = false;
+                         
+                    }
+                }
+            }
 
-            if (isCrouching) {
-                resetSounds()
-                soundPlay('ladder')
+            // Suono rotolata o interazioni
+            if (player.isCrouching || player.onLadder) {
+                resetSounds();
+                soundPlay('ladder');
             } else if (isPushingButton) {
-                resetSounds()
-                soundPlay('button')
+                resetSounds();
+                soundPlay('button');
             } else if (isPullingLever) {
-                resetSounds()
-                soundPlay('lever')
+                resetSounds();
+                soundPlay('lever');
             }
             // =========================
             // --- Interazioni leve / pulsanti ---
             // =========================
-            if (!onLadder && keys.interact) {
+            if (!player.onLadder && keys.interact) {
                 // --- Leva ---
                 if (!isPullingLever && level.lever) {
                     const lever = level.lever;
@@ -1258,14 +1531,19 @@
                         const platform = platforms[button.platformIndex];
                         const dx = Math.abs((player.x + player.width / 2) - (button.x + button.width / 2));
                         const dy = Math.abs((player.y + player.height) - platform.y);
+
                         if (dx < 50 && dy < 60) {
+
                             isPushingButton = true;
                             pushButtonFrameIndex = 0;
                             pushButtonFrameCounter = 0;
                             activeButton = button;
 
                             // Posizione player solo X
-                            player.x = facingRight ? button.x - player.width + 10 : button.x + button.width - 10;
+                            player.x = facingRight
+                                ? button.x - player.width + 10
+                                : button.x + button.width - 10;
+
                             player.dx = 0;
 
                             keys.interact = false;
@@ -1338,6 +1616,7 @@
                         pushButtonFrameIndex = 0;
 
                         if (activeButton) {
+
                             applyButtonEffect(activeButton);
                             activeButton = null;
                         }
@@ -1345,6 +1624,7 @@
                 }
             }
 
+            let effectiveHeight = player.isCrouching ? player.height / 2 : player.height
             // =========================
             // --- Collisioni piattaforme e botole ---
             // =========================
@@ -1383,16 +1663,13 @@
                     }
                 }
             }
-
             // Collisioni piattaforme
             for (let i = 0; i < allSurfaces.length; i++) {
                 let plat = allSurfaces[i];
 
-                if (plat.type === 'solid' && isCrouching) continue;
-
                 // Collisione verticale
                 if (i !== ignorePlatIndex) {
-                    if (
+                    if (!player.onLadder &&
                         player.x + player.width > plat.x &&
                         player.x < plat.x + plat.width &&
                         player.y + player.height > plat.y &&
@@ -1405,15 +1682,27 @@
                     }
                 }
 
-                // Collisione orizzontale
+                // Collisione orizzontale 
                 if (
                     player.y + player.height > plat.y &&
                     player.y < plat.y + plat.height
                 ) {
-                    if (player.dx > 0 && player.x + player.width > plat.x && player.x < plat.x)
-                        player.x = plat.x - player.width;
-                    if (player.dx < 0 && player.x < plat.x + plat.width && player.x + player.width > plat.x + plat.width)
-                        player.x = plat.x + plat.width;
+                    if (player.isCrouching) {
+                        player.isUnderPlatform = true;
+                        if ((player.dx > 0 && player.x > plat.x + plat.width - 20)
+                            || (player.dx < 0 && player.x < plat.x - 10)) {
+                            player.isUnderPlatform = false;
+                            player.isCrouching = false;
+                            continue;
+                        }
+                    } else {
+                        if (player.dx > 0 && player.x + player.width > plat.x && player.x < plat.x) {
+                            player.x = plat.x - player.width;
+                        }
+                        if (player.dx < 0 && player.x < plat.x + plat.width && player.x + player.width > plat.x + plat.width) {
+                            player.x = plat.x + plat.width;
+                        }
+                    }
                 }
             }
 
@@ -1422,8 +1711,27 @@
             // =========================
             if (level.spikes) {
                 level.spikes.forEach(spike => {
-                    if (spike.active && player.x + player.width > spike.x && player.x < spike.x + spike.width &&
-                        player.y < 300 && player.y > 280) deathOfPlayer();
+                    if (!spike.active) return;
+
+                    const platform = platforms[spike.platformIndex];
+                    if (!platform) return;
+
+                    const platformY = platform.y;
+
+                    // buffer verticale per la collisione
+                    const spikeTop = platformY - spike.height; // se spike si trova sopra la piattaforma
+                    const spikeBottom = platformY;
+
+                    // collisione solo se il player è vicino alla y della piattaforma
+                    const playerBottom = player.y + player.height;
+                    const playerTop = player.y;
+
+                    const verticalCollision = playerBottom > spikeTop && playerTop < spikeBottom;
+                    const horizontalCollision = player.x + player.width > spike.x && player.x < spike.x + spike.width;
+
+                    if (horizontalCollision && verticalCollision) {
+                        deathOfPlayer();
+                    }
                 });
             }
 
@@ -1431,36 +1739,94 @@
             // --- Porte & trigger ---
             // =========================
             let activeTriggers = [];
-            if (level.lever && level.lever.active && level.lever.targets) activeTriggers.push(...level.lever.targets);
-            if (level.buttons) level.buttons.forEach(b => { if (b.pressed && b.targets) activeTriggers.push(...b.targets); });
-            if (level.trapdoors) level.trapdoors.forEach(t => { if (t.open) activeTriggers.push(t.id); });
+
+            // Lever
+            if (level.lever && level.lever.active && level.lever.targets) {
+                for (let id of level.lever.targets) {
+                    if (!activeTriggers.includes(id)) activeTriggers.push(id);
+                }
+            }
+
+            // Buttons
+            if (level.buttons) {
+                level.buttons.forEach(b => {
+                    if (b.targets) {
+
+                        if (b.mode === "TRICOLOR") {
+                            // attivo se NON è grigio (state 0)
+                            if (b.state !== 0) {
+                                activeTriggers.push(...b.targets);
+                            }
+                        } else {
+                            // comportamento normale
+                            if (b.pressed) {
+                                activeTriggers.push(...b.targets);
+                            }
+                        }
+
+                    }
+                });
+            }
+
+            // Trapdoors
+            if (level.trapdoors) {
+                level.trapdoors.forEach(t => {
+                    if (t.open) {
+                        if (!activeTriggers.includes(t.id)) activeTriggers.push(t.id);
+                    }
+                });
+            }
+
             toggleDoors(activeTriggers);
 
             // =========================
             // --- Cambio livello & limiti ---
             // =========================
+            let newLevelIndex = currentLevelIndex;
+            let enterFromRight = false;
+
             if (player.dx > 0 && player.x + player.width >= canvas.width) {
-                if (currentLevelIndex < levels.length - 1) { currentLevelIndex++; player.x = 5; player.y = levels[currentLevelIndex].platforms[0].y - player.height; }
-                else player.x = canvas.width - player.width;
+                if (currentLevelIndex < levels.length - 1) {
+                    newLevelIndex = currentLevelIndex + 1;
+                    enterFromRight = false;
+                } else {
+                    player.x = canvas.width - player.width;
+                }
             }
+
             if (player.dx < 0 && player.x <= 0) {
-                if (currentLevelIndex > 0) { currentLevelIndex--; player.x = canvas.width - player.width - 5; player.y = levels[currentLevelIndex].platforms[0].y - player.height; }
-                else player.x = 0;
+                if (currentLevelIndex > 0) {
+                    newLevelIndex = currentLevelIndex - 1;
+                    enterFromRight = true;
+                } else {
+                    player.x = 0;
+                }
             }
-            if (player.x < 0) player.x = 0;
-            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
-            if (player.y < 0) player.y = 0;
-            if (player.y + player.height > canvas.height) player.y = canvas.height - player.height;
+
+            // Cambio livello con NPC vicini
+            if (newLevelIndex !== currentLevelIndex) {
+                const nearbyIndexes = getNearbyNPCIndexes(player, levels[currentLevelIndex], 120);
+                changeLevel(newLevelIndex, nearbyIndexes, enterFromRight);
+            }
+
+            // Limiti generali del canvas
+            player.x = Math.max(0, Math.min(player.x, canvas.width - player.width));
+            player.y = Math.max(0, Math.min(player.y, canvas.height - player.height));
         }
 
 
         function deathOfPlayer() {
             if (player.dead) return;
             player.dead = true;
-
+            soundPlay('dead')
             // Ferma il movimento
             player.dx = 0;
             player.dy = 0;
+            keys.left = false;
+            keys.right = false;
+            keys.up = false;
+            keys.down = false;
+            jumpPressed = false;
 
             // Genera particelle rosse
             spawnDeathParticles(player.x, player.y);
@@ -1474,7 +1840,7 @@
         // =========================
         function drawButton(button) {
             const platform = getCurrentPlatforms()[button.platformIndex];
-            const baseY = platform.y - 60;
+            const baseY = platform.y;
             const radius = 5; // arrotondamento bordi quadrati
             const palettoHeight = button.height / 2; // altezza paletto
             const palettoWidth = button.width / 2;
@@ -1619,7 +1985,7 @@
                     : sayHelloFramesLeft[0];
             } else if (isPullingLever && pullLeverRight[leverFrame]) {
                 imgToDraw = facingRight ? pullLeverRight[leverFrame] : pullLeverLeft[leverFrame];
-            } else if (onLadder) {
+            } else if (player.onLadder) {
                 imgToDraw = facingRight ? climbFramesRight[climbFrameIndex] : climbFramesLeft[climbFrameIndex];
             } else if (!player.onGround) {
                 imgToDraw = facingRight ? jumpFrameRight : jumpFrameLeft;
@@ -1628,7 +1994,7 @@
                     ? pushButtonFramesRight[pushButtonFrameIndex]
                     : pushButtonFramesLeft[pushButtonFrameIndex];
 
-            } else if (isCrouching) {
+            } else if (player.isCrouching) {
                 imgToDraw = (player.dx != 0)
                     ? (facingRight ? rollFramesRight[rollFrameIndex] : rollFramesLeft[rollFrameIndex])
                     : (facingRight ? rollIdleRight : rollIdleLeft);
