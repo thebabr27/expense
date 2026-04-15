@@ -104,10 +104,10 @@
                 world: 'World 1',
                 platforms: [
                     { x: 0 * 80, y: 7 * 70 - 20, width: 10 * 80, height: 20, type: "solid" },  // piattaforma base riga 7
-                    { x: 3 * 80, y: (6 * 70) - 10, width: 4 * 80, height: 20, type: 'solid' }, // piattaforma nera vicino al suolo 2
-                    /* { x: 1 * 80, y: 4 * 70, width: 3 * 80, height: 20, type: "normal" }, */        // piattaforma centro riga 4
+                    { x: 3 * 80, y: 6 * 70, width: 4 * 80, height: 20, type: 'solid' }, // piattaforma nera vicino al suolo 2
                     { x: 0 * 80, y: 5 * 70, width: 10 * 80, height: 20, type: "solid" },         // piattaforma nuova “grigia scura” riga 5
-                    { x: 0 * 80, y: 3 * 70, width: 10 * 80, height: 20, type: "normal" },        // piattaforma destra riga 5
+                    { x: 0 * 80, y: 3 * 70, width: 2 * 80, height: 20, type: "normal" },        // piattaforma destra riga 5
+                    { x: 8 * 80, y: 3 * 70, width: 2 * 80, height: 20, type: "solid" },         // piattaforma grigia riga 3
                     { x: 2 * 80, y: 2 * 70, width: 3 * 80, height: 20, type: "solid" },         // piattaforma grigia riga 3
                     { x: 6 * 80, y: 1 * 70, width: 4 * 80, height: 20, type: "normal" },        // piattaforma pulsante alto riga
                 ],
@@ -144,7 +144,7 @@
                         mode: "flipped"
                     },
                     {
-                        x: 8 * 80,
+                        x: 5 * 80,
                         platformIndex: 3,
                         width: 60,
                         height: 20,
@@ -204,7 +204,7 @@
                 npcs: [
                     {
                         x: 8 * 80,           // posizione orizzontale iniziale
-                        y: 15, // posizione verticale iniziale (pavimento)
+                        y: 0 * 70, // posizione verticale iniziale (pavimento)
                         width: 50,        // larghezza NPC
                         height: 50,
                         dx: 2,             // velocità iniziale
@@ -577,6 +577,375 @@
             dead: new Audio('assets/sounds/dead.mp3')
         };
         sounds.ladder.loop = true
+
+        function parseMultiTileMap(map, cellSize = 80, rowSize = 70) {
+            const level = {
+                world: 'World 1',
+                platforms: [],
+                ladders: [],
+                spikes: [],
+                trapdoors: [],
+                buttons: [],
+                doors: [],
+                lever: [],
+                npcs: [],
+                specialDoors: []
+            };
+
+            for (let i = 0; i < map.length; i++) {
+
+                const row = map[i];
+                const parsed = parseTypedPlatformRuns(row, cellSize);
+
+                // =========================
+                // PLATFORMS
+                // =========================
+                for (let plat of parsed.platforms) {
+                    level.platforms.push({
+                        ...plat,
+                        y: i * rowSize
+                    });
+                }
+
+                const platformBaseIndex =
+                    level.platforms.length - parsed.platforms.length;
+
+                // =========================
+                // DOORS
+                // =========================
+                for (let door of parsed.doors) {
+                    level.doors.push({
+                        ...door,
+                        platformIndex: platformBaseIndex 
+                    });
+                }
+
+                // =========================
+                // LADDERS
+                // =========================
+                for (let ladder of parsed.ladders) {
+                    level.ladders.push({
+                        ...ladder,
+                        platformIndex: platformBaseIndex 
+                    });
+                }
+
+                // =========================
+                // SPIKES
+                // =========================
+                for (let spike of parsed.spikes) {
+                    level.spikes.push({
+                        ...spike,
+                        platformIndex: platformBaseIndex 
+                    });
+                }
+
+                // =========================
+                // LEVERS
+                // =========================
+                for (let lever of parsed.levers) {
+                    level.lever.push({
+                        ...lever,
+                        platformIndex: platformBaseIndex 
+                    });
+                }
+
+                // =========================
+                // BUTTONS
+                // =========================
+                for (let button of parsed.buttons) {
+                    level.buttons.push({
+                        ...button,
+                        platformIndex: platformBaseIndex 
+                    });
+                }
+                // =========================
+                // TRAPDOORS
+                // =========================
+                for (let trap of parsed.trapdoors) {
+                    level.trapdoors.push({
+                        ...trap,
+                        platformIndex: platformBaseIndex 
+                    });
+                }
+
+                // =========================
+                // NPCS
+                // =========================
+                for (let npc of parsed.npcs) {
+                    level.npcs.push({
+                        ...npc,
+                        y: i * rowSize
+                    });
+                }
+
+                // =========================
+                // SPECIAL DOORS
+                // =========================
+                for (let special of parsed.specialDoors) {
+                    console.log(special)
+                    level.specialDoors.push({
+                        ...special,
+                        platformIndex: platformBaseIndex 
+                    });
+                }
+
+            }
+            console.log(level)
+            return level;
+        }
+
+        function parseTypedPlatformRuns(row, cellSize = 80) {
+
+            const platforms = [];
+            const doors = [];
+            const ladders = [];
+            const spikes = [];
+            const levers = [];
+            const buttons = [];
+            const trapdoors = [];
+            const npcs = [];
+            const specialDoors = [];
+
+            let runStart = null;
+            let runType = null;
+
+            const isPlatformChar = (c) => c === "_" || c === "=";
+
+            const isObjectChar = (c) =>
+                c === "D" ||
+                c === "L" ||
+                c === "s" ||
+                c === "l" ||
+                c === "h" ||
+                c === "b" ||
+                c === "w" ||
+                c === "t" ||
+                c === "c" ||
+                c === "f" ||
+                c === "d" ||
+                c === "N" ||
+                c === "X";
+
+            for (let x = 0; x <= row.length; x++) {
+
+                const char = row[x] || "-";
+
+                // =========================
+                // PLATFORM
+                // =========================
+                if (isPlatformChar(char)) {
+
+                    if (runStart === null) {
+                        runStart = x;
+                        runType = (char === "=") ? "solid" : "normal";
+                    }
+
+                    continue;
+                }
+
+                // =========================
+                // OBJECTS (NO BREAK RUN)
+                // =========================
+                if (isObjectChar(char)) {
+                    if (char === "X") {
+
+                        specialDoors.push({
+                            x: x * cellSize,
+                            width: 50,
+                            height: 90,
+                            open: false,
+                            id: "auto" 
+                        });
+
+                        continue;
+                    }
+                    if (char === "N") {
+
+                        npcs.push({
+                            x: x * cellSize,
+                            y: 0, // la y la assegni dopo nel loop principale
+                            width: 50,
+                            height: 50,
+                            dx: 2,
+                            speed: 2,
+                            onGround: true,
+                            facingRight: true,
+                            state: "walk",
+                            frameIndex: 0,
+                            frameCounter: 0,
+                            sayHelloTimer: 0,
+                            following: false,
+                            isUnderPlatform: false,
+                            isRolling: false,
+                            onLadder: false,
+                            inLadderZone: false,
+                            followOffsetX: (Math.random() * 60) - 30
+                        });
+
+                        continue;
+                    }
+                    if (char === "t") {
+                        trapdoors.push({
+                            x: x * cellSize,
+                            width: 60,
+                            height: 20,
+                            open: false,
+                            angle: 0,
+                            targetAngle: 0,
+                            mode: "normal"
+                        });
+                    }
+
+                    if (char === "f") {
+                        trapdoors.push({
+                            x: x * cellSize,
+                            width: 60,
+                            height: 20,
+                            open: false,
+                            angle: 0,
+                            targetAngle: 0,
+                            mode: "flipped"
+                        });
+                    }
+
+                    if (char === "d") {
+                        trapdoors.push({
+                            x: x * cellSize,
+                            width: 60,
+                            height: 20,
+                            open: false,
+                            angle: 0,
+                            targetAngle: 0,
+                            mode: "double"
+                        });
+                    }
+                    if (char === "b") {
+                        buttons.push({
+                            x: x * cellSize,
+                            width: 20,
+                            height: 20,
+                            pressed: false,
+                            mode: "ON",
+                            state: 0,
+                            targets: []
+                        });
+                    }
+
+                    if (char === "w") {
+                        buttons.push({
+                            x: x * cellSize,
+                            width: 20,
+                            height: 20,
+                            pressed: false,
+                            mode: "TOGGLE",
+                            state: 0,
+                            targets: []
+                        });
+                    }
+
+                    if (char === "c") {
+                        buttons.push({
+                            x: x * cellSize,
+                            width: 20,
+                            height: 20,
+                            pressed: false,
+                            mode: "TRICOLOR",
+                            state: 0,
+                            targets: []
+                        });
+                    }
+
+                    if (char === "D") {
+                        doors.push({
+                            x: x * cellSize,
+                            width: 50,
+                            height: 80,
+                            open: false,
+                            id: "auto"
+                        });
+                    }
+
+                    if (char === "L") {
+                        ladders.push({
+                            x: x * cellSize,
+                            width: 20,
+                            height: 60
+                        });
+                    }
+
+                    if (char === "s") {
+                        spikes.push({
+                            x: x * cellSize,
+                            width: 40,
+                            height: 20,
+                            active: true
+                        });
+                    }
+
+                    if (char === "l") {
+                        levers.push({
+                            x: x * cellSize,
+                            width: 50,
+                            height: 20,
+                            angle: -45,
+                            mode: "TOGGLE"
+                        });
+                    }
+
+                    if (char === "h") {
+                        levers.push({
+                            x: x * cellSize,
+                            width: 50,
+                            height: 20,
+                            angle: -45,
+                            mode: "HOLD"
+                        });
+                    }
+
+                    continue;
+                }
+
+                // =========================
+                // END RUN
+                // =========================
+                if (runStart !== null) {
+
+                    platforms.push({
+                        x: runStart * cellSize,
+                        width: (x - runStart) * cellSize,
+                        height: 20,
+                        type: runType
+                    });
+
+                    runStart = null;
+                    runType = null;
+                }
+            }
+
+            // flush finale
+            if (runStart !== null) {
+                platforms.push({
+                    x: runStart * cellSize,
+                    width: (row.length - runStart) * cellSize,
+                    height: 20,
+                    type: runType
+                });
+            }
+
+            return {
+                platforms,
+                doors,
+                ladders,
+                spikes,
+                levers,
+                buttons,
+                trapdoors,
+                npcs,
+                specialDoors
+            };
+        }
+
         function soundPlay(soundName) {
 
             const sound = sounds[soundName];
@@ -2060,6 +2429,7 @@
 
         function drawLever(lever) {
             const platform = getCurrentPlatforms()[lever.platformIndex];
+
             const baseY = platform.y;
             const height = 30;
             const x = lever.x, y = baseY - height;
@@ -2601,7 +2971,7 @@
             let activeTriggers = [];
 
             // --- Leve ---
-            if (level.lever[0] && level.lever[0].active && level.lever[0].targets) {
+            if (level.lever && level.lever[0] && level.lever[0].active && level.lever[0].targets) {
                 for (let id of level.lever[0].targets) {
                     if (!activeTriggers.includes(id)) activeTriggers.push(id);
                 }
@@ -2799,7 +3169,7 @@
             // --- Movimento orizzontale ---
             // =========================
             const { nextX, isMoving } = handleHorizontalMovement(
-                player, keys, player.speed, isPullingLever, isPushingButton, platforms, level.doors.concat(level.specialDoors)
+                player, keys, player.speed, isPullingLever, isPushingButton, platforms, level.doors.concat(level.specialDoors || [])
             );
 
             // =========================
@@ -2954,7 +3324,7 @@
             ctx.fillStyle = 'green';
             const platforms = getCurrentPlatforms();
             const ladders = getCurrentLadders();
-            const level = getCurrentLevel(); 
+            const level = getCurrentLevel();
             platforms.forEach((p, index) => {
 
                 // 🔥 prendi SEMPRE le trapdoor della piattaforma
@@ -3022,7 +3392,7 @@
                 level.trapdoors.forEach(t => drawTrapdoor(t));
             }
             // Leva
-            if (level.lever[0]) drawLever(level.lever[0]);
+            if (level.lever && level.lever[0]) drawLever(level.lever[0]);
             //spike
             if (level.spikes) {
                 level.spikes.forEach(t => drawSpikes(t));
@@ -3104,9 +3474,24 @@
             requestAnimationFrame(gameLoop);
         }
 
+
+        const map = [
+            "-N--------",
+            "------__s_",
+            "=====-----",
+            "----------",
+            "__LD_---==",
+            "==L=-___h_",
+            "---_cbt---",
+            "_______wX_",
+        ];
+        const generatedLevel = parseMultiTileMap(map);
+
+        levels[0] = generatedLevel;
         // Chiama setupActions all’avvio
         setupActions();
         gameLoop();
+
 
     </script>
 
