@@ -98,7 +98,7 @@
         // =========================
         // --- Livelli & Piattaforme ---
         // =========================
-        const levels = [
+        let levels = [
             // --- Level 1: destra ---
             {
                 world: 'World 1',
@@ -578,7 +578,63 @@
         };
         sounds.ladder.loop = true
 
-        function parseMultiTileMap(map, cellSize = 80, rowSize = 70) {
+        function addLinks(links, level) {
+
+            const collections = [
+                level.buttons,
+                level.doors,
+                level.trapdoors,
+                level.lever,
+                level.specialDoors,
+                level.ladders,
+                level.spikes,
+                level.npcs
+            ];
+
+            const findById = (id) => {
+                for (let col of collections) {
+                    const obj = col.find(e => e.id === id);
+                    if (obj) return obj;
+                }
+                return null;
+            };
+
+            console.log("🔗 Applying links (TRIGGERS ONLY):", links);
+
+            for (let link of links) {
+
+                const fromObj = findById(link.from);
+
+                if (!fromObj) {
+                    console.warn("⚠️ FROM not found:", link.from);
+                    continue;
+                }
+
+                for (let toId of link.to) {
+
+                    const toObj = findById(toId);
+
+                    if (!toObj) {
+                        console.warn("⚠️ TO not found:", toId);
+                        continue;
+                    }
+
+                    // =========================
+                    // INIT triggers
+                    // =========================
+                    if (!Array.isArray(toObj.triggers)) {
+                        toObj.triggers = [];
+                    }
+
+                    if (!toObj.triggers.includes(fromObj.id)) {
+                        toObj.triggers.push(fromObj.id);
+                    }
+
+                    console.log("🔌 LINK:", fromObj.id, "→", toObj.id);
+                }
+            }
+        }
+        function parseMultiTileMap(mapObj, cellSize = 80, rowSize = 70) {
             const level = {
                 world: 'World 1',
                 platforms: [],
@@ -591,7 +647,8 @@
                 npcs: [],
                 specialDoors: []
             };
-
+            let links = mapObj.links;
+            let map = mapObj.map;
             for (let i = 0; i < map.length; i++) {
 
                 const row = map[i];
@@ -603,7 +660,7 @@
                 for (let plat of parsed.platforms) {
                     level.platforms.push({
                         ...plat,
-                        y: i * rowSize
+                        y: i * rowSize,
                     });
                 }
 
@@ -616,7 +673,8 @@
                 for (let door of parsed.doors) {
                     level.doors.push({
                         ...door,
-                        platformIndex: platformBaseIndex 
+                        platformIndex: platformBaseIndex,
+                        id: "D" + level.doors.length
                     });
                 }
 
@@ -626,7 +684,8 @@
                 for (let ladder of parsed.ladders) {
                     level.ladders.push({
                         ...ladder,
-                        platformIndex: platformBaseIndex 
+                        platformIndex: platformBaseIndex,
+                        id: "L" + level.ladders.length
                     });
                 }
 
@@ -636,7 +695,8 @@
                 for (let spike of parsed.spikes) {
                     level.spikes.push({
                         ...spike,
-                        platformIndex: platformBaseIndex 
+                        platformIndex: platformBaseIndex,
+                        id: "S" + level.spikes.length
                     });
                 }
 
@@ -646,7 +706,8 @@
                 for (let lever of parsed.levers) {
                     level.lever.push({
                         ...lever,
-                        platformIndex: platformBaseIndex 
+                        platformIndex: platformBaseIndex,
+                        id: "V" + level.lever.length
                     });
                 }
 
@@ -656,7 +717,8 @@
                 for (let button of parsed.buttons) {
                     level.buttons.push({
                         ...button,
-                        platformIndex: platformBaseIndex 
+                        platformIndex: platformBaseIndex,
+                        id: "B" + level.buttons.length
                     });
                 }
                 // =========================
@@ -665,7 +727,8 @@
                 for (let trap of parsed.trapdoors) {
                     level.trapdoors.push({
                         ...trap,
-                        platformIndex: platformBaseIndex 
+                        platformIndex: platformBaseIndex,
+                        id: "T" + level.trapdoors.length
                     });
                 }
 
@@ -686,11 +749,14 @@
                     console.log(special)
                     level.specialDoors.push({
                         ...special,
-                        platformIndex: platformBaseIndex 
+                        platformIndex: platformBaseIndex,
+                        id: "X" + level.specialDoors.length
                     });
                 }
 
             }
+
+
             console.log(level)
             return level;
         }
@@ -755,7 +821,7 @@
                             width: 50,
                             height: 90,
                             open: false,
-                            id: "auto" 
+                            id: "auto"
                         });
 
                         continue;
@@ -862,6 +928,7 @@
                             width: 50,
                             height: 80,
                             open: false,
+                            triggerMode: 'AND',
                             id: "auto"
                         });
                     }
@@ -1229,44 +1296,20 @@
                 facingRight = false;
             }
         }
-        function applyButtonEffect(button) {
-            switch (button.mode) {
-                case "ON":
-                    button.pressed = true;
-                    break;
+        function isTriggerActive(triggerId, level) {
 
-                case "TOGGLE":
-                    button.pressed = !button.pressed;
-                    break;
-
-                case "TRICOLOR":
-                    button.state = (button.state + 1) % 3;
-                    button.pressed = true;
-                    break;
+            const button = level.buttons.find(b => b.id === triggerId);
+            if (button) {
+                if (button.mode === "TRICOLOR") return button.state === 2;
+                return button.pressed === true;
             }
 
-            if (button.targets) {
-                toggleTrapdoors(button.targets, button);
-                toggleDoors(button.targets, button);
-            }
-        }
-        function applyLeverEffect(lever) {
-
-            if (lever.mode === "TOGGLE") {
-                // leva classica (rimane)
-                lever.active = !lever.active;
-                lever.targetAngle = lever.active ? 45 : -45;
+            const lever = level.lever.find(l => l.id === triggerId);
+            if (lever) {
+                return lever.active === true;
             }
 
-            else if (lever.mode === "HOLD") {
-                // leva a molla
-                lever.active = true;
-                lever.targetAngle = 45;
-            }
-
-            if (lever.targets) {
-                toggleTrapdoors(lever.targets);
-            }
+            return false;
         }
 
 
@@ -1695,30 +1738,48 @@
             }
 
             npc.onGround = false;
-
-
             if (npc.following) {
+
+                const speed = npc.speed;
+
                 if (player.isCrouching || npc.isUnderPlatform) {
+
                     npc.state = 'roll';
-                    npc.isCrouching = true;
+
                     npc.dx = player.x > npc.x ? speed : -speed;
                     npc.facingRight = npc.dx > 0;
+
                 } else {
-                    npc.isCrouching = false;
-                    const targetX = player.x + (npc.followOffsetX || 0);
+                    if (player.dx !== 0) {
+                        npc.followDir = player.dx > 0 ? 1 : -1;
+                    }
+                    const baseOffset = 50;
+
+                    const offset = baseOffset + (npc.followRandomOffset || 0);
+
+                    const dir = npc.followDir ?? 1;
+
+                    const targetX = player.x - dir * offset;
                     const dx = targetX - npc.x;
 
-                    if (Math.abs(dx) > 5) {
-                        npc.dx = dx > 0 ? speed : -speed;
-                        npc.facingRight = npc.dx > 0;
-                        npc.state = 'walk';
-                    } else {
+                    const deadZone = 6;
+
+                    if (Math.abs(dx) < deadZone) {
                         npc.dx = 0;
                         npc.state = 'idle';
+                        return;
                     }
+
+                    const followStrength = 0.12;
+
+                    npc.dx = dx * followStrength;
+                    npc.dx = Math.max(-speed, Math.min(speed, npc.dx));
+
+                    npc.state = 'walk';
+                    npc.facingRight = npc.dx > 0;
                 }
+
             } else {
-                // NPC fermo se non sta seguendo
                 npc.dx = 0;
                 npc.state = 'idle';
                 npc.isCrouching = false;
@@ -1864,12 +1925,13 @@
                     ? -(npc.width + 5)
                     : (player.width + 5);
 
-                const offsetY = 0;
-
                 newLevel.npcs.push({
                     ...npc,
                     x: player.x + offsetX,
-                    y: player.y + offsetY,
+
+                    // 🔥 IMPORTANTE: mantieni Y originale
+                    y: npc.y,
+
                     dx: 0,
                     dy: 0,
                     facingRight: npc.x < player.x,
@@ -2166,34 +2228,40 @@
                 frameCounter = 0;
             }
         }
-        function toggleDoors(activeTriggers) {
+        function isTriggerActive(triggerId, level) {
+
+            const button = level.buttons.find(b => b.id === triggerId);
+            if (button) {
+                if (button.mode === "TRICOLOR") return button.state === 2;
+                return button.pressed === true;
+            }
+
+            const lever = level.lever.find(l => l.id === triggerId);
+            if (lever) {
+                return lever.active === true;
+            }
+
+            return false;
+        }
+        function toggleDoors(triggerIds) {
+            //console.log(triggerIds)
             const level = getCurrentLevel();
             if (!level.doors) return;
 
             for (let door of level.doors) {
+
                 if (!door.triggers || !door.triggerMode) continue;
 
-                let triggersActive = [];
+                // controlla solo se questa porta è collegata a uno dei trigger attivati
+                const isAffected = triggerIds.some(id => door.triggers.includes(id));
+                if (!isAffected) continue;
 
-                for (let triggerId of door.triggers) {
-                    // cerca il bottone corrispondente
-                    const button = level.buttons.find(b => b.id === triggerId);
-                    if (!button) continue;
-
-                    let isActive = false;
-                    if (button.mode === "TRICOLOR") {
-                        // TRICOLOR attivo solo se state === 2
-                        isActive = button.state === 2;
-                    } else if (button.mode === "ON" || button.mode === "TOGGLE") {
-                        // ON o TOGGLE attivo se pressed = true
-                        isActive = button.pressed === true;
-                    }
-
-                    triggersActive.push(isActive);
-                }
+                const triggersActive = door.triggers.map(id =>
+                    isTriggerActive(id, level)
+                );
 
                 if (door.triggerMode === "AND") {
-                    door.open = triggersActive.length > 0 && triggersActive.every(a => a);
+                    door.open = triggersActive.every(a => a);
                 } else if (door.triggerMode === "OR") {
                     door.open = triggersActive.some(a => a);
                 }
@@ -2201,6 +2269,7 @@
         }
 
         function toggleTrapdoors(targetIds, button = null) {
+            console.log(targetIds)
             const level = getCurrentLevel();
             level?.trapdoors?.forEach(trap => {
                 if (targetIds && targetIds.includes(trap.id)) {
@@ -2269,7 +2338,7 @@
             const doorXcheck = doorX - 60;
             const followingCount = countFollowingNPCs(level);
 
-            console.log(player.x, doorX - 60, player.y, (platform.y - 50))
+            //console.log(player.x, doorX - 60, player.y, (platform.y - 50))
             const isPlayerNear = player.x > doorXcheck && player.y == platform.y - 50;
 
             let img;
@@ -2522,7 +2591,11 @@
                     if (player.y > (npc.y - 10) && player.y < (npc.y + 10)
                         && player.x > (npc.x - 70) && player.x < (npc.x + 70)
                     ) {
-                        npc.following = true
+                        npc.following = true;
+
+                        if (npc.followRandomOffset == null) {
+                            npc.followRandomOffset = (Math.random() * 50) - 50; // -5 / +5 px
+                        }
                     }
                 });
             }
@@ -2585,7 +2658,18 @@
                 resetSounds();
                 soundPlay('jump');
             }
+            for (let platform of getCurrentPlatforms()) {
+
+                if (platform.type == "solid"
+                    && player.x > platform.x && player.x < platform.x + platform.width
+                    && player.y > platform.y && player.y < platform.y + platform.height
+                ) {
+                    console.log(platform.type)
+                    player.dy = 0
+                }
+            }
         }
+
         function updatePlayerAnimationAndSounds(player, keys, isMoving, facingRight) {
             // --- Animazione rotolata / camminata / fermo ---
             if (player.isCrouching && isMoving) {
@@ -2724,52 +2808,92 @@
         // --- Aggiornamento animazioni leve / pulsanti ---
         // =========================
         function updateInteractionAnimations() {
-            // --- Animazione leva ---
+
+            // =========================
+            // LEVER
+            // =========================
             if (isPullingLever && activeLever) {
+
                 leverCounter++;
-                if (leverCounter >= 5) { leverFrame++; leverCounter = 0; }
+                if (leverCounter >= 5) {
+                    leverFrame++;
+                    leverCounter = 0;
+                }
 
                 let progress = Math.min(leverFrame / pullLeverRight.length, 1);
                 activeLever.angle += (activeLever._currentTarget - activeLever.angle) * progress;
 
                 if (leverFrame >= pullLeverRight.length) {
+
                     isPullingLever = false;
                     leverFrame = 0;
 
+                    console.log("🎮 Lever animation finished:", activeLever.id);
+
                     if (activeLever.mode === "TOGGLE") {
+                        activeLever.active = !activeLever.active;
+
                         const lever = activeLever;
                         const startAngle = lever.angle;
-                        const leverTargets = lever.targets;
 
                         setTimeout(() => {
                             lever.angle = -startAngle;
-                            if (leverTargets) toggleTrapdoors(leverTargets);
-                            console.log("TOGGLE lever returned:", lever);
+                            console.log("↩️ Lever returned:", lever.id, "active:", lever.active);
                         }, lever.returnDelay || 500);
-                    } else if (activeLever.mode === "HOLD") {
+                    }
+
+                    else if (activeLever.mode === "HOLD") {
+                        activeLever.active = true;
                         activeLever.angle = activeLever._currentTarget;
-                        if (activeLever.targets) toggleTrapdoors(activeLever.targets);
-                        console.log("HOLD lever finished:", activeLever);
+
+                        console.log("📌 HOLD lever active:", activeLever.id);
                         activeLever = null;
                     }
                 }
             }
 
-            // --- Animazione pulsante ---
+            // =========================
+            // BUTTON
+            // =========================
+            // BUTTON
             if (isPushingButton && activeButton) {
+
                 pushButtonFrameCounter++;
+
                 if (pushButtonFrameCounter >= 5) {
                     pushButtonFrameIndex++;
                     pushButtonFrameCounter = 0;
 
                     if (pushButtonFrameIndex >= pushButtonFramesRight.length) {
+
                         isPushingButton = false;
                         pushButtonFrameIndex = 0;
 
-                        if (activeButton) {
-                            applyButtonEffect(activeButton);
-                            activeButton = null;
+                        console.log("🔘 Button animation finished:", activeButton.id);
+
+                        // 🔥 LOGICA DIRETTA (come leve)
+                        switch (activeButton.mode) {
+
+                            case "ON":
+                                activeButton.pressed = true;
+                                break;
+
+                            case "TOGGLE":
+                                activeButton.pressed = !activeButton.pressed;
+                                break;
+
+                            case "TRICOLOR":
+                                activeButton.state = (activeButton.state + 1) % 3;
+                                activeButton.pressed = true;
+                                break;
                         }
+
+                        console.log("➡️ Button state:", activeButton.id, {
+                            pressed: activeButton.pressed,
+                            state: activeButton.state
+                        });
+
+                        activeButton = null;
                     }
                 }
             }
@@ -2968,45 +3092,57 @@
         // --- Gestione porte e trigger ---
         // =========================
         function handleTriggers(level) {
-            let activeTriggers = [];
 
-            // --- Leve ---
-            if (level.lever && level.lever[0] && level.lever[0].active && level.lever[0].targets) {
-                for (let id of level.lever[0].targets) {
-                    if (!activeTriggers.includes(id)) activeTriggers.push(id);
+            console.log("------ HANDLE TRIGGERS ------");
+
+            // =========================
+            // TRAPDOORS
+            // =========================
+            level.trapdoors.forEach(trap => {
+
+                if (!trap.triggers) return;
+
+                const states = trap.triggers.map(id =>
+                    isTriggerActive(id, level)
+                );
+
+                const shouldOpen = states.some(s => s); // OR base
+
+                if (trap.open !== shouldOpen) {
+                    trap.open = shouldOpen;
+                    trap.targetAngle = trap.open ? 90 : 0;
+
+                    console.log("🪟 Trapdoor:", trap.id, "→", trap.open);
                 }
-            }
+            });
 
-            // --- Pulsanti ---
-            if (level.buttons) {
-                level.buttons.forEach(b => {
-                    if (!b.targets) return;
+            // =========================
+            // DOORS
+            // =========================
+            level.doors.forEach(door => {
 
-                    if (b.mode === "TRICOLOR") {
-                        // TRICOLOR → attivo se NON è grigio (state 0)
-                        if (b.state !== 0) {
-                            activeTriggers.push(...b.targets);
-                        }
-                    } else {
-                        // comportamento normale
-                        if (b.pressed) {
-                            activeTriggers.push(...b.targets);
-                        }
-                    }
-                });
-            }
+                if (!door.triggers || !door.triggerMode) return;
 
-            // --- Trapdoors ---
-            if (level.trapdoors) {
-                level.trapdoors.forEach(t => {
-                    if (t.open || !activeTriggers.includes(t.id)) {
-                        activeTriggers.push(t.id);
-                    }
-                });
-            }
+                const states = door.triggers.map(id =>
+                    isTriggerActive(id, level)
+                );
 
-            // Aggiorna lo stato delle porte
-            toggleDoors(activeTriggers);
+                let open = false;
+
+                if (door.triggerMode === "AND") {
+                    open = states.length > 0 && states.every(s => s);
+                }
+
+                if (door.triggerMode === "OR") {
+                    open = states.some(s => s);
+                }
+
+                if (door.open !== open) {
+                    door.open = open;
+
+                    console.log("🚪 Door:", door.id, "→", door.open, "states:", states);
+                }
+            });
         }
         // =========================
         // --- Gestione cambio livello e limiti ---
@@ -3018,7 +3154,9 @@
 
             const level = getWorldLevels(currentWorld)[currentLevelIndex];
 
-            // 🚪 1. CHECK SPECIAL DOOR (PRIORITARIO)
+            // =========================
+            // 🚪 SPECIAL DOORS (PRIORITARIO)
+            // =========================
             if (level.specialDoors) {
                 for (let door of level.specialDoors) {
 
@@ -3037,12 +3175,19 @@
 
                     if (door.open && nearX && nearY) {
                         triggerWorldChange();
-                        return; // 🔥 blocca cambio livello
+                        return;
                     }
                 }
             }
 
-            // ➡️ 2. Cambio livello a destra
+            // =========================
+            // 💾 SALVA Y USCITA
+            // =========================
+            const exitY = player.y;
+
+            // =========================
+            // ➡️ CAMBIO LIVELLO DESTRA
+            // =========================
             if (player.dx > 0 && player.x + player.width >= canvas.width) {
 
                 if (currentLevelIndex < levels.length - 1) {
@@ -3053,7 +3198,9 @@
                 }
             }
 
-            // ⬅️ 3. Cambio livello a sinistra
+            // =========================
+            // ⬅️ CAMBIO LIVELLO SINISTRA
+            // =========================
             if (player.dx < 0 && player.x <= 0) {
 
                 if (currentLevelIndex > 0) {
@@ -3064,8 +3211,11 @@
                 }
             }
 
-            // 👥 4. NPC follow transfer
+            // =========================
+            // 👥 CAMBIO LIVELLO
+            // =========================
             if (newLevelIndex !== currentLevelIndex) {
+
                 const nearbyIndexes = getNearbyNPCIndexes(
                     player,
                     getCurrentLevel(),
@@ -3073,11 +3223,31 @@
                 );
 
                 changeLevel(newLevelIndex, nearbyIndexes, enterFromRight);
+
+                // 🔥 RIAPPLICA Y IN MODO SICURO
+                const newLevel = levels[newLevelIndex];
+
+                player.y = Math.max(
+                    0,
+                    Math.min(exitY, canvas.height - player.height)
+                );
+
+                console.log("🔁 Level changed:", {
+                    from: currentLevelIndex,
+                    to: newLevelIndex,
+                    exitY,
+                    newY: player.y
+                });
             }
 
-            // 🧱 5. LIMITI
-            player.x = Math.max(0, Math.min(player.x, canvas.width - player.width));
-            player.y = Math.max(0, Math.min(player.y, canvas.height - player.height));
+            // =========================
+            // 🧱 LIMITI (SOLO STESSO LIVELLO)
+            // =========================
+            if (newLevelIndex === currentLevelIndex) {
+
+                player.x = Math.max(0, Math.min(player.x, canvas.width - player.width));
+                player.y = Math.max(0, Math.min(player.y, canvas.height - player.height));
+            }
         }
         function triggerWorldChange() {
 
@@ -3194,8 +3364,8 @@
             // =========================
             // --- Collisioni piattaforme / botole / spike ---
             // =========================
-            handleTrapdoorCollisions(player, platforms, level.trapdoors);
             handleEntityPlatformCollisions(player, platforms, level.trapdoors);
+            handleTrapdoorCollisions(player, platforms, level.trapdoors);
             handleSpikeCollisions(player, platforms, level.spikes);
 
             // =========================
@@ -3475,19 +3645,51 @@
         }
 
 
-        const map = [
-            "-N--------",
-            "------__s_",
-            "=====-----",
-            "----------",
-            "__LD_---==",
-            "==L=-___h_",
-            "---_cbt---",
-            "_______wX_",
-        ];
-        const generatedLevel = parseMultiTileMap(map);
+        const maps = [{
+            map: [
+                "-N--------",
+                "------_Ls_",
+                "=L===-----",
+                "----------",
+                "___D_---==",
+                "==L=-___h_",
+                "---__bt---",
+                "_______w__",
+            ], links: [
+                { from: "B0", to: ["T0"] },
+                { from: "V0", to: ["D0"] },
+            ]
+        }, {
+            map: [
+                "-N--------",
+                "----------",
+                "----------",
+                "----------",
+                "----------",
+                "----------",
+                "----------",
+                "__________",
+            ], links: []
+        }, {
+            map: [
+                "-N--------",
+                "----------",
+                "----------",
+                "----------",
+                "----------",
+                "___d_l----",
+                "------=b==",
+                "_________X",
+            ], links: []
+        }];
+        const generatedLevels = [
+            parseMultiTileMap(maps[0]),
+            parseMultiTileMap(maps[1]),
+            parseMultiTileMap(maps[2]),
 
-        levels[0] = generatedLevel;
+        ];
+        levels = generatedLevels
+        addLinks(maps[0].links, levels[0]);
         // Chiama setupActions all’avvio
         setupActions();
         gameLoop();
