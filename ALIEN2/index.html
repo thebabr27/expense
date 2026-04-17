@@ -814,6 +814,31 @@
                 // OBJECTS (NO BREAK RUN)
                 // =========================
                 if (isObjectChar(char)) {
+
+                    const prev = row[x - 1] || "-";
+                    const next = row[x + 1] || "-";
+
+                    const leftIsPlatform = isPlatformChar(prev);
+                    const rightIsPlatform = isPlatformChar(next);
+
+                    const leftIsEmpty = prev === "-";
+                    const rightIsEmpty = next === "-";
+
+                    const isEdgeCase =
+                        (leftIsPlatform && rightIsEmpty) ||
+                        (rightIsPlatform && leftIsEmpty);
+
+                    // 🔥 SE è tra piattaforma e vuoto → continua il run
+                    if (isEdgeCase) {
+                        if (runStart === null) {
+                            runStart = x;
+                            runType = "normal"; // oppure eredita da lato piattaforma
+                        }
+                    }
+
+                    // =========================
+                    // OGGETTI (come già fai)
+                    // =========================
                     if (char === "X") {
 
                         specialDoors.push({
@@ -977,11 +1002,12 @@
                 // END RUN
                 // =========================
                 if (runStart !== null) {
-
+                    let platHeight = 20;
+                    if (runType == 'solid') { platHeight = 30 }
                     platforms.push({
                         x: runStart * cellSize,
                         width: (x - runStart) * cellSize,
-                        height: 20,
+                        height: platHeight,
                         type: runType
                     });
 
@@ -1055,6 +1081,8 @@
         const npcJumpLeft = new Image();
         const npcRollRight = [];
         const npcRollLeft = [];
+        const npcSayHelloFramesLeft = [];
+        const npcSayHelloFramesRight = [];
         const npcIdleRight = new Image();
         const npcIdleLeft = new Image();
 
@@ -1386,10 +1414,17 @@
 
             return ignorePlatIndex;
         }
-        function handleNPCPlatformCollisions(npc, platforms, trapdoors) {
-            if (!npc || !platforms) return;
 
-            function isOnTrapdoorArea(platformIndex, npc) {
+
+        function handleEntityPlatformCollisions(entity, platforms, trapdoors) {
+            if (!entity || !platforms) return;
+
+            entity.onGround = false;
+
+            // =========================
+            // TRAPDOOR CHECK
+            // =========================
+            function isOnTrapdoorArea(platformIndex, ent) {
                 if (!trapdoors) return false;
 
                 for (let trap of trapdoors) {
@@ -1400,8 +1435,8 @@
 
                     function check(x, width) {
                         return (
-                            npc.x + npc.width > x + paddingX &&
-                            npc.x < x + width - paddingX
+                            ent.x + ent.width > x + paddingX &&
+                            ent.x < x + width - paddingX
                         );
                     }
 
@@ -1426,70 +1461,146 @@
                 return false;
             }
 
-            for (let plat of platforms) {
-
-                if (isOnTrapdoorArea(platforms.indexOf(plat), npc)) continue;
+            platforms.forEach((plat, i) => {
 
                 // =========================
-                // VERTICALE
+                // VERTICAL COLLISION
                 // =========================
+
+                let blockedByOpenTrapdoor = false;
+
+                if (trapdoors) {
+
+                    for (let trap of trapdoors) {
+
+                        if (trap.platformIndex !== i) continue;
+
+                        const paddingX = 20;
+
+                        function insideTrap(x, width) {
+                            return (
+                                entity.x + entity.width > x + paddingX &&
+                                entity.x < x + width - paddingX
+                            );
+                        }
+
+                        // =========================
+                        // NORMAL / FLIPPED
+                        // =========================
+                        if (!trap.mode || trap.mode === "normal" || trap.mode === "flipped") {
+
+                            if (insideTrap(trap.x, trap.width) && trap.open) {
+                                blockedByOpenTrapdoor = true;
+                            }
+                        }
+
+                        // =========================
+                        // DOUBLE (FIX PRINCIPALE)
+                        // =========================
+                        if (trap.mode === "double") {
+
+                            const spacing = trap.width;
+
+                            const leftOpen =
+                                insideTrap(trap.x, trap.width) && trap.open;
+
+                            const rightOpen =
+                                insideTrap(trap.x + spacing, trap.width) && trap.open;
+
+                            if (leftOpen || rightOpen) {
+                                blockedByOpenTrapdoor = true;
+                            }
+                        }
+                    }
+                }
+
+                // 👉 SOLO se APERTA la trapdoor blocca la piattaforma
                 if (
-                    npc.x + npc.width > plat.x &&
-                    npc.x < plat.x + plat.width &&
-                    npc.y + npc.height > plat.y &&
-                    npc.y + npc.height < plat.y + plat.height &&
-                    npc.dy >= 0
+                    !blockedByOpenTrapdoor &&
+                    !entity.onLadder &&
+                    entity.x + entity.width > plat.x &&
+                    entity.x < plat.x + plat.width &&
+                    entity.y + entity.height > plat.y &&
+                    entity.y + entity.height < plat.y + plat.height &&
+                    entity.dy >= 0
                 ) {
-                    npc.y = plat.y - npc.height;
-                    npc.dy = 0;
-                    npc.onGround = true;
+                    entity.y = plat.y - entity.height;
+                    entity.dy = 0;
+                    entity.onGround = true;
                 }
 
                 // =========================
-                // ORIZZONTALE
-                // =========================
-                if (
-                    npc.y + npc.height > plat.y &&
-                    npc.y < plat.y + plat.height
-                ) {
-                    if (npc.isCrouching) {
+                // HORIZONTAL COLLISION (UGUALE)
+                // ========================= 
 
-                        npc.isUnderPlatform = true;
+                if (
+                    entity.y + entity.height > plat.y &&
+                    entity.y < plat.y + plat.height
+                ) {
+                    if (entity.isCrouching || entity.isRolling) {
+
+                        entity.isUnderPlatform = true;
 
                         if (
-                            (npc.dx > 0 && npc.x > plat.x + plat.width - 20) ||
-                            (npc.dx < 0 && npc.x < plat.x - 20)
+                            (entity.dx > 0 && entity.x > plat.x + plat.width - 20) ||
+                            (entity.dx < 0 && entity.x < plat.x - 20)
                         ) {
-                            npc.isUnderPlatform = false;
-                            npc.isCrouching = false;
-                            continue;
+                            entity.isUnderPlatform = false;
+                            entity.isCrouching = false;
+                            entity.isRolling = false;
+                            return;
                         }
 
                     } else {
 
                         if (
-                            npc.dx > 0 &&
-                            npc.x + npc.width > plat.x &&
-                            npc.x < plat.x
+                            entity.dx > 0 &&
+                            entity.x + entity.width > plat.x &&
+                            entity.x < plat.x
                         ) {
-                            npc.x = plat.x - npc.width;
-                            npc.dx = 0;
+                            entity.x = plat.x - entity.width;
+                            entity.dx = 0;
                         }
 
                         if (
-                            npc.dx < 0 &&
-                            npc.x < plat.x + plat.width &&
-                            npc.x + npc.width > plat.x + plat.width
+                            entity.dx < 0 &&
+                            entity.x < plat.x + plat.width &&
+                            entity.x + entity.width > plat.x + plat.width
                         ) {
-                            npc.x = plat.x + plat.width;
-                            npc.dx = 0;
+                            entity.x = plat.x + plat.width;
+                            entity.dx = 0;
                         }
                     }
                 }
-            }
+            });
+        }
+        function underPlatformCheck(entity) {
+            let isUnder = false;
+
+            getCurrentPlatforms().forEach((plat) => {
+
+                let realHeight = 30;
+
+                let entityLeft = entity.x;
+                let entityRight = entity.x + 40;
+                let entityTop = entity.y - realHeight;
+                let entityBottom = entity.y + 30;
+
+                let isUnderThisPlatform =
+                    entityRight > plat.x &&
+                    entityLeft < plat.x + plat.width &&
+                    entityBottom >= plat.y + plat.height &&
+                    entityBottom <= plat.y + plat.height + 30;
+
+                if (isUnderThisPlatform) {
+                    isUnder = true;
+                }
+            });
+
+            return isUnder;
         }
 
-        function handleEntityPlatformCollisions(entity, platforms, trapdoors) {
+        function handleNPCPlatformCollisions(entity, platforms, trapdoors) {
             if (!entity || !platforms) return;
 
             entity.onGround = false;
@@ -1542,18 +1653,46 @@
                 let blockedByOpenTrapdoor = false;
 
                 if (trapdoors) {
+
                     for (let trap of trapdoors) {
 
                         if (trap.platformIndex !== i) continue;
 
                         const paddingX = 20;
 
-                        const insideX =
-                            entity.x + entity.width > trap.x + paddingX &&
-                            entity.x < trap.x + trap.width - paddingX;
+                        function insideTrap(x, width) {
+                            return (
+                                entity.x + entity.width > x + paddingX &&
+                                entity.x < x + width - paddingX
+                            );
+                        }
 
-                        if (insideX && trap.open) {
-                            blockedByOpenTrapdoor = true;
+                        // =========================
+                        // NORMAL / FLIPPED
+                        // =========================
+                        if (!trap.mode || trap.mode === "normal" || trap.mode === "flipped") {
+
+                            if (insideTrap(trap.x, trap.width) && trap.open) {
+                                blockedByOpenTrapdoor = true;
+                            }
+                        }
+
+                        // =========================
+                        // DOUBLE (FIX PRINCIPALE)
+                        // =========================
+                        if (trap.mode === "double") {
+
+                            const spacing = trap.width;
+
+                            const leftOpen =
+                                insideTrap(trap.x, trap.width) && trap.open;
+
+                            const rightOpen =
+                                insideTrap(trap.x + spacing, trap.width) && trap.open;
+
+                            if (leftOpen || rightOpen) {
+                                blockedByOpenTrapdoor = true;
+                            }
                         }
                     }
                 }
@@ -1572,51 +1711,78 @@
                     entity.dy = 0;
                     entity.onGround = true;
                 }
+                // =========================
+                // HORIZONTAL COLLISION (FIX)
+                // =========================
 
                 // =========================
-                // HORIZONTAL COLLISION (UGUALE)
+                // HORIZONTAL COLLISION (FIX)
                 // =========================
-                if (
-                    entity.y + entity.height > plat.y &&
-                    entity.y < plat.y + plat.height
-                ) {
-                    if (entity.isCrouching) {
 
-                        entity.isUnderPlatform = true;
+                // Stato
+                entity.isRolling = player.isCrouching;
 
-                        if (
-                            (entity.dx > 0 && entity.x > plat.x + plat.width - 20) ||
-                            (entity.dx < 0 && entity.x < plat.x - 20)
-                        ) {
-                            entity.isUnderPlatform = false;
-                            entity.isCrouching = false;
-                            return;
-                        }
+                // Altezza reale
+                let realHeight = entity.isRolling ? 10 : 30;
 
-                    } else {
+                // Bounding box entity
+                let entityLeft = entity.x;
+                let entityRight = entity.x + 40;
+                let entityTop = entity.y - realHeight;
+                let entityBottom = entity.y;
 
-                        if (
-                            entity.dx > 0 &&
-                            entity.x + entity.width > plat.x &&
-                            entity.x < plat.x
-                        ) {
-                            entity.x = plat.x - entity.width;
-                            entity.dx = 0;
-                        }
+                // Bounding box platform
+                let platLeft = plat.x;
+                let platRight = plat.x + plat.width;
+                let platTop = plat.y;
+                let platBottom = plat.y + plat.height - 20;
 
-                        if (
-                            entity.dx < 0 &&
-                            entity.x < plat.x + plat.width &&
-                            entity.x + entity.width > plat.x + plat.width
-                        ) {
-                            entity.x = plat.x + plat.width;
-                            entity.dx = 0;
-                        }
-                    }
+                // =========================
+                // ZONA SOTTO LA PIATTAFORMA
+                // =========================
+
+                // zona sotto piattaforma = spazio tra piattaforma e player
+
+                let underPlatTop = platBottom;
+                let underPlatBottom = platBottom + 100; // più largo per sicurezza
+                if (plat.y >= 420 && plat.y + plat.height <= 500) {
+                    console.log("p:", plat.x, plat.x + plat.width, plat.y, plat.y + plat.height)
+                }
+                let isUnderThisPlatform =
+                    entityRight > plat.x &&
+                    entityLeft < plat.x + plat.width &&
+                    entityBottom >= plat.y + plat.height &&
+                    entityBottom <= plat.y + plat.height + 30;
+
+                // accumula TUTTE le piattaforme
+                if (isUnderThisPlatform) {
+                    entity.isUnderPlatform = true;
+                }
+
+                if (entity.isUnderPlatform) {
+                    console.log("SOTTO LA PIATTAFORMA!");
+                } else {
+                    console.log("SOPRA")
+                }
+
+                // =========================
+                // Collisione normale (NON TOCCATA)
+                // =========================
+
+                let isColliding =
+                    entityRight > platLeft &&
+                    entityLeft < platRight &&
+                    entityBottom > platTop &&
+                    entityTop < platBottom;
+
+                if (isColliding && !entity.isUnderPlatform) {
+                    entity.dx = 0;
+
+                    console.log("Collisione!");
                 }
             });
+            console.log("underp", entity.isUnderPlatform)
         }
-
 
         function applyNPCGravity(npc, gravity, floorY) {
             if (!npc) return;
@@ -1711,6 +1877,7 @@
                 npc.frameIndex = 0; // stato idle
             }
 
+
             // Resetta contatore
             npc.frameCounter = 0;
         }
@@ -1726,7 +1893,7 @@
             if (npc.onLadder) {
                 //console.log("npc on ladder", npc.x, npc.y, npc.ladderX, npc.ladderY)
                 npc.state = 'climb';
-                npc.isCrouching = false;
+                npc.isRolling = false;
                 npc.isUnderPlatform = false;
                 npc.following = false;
                 npc.dy = dy > 0 ? climbSpeed : -climbSpeed;
@@ -1738,11 +1905,15 @@
             }
 
             npc.onGround = false;
+
             if (npc.following) {
+                // 🔥 BLOCCO RIALZATA SE SOTTO LA PIATTAFORMA
+                const canStandUp = !npc.isUnderPlatform;
+                const speed = npc.speed; 
 
-                const speed = npc.speed;
+                npc.isUnderPlatform = underPlatformCheck(npc)
 
-                if (player.isCrouching || npc.isUnderPlatform) {
+                if ((player.isCrouching || npc.isUnderPlatform)) {
 
                     npc.state = 'roll';
 
@@ -1774,15 +1945,51 @@
 
                     npc.dx = dx * followStrength;
                     npc.dx = Math.max(-speed, Math.min(speed, npc.dx));
-
                     npc.state = 'walk';
                     npc.facingRight = npc.dx > 0;
                 }
 
+            } else if (npc.followOnce && !npc.following) {
+
+                const speed = npc.speed;
+
+                // =========================
+                // TARGET UNA SOLA VOLTA
+                // =========================
+                if (npc.followTargetX == null) {
+
+                    const offset = 50 + (npc.followRandomOffset || 0);
+
+                    npc.followTargetX = player.x - (player.x > npc.x ? offset : -offset);
+                }
+
+                const dx = npc.followTargetX - npc.x;
+
+                const deadZone = 6;
+
+                if (Math.abs(dx) < deadZone) {
+
+                    npc.dx = 0;
+                    npc.state = 'idle';
+
+                    // 🔥 DISATTIVA DOPO AVER RAGGIUNTO
+                    npc.followOnce = false;
+                    npc.followTargetX = null;
+
+                    return;
+                }
+
+                const followStrength = 0.12;
+
+                npc.dx = dx * followStrength;
+                npc.dx = Math.max(-speed, Math.min(speed, npc.dx));
+
+                npc.state = 'walk';
+                npc.facingRight = npc.dx > 0;
+
             } else {
                 npc.dx = 0;
-                npc.state = 'idle';
-                npc.isCrouching = false;
+                npc.state = 'idle'; 
             }
         }
 
@@ -1846,8 +2053,8 @@
             // --- Movimento normale verso il player ---
             handleNPCMovement(npc, player, npc.speed || 2);
 
+            handleNPCPlatformCollisions(npc, platforms, level.trapdoors);
             handleNPCTrapdoorCollisions(npc, platforms, level.trapdoors);
-            handleEntityPlatformCollisions(npc, platforms, level.trapdoors);
             handleSpikeCollisions(npc, platforms, level.spikes);
 
 
@@ -1945,6 +2152,30 @@
         // =========================
         function drawNPC(npc) {
             if (!npc) return;
+            if (npc.dead) {
+
+                if (!npc.frameCounter) npc.frameCounter = 0;
+                if (!npc.frameIndex) npc.frameIndex = 0;
+
+                npc.frameCounter++;
+
+                if (npc.frameCounter >= 2) {
+                    npc.frameIndex++;
+                    npc.frameCounter = 0;
+
+                    if (npc.frameIndex >= 2) {
+                        npc.frameIndex = 1;
+                    }
+                }
+
+                const img = npc.facingRight
+                    ? npcDeathFramesRight[npc.frameIndex]
+                    : npcDeathFramesLeft[npc.frameIndex];
+
+                ctx.drawImage(img, npc.x, npc.y, npc.width, npc.height);
+
+                return;
+            }
             let frame;
             switch (npc.state) {
                 case 'climb':
@@ -1957,7 +2188,7 @@
                     frame = npc.facingRight ? npcRollRight[npc.frameIndex] : npcRollLeft[npc.frameIndex];
                     break;
                 case 'sayHello':
-                    frame = npc.facingRight ? sayHelloFramesRight[0] : sayHelloFramesLeft[0];
+                    frame = npc.facingRight ? npcSayHelloFramesRight[0] : npcSayHelloFramesLeft[0];
                     break;
                 default:
                     frame = npc.facingRight ? npcFramesRight[0] : npcFramesLeft[0];
@@ -2189,7 +2420,7 @@
 
         // --- Esempio di caricamento ---
         for (let i = 0; i <= 9; i++) loadNPCFrame(`frame${i}`, npcFramesRight, npcFramesLeft, i);
-        loadNPCFrame('frameSh', sayHelloFramesRight, sayHelloFramesLeft, 0); // sayHello
+        loadNPCFrame('frameSh', npcSayHelloFramesRight, npcSayHelloFramesLeft, 0); // sayHello
         ['X', 'Y'].forEach((letter, i) => loadNPCFrame(`death${letter}`, npcDeathFramesRight, npcDeathFramesLeft, i)); // morte
 
         function spawnDeathParticles(x, y) {
@@ -2585,6 +2816,8 @@
             }
         }
 
+
+
         function handleSayHello(player, level) {
             if (level.npcs) {
                 level.npcs.forEach(npc => {
@@ -2592,7 +2825,7 @@
                         && player.x > (npc.x - 70) && player.x < (npc.x + 70)
                     ) {
                         npc.following = true;
-
+                        npc.followOnce = false;
                         if (npc.followRandomOffset == null) {
                             npc.followRandomOffset = (Math.random() * 50) - 50; // -5 / +5 px
                         }
@@ -2601,7 +2834,12 @@
             }
 
             if (sayHelloTimer > 0) {
-                imgToDraw = facingRight ? sayHelloFramesRight[0] : sayHelloFramesLeft[0];
+                if (level.npcs) {
+                    level.npcs.forEach(npc => {
+                        npc.followOnce = true;
+                    });
+                }
+                imgToDraw = facingRight ? npcSayHelloFramesRight[0] : npcSayHelloFramesLeft[0];
                 sayHelloTimer--;
                 if (sayHelloTimer <= 0) currentFrame = 0;
             }
@@ -2664,7 +2902,7 @@
                     && player.x > platform.x && player.x < platform.x + platform.width
                     && player.y > platform.y && player.y < platform.y + platform.height
                 ) {
-                    console.log(platform.type)
+                    //console.log(platform.type)
                     player.dy = 0
                 }
             }
@@ -2898,115 +3136,6 @@
                 }
             }
         }
-        function handlePlatformCollisions(player, platforms, trapdoors) {
-
-            player.onGround = false;
-
-            // =========================
-            // --- TRAPDOOR CHECK ---
-            // =========================
-            function isOnTrapdoorArea(platformIndex, player) {
-                if (!trapdoors) return false;
-
-                for (let trap of trapdoors) {
-
-                    if (trap.platformIndex !== platformIndex) continue;
-
-                    const paddingX = 20;
-
-                    function check(x, width) {
-                        return (
-                            player.x + player.width > x + paddingX &&
-                            player.x < x + width - paddingX
-                        );
-                    }
-
-                    // normal / flipped
-                    if (!trap.mode || trap.mode === "normal" || trap.mode === "flipped") {
-                        if (check(trap.x, trap.width)) return true;
-                    }
-
-                    // double
-                    if (trap.mode === "double") {
-                        const spacing = trap.width;
-
-                        if (
-                            check(trap.x, trap.width) ||
-                            check(trap.x + spacing, trap.width)
-                        ) {
-                            return true;
-                        }
-                    }
-                }
-
-                return false;
-            }
-
-            // =========================
-            // --- PLATFORM LOOP ---
-            // =========================
-            platforms.forEach((plat, i) => {
-
-                // 🔥 piattaforma ignorata se trapdoor sopra
-                if (isOnTrapdoorArea(i, player)) return;
-
-                // =========================
-                // --- COLLISIONE VERTICALE ---
-                // =========================
-                if (
-                    !player.onLadder &&
-                    player.x + player.width > plat.x &&
-                    player.x < plat.x + plat.width &&
-                    player.y + player.height > plat.y &&
-                    player.y + player.height < plat.y + plat.height &&
-                    player.dy >= 0
-                ) {
-                    player.y = plat.y - player.height;
-                    player.dy = 0;
-                    player.onGround = true;
-                }
-
-                // =========================
-                // --- COLLISIONE ORIZZONTALE ---
-                // =========================
-                if (
-                    player.y + player.height > plat.y &&
-                    player.y < plat.y + plat.height
-                ) {
-                    if (player.isCrouching) {
-
-                        player.isUnderPlatform = true;
-
-                        if (
-                            (player.dx > 0 && player.x > plat.x + plat.width - 20) ||
-                            (player.dx < 0 && player.x < plat.x - 10)
-                        ) {
-                            player.isUnderPlatform = false;
-                            player.isCrouching = false;
-                            return;
-                        }
-
-                    } else {
-
-                        if (
-                            player.dx > 0 &&
-                            player.x + player.width > plat.x &&
-                            player.x < plat.x
-                        ) {
-                            player.x = plat.x - player.width;
-                        }
-
-                        if (
-                            player.dx < 0 &&
-                            player.x < plat.x + plat.width &&
-                            player.x + player.width > plat.x + plat.width
-                        ) {
-                            player.x = plat.x + plat.width;
-                        }
-                    }
-                }
-            });
-        }
         // =========================
         // --- Collisioni trapdoors / botole ---
         // =========================
@@ -3093,7 +3222,7 @@
         // =========================
         function handleTriggers(level) {
 
-            console.log("------ HANDLE TRIGGERS ------");
+            // console.log("------ HANDLE TRIGGERS ------");
 
             // =========================
             // TRAPDOORS
@@ -3395,7 +3524,9 @@
             if (!npc || npc.dead) return;
 
             npc.dead = true;
-            soundPlay('dead');
+            setTimeout(() => {
+                soundPlay('dead');
+            }, 200)
 
             // Ferma il movimento dell'NPC
             npc.dx = 0;
@@ -3408,11 +3539,6 @@
             npc.state = 'dead';
             npc.frameIndex = 0;
             npc.frameCounter = 0;
-
-            // Imposta il frame iniziale della morte
-            imgToDraw = npc.facingRight
-                ? npcDeathFramesRight[0]
-                : npcDeathFramesLeft[0];
         }
         function deathOfPlayer() {
             if (player.dead) return;
@@ -3645,43 +3771,74 @@
         }
 
 
-        const maps = [{
-            map: [
-                "-N--------",
-                "------_Ls_",
-                "=L===-----",
-                "----------",
-                "___D_---==",
-                "==L=-___h_",
-                "---__bt---",
-                "_______w__",
-            ], links: [
-                { from: "B0", to: ["T0"] },
-                { from: "V0", to: ["D0"] },
-            ]
-        }, {
-            map: [
-                "-N--------",
-                "----------",
-                "----------",
-                "----------",
-                "----------",
-                "----------",
-                "----------",
-                "__________",
-            ], links: []
-        }, {
-            map: [
-                "-N--------",
-                "----------",
-                "----------",
-                "----------",
-                "----------",
-                "___d_l----",
-                "------=b==",
-                "_________X",
-            ], links: []
-        }];
+
+        const maps = [
+
+            /* =========================
+               MAPPA 1 — “Safe Descent”
+               (scala obbligatoria per discesa)
+            ========================= */
+            {
+                map: [
+                    "----------",
+                    "-------___",
+                    "________d_",
+                    "----------",
+                    "__Lb__--s=",
+                    "--__wL_D__",
+                    "--===-----",
+                    "_N_____X__",
+                ],
+                links: [
+                    { from: "B0", to: ["T0"] },
+                    { from: "B1", to: ["D0"] },
+                    { from: "V0", to: ["X0"] }
+                ]
+            },
+
+            /* =========================
+               MAPPA 2 — “Split Vertical Route”
+               (due percorsi: salto o scala)
+            ========================= */
+            {
+                map: [
+                    "----N-----",
+                    "__________",
+                    "___====___",
+                    "_____L____",
+                    "----------",
+                    "__b_______",
+                    "___====__D",
+                    "________X_",
+                ],
+                links: [
+                    { from: "B0", to: ["D0"] },
+                    { from: "V0", to: ["T0"] }
+                ]
+            },
+
+            /* =========================
+               MAPPA 3 — “Alternating Layers”
+               (progressione verticale con fallback scale)
+            ========================= */
+            {
+                map: [
+                    "----N-----",
+                    "----------",
+                    "__====____",
+                    "____L_____",
+                    "----------",
+                    "____b_____",
+                    "__====__w_",
+                    "_______X__",
+                ],
+                links: [
+                    { from: "B0", to: ["T0"] },
+                    { from: "V0", to: ["D0"] }
+                ]
+            }
+
+        ];
         const generatedLevels = [
             parseMultiTileMap(maps[0]),
             parseMultiTileMap(maps[1]),
