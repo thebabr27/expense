@@ -606,7 +606,7 @@
                 const fromObj = findById(link.from);
 
                 if (!fromObj) {
-                    console.warn("⚠️ FROM not found:", link.from);
+                    // console.warn("⚠️ FROM not found:", link.from);
                     continue;
                 }
 
@@ -615,7 +615,7 @@
                     const toObj = findById(toId);
 
                     if (!toObj) {
-                        console.warn("⚠️ TO not found:", toId);
+                        //console.warn("⚠️ TO not found:", toId);
                         continue;
                     }
 
@@ -630,7 +630,7 @@
                         toObj.triggers.push(fromObj.id);
                     }
 
-                    console.log("🔌 LINK:", fromObj.id, "→", toObj.id);
+                    //console.log("🔌 LINK:", fromObj.id, "→", toObj.id);
                 }
             }
         }
@@ -746,7 +746,6 @@
                 // SPECIAL DOORS
                 // =========================
                 for (let special of parsed.specialDoors) {
-                    console.log(special)
                     level.specialDoors.push({
                         ...special,
                         platformIndex: platformBaseIndex,
@@ -759,6 +758,22 @@
 
             console.log(level)
             return level;
+        }
+
+        function getPlatformTypeAroundObject(row, x) {
+            const prev = row[x - 1] || "-";
+            const next = row[x + 1] || "-";
+
+            // casi speciali → solid
+            if (
+                (prev === "-" && next === "=") ||
+                (prev === "=" && next === "-")
+            ) {
+                return "solid";
+            }
+
+            // fallback → normal
+            return "normal";
         }
 
         function parseTypedPlatformRuns(row, cellSize = 80) {
@@ -832,7 +847,7 @@
                     if (isEdgeCase) {
                         if (runStart === null) {
                             runStart = x;
-                            runType = "normal"; // oppure eredita da lato piattaforma
+                            runType = getPlatformTypeAroundObject(row, x);
                         }
                     }
 
@@ -1576,24 +1591,24 @@
         }
         function underPlatformCheck(entity) {
             let isUnder = false;
-
             getCurrentPlatforms().forEach((plat) => {
+                if (plat.type == 'solid') {
+                    let realHeight = 30;
 
-                let realHeight = 30;
+                    let entityLeft = entity.x;
+                    let entityRight = entity.x + 40;
+                    let entityTop = entity.y - realHeight;
+                    let entityBottom = entity.y + 30;
 
-                let entityLeft = entity.x;
-                let entityRight = entity.x + 40;
-                let entityTop = entity.y - realHeight;
-                let entityBottom = entity.y + 30;
+                    let isUnderThisPlatform =
+                        entityRight > plat.x &&
+                        entityLeft < plat.x + plat.width &&
+                        entityBottom >= plat.y + plat.height &&
+                        entityBottom <= plat.y + plat.height + 30;
 
-                let isUnderThisPlatform =
-                    entityRight > plat.x &&
-                    entityLeft < plat.x + plat.width &&
-                    entityBottom >= plat.y + plat.height &&
-                    entityBottom <= plat.y + plat.height + 30;
-
-                if (isUnderThisPlatform) {
-                    isUnder = true;
+                    if (isUnderThisPlatform) {
+                        isUnder = true;
+                    }
                 }
             });
 
@@ -1745,9 +1760,7 @@
 
                 let underPlatTop = platBottom;
                 let underPlatBottom = platBottom + 100; // più largo per sicurezza
-                if (plat.y >= 420 && plat.y + plat.height <= 500) {
-                    console.log("p:", plat.x, plat.x + plat.width, plat.y, plat.y + plat.height)
-                }
+
                 let isUnderThisPlatform =
                     entityRight > plat.x &&
                     entityLeft < plat.x + plat.width &&
@@ -1759,11 +1772,11 @@
                     entity.isUnderPlatform = true;
                 }
 
-                if (entity.isUnderPlatform) {
+                /* if (entity.isUnderPlatform) {
                     console.log("SOTTO LA PIATTAFORMA!");
                 } else {
                     console.log("SOPRA")
-                }
+                } */
 
                 // =========================
                 // Collisione normale (NON TOCCATA)
@@ -1781,7 +1794,7 @@
                     console.log("Collisione!");
                 }
             });
-            console.log("underp", entity.isUnderPlatform)
+            //console.log("underp", entity.isUnderPlatform)
         }
 
         function applyNPCGravity(npc, gravity, floorY) {
@@ -1809,12 +1822,12 @@
             npc.x = Math.max(0, Math.min(npc.x, canvas.width - npc.width));
             npc.y = Math.max(0, Math.min(npc.y, canvas.height - npc.height));
         }
-        function handleNPCCollisionWithDoors(npc, doors, platforms) {
-            if (!npc || !doors || !platforms) return;
+        function handleNPCCollisionWithDoors(npc, allDoors, platforms) {
+            if (!npc || !allDoors || !platforms) return;
 
             let nextX = npc.x + (npc.dx || 0);
 
-            for (let door of doors) {
+            for (let door of allDoors) {
                 if (!door.open) { // usa 'open' come nel player
                     const platform = platforms[door.platformIndex];
                     if (!platform) continue;
@@ -1909,7 +1922,7 @@
             if (npc.following) {
                 // 🔥 BLOCCO RIALZATA SE SOTTO LA PIATTAFORMA
                 const canStandUp = !npc.isUnderPlatform;
-                const speed = npc.speed; 
+                const speed = npc.speed;
 
                 npc.isUnderPlatform = underPlatformCheck(npc)
 
@@ -1989,7 +2002,7 @@
 
             } else {
                 npc.dx = 0;
-                npc.state = 'idle'; 
+                npc.state = 'idle';
             }
         }
 
@@ -2050,21 +2063,24 @@
 
             handleNPCLadder(npc, ladders, player);
 
-            // --- Movimento normale verso il player ---
+            // 1. AI movement
             handleNPCMovement(npc, player, npc.speed || 2);
 
+            // 2. horizontal collisions (doors FIRST!)
+            handleNPCCollisionWithDoors(npc, level.doors.concat(level.specialDoors || []), platforms);
+
+            // 3. platform collisions (ground logic)
             handleNPCPlatformCollisions(npc, platforms, level.trapdoors);
             handleNPCTrapdoorCollisions(npc, platforms, level.trapdoors);
-            handleSpikeCollisions(npc, platforms, level.spikes);
 
-
-            // Gravità e limiti  
+            // 4. gravity (after ground is known)
             applyNPCGravity(npc, 0.5, canvas.height - npc.height);
 
-
+            // 5. world bounds
             constrainNPCToCanvas(npc, canvas);
 
-            handleNPCCollisionWithDoors(npc, doors, platforms);
+            // 6. damage
+            handleSpikeCollisions(npc, platforms, level.spikes);
 
             // Aggiornamento animazione
             updateNPCAnimation(npc);
@@ -3780,19 +3796,17 @@
             ========================= */
             {
                 map: [
-                    "----------",
-                    "-------___",
-                    "________d_",
-                    "----------",
-                    "__Lb__--s=",
-                    "--__wL_D__",
-                    "--===-----",
+                    "N---------",
+                    "_l___d____",
+                    "_L--------",
+                    "------____",
+                    "__--------",
+                    "__----L===",
+                    "__--------",
                     "_N_____X__",
                 ],
                 links: [
-                    { from: "B0", to: ["T0"] },
-                    { from: "B1", to: ["D0"] },
-                    { from: "V0", to: ["X0"] }
+                    { from: "V0", to: ["T0"] }
                 ]
             },
 
@@ -3803,9 +3817,9 @@
             {
                 map: [
                     "----N-----",
-                    "__________",
-                    "___====___",
-                    "_____L____",
+                    "--________",
+                    "------====",
+                    "_____L_---",
                     "----------",
                     "__b_______",
                     "___====__D",
@@ -3824,9 +3838,9 @@
             {
                 map: [
                     "----N-----",
-                    "----------",
-                    "__====____",
-                    "____L_____",
+                    "---____---",
+                    "===-----__",
+                    "____L--___",
                     "----------",
                     "____b_____",
                     "__====__w_",

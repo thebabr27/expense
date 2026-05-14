@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Squadra</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- NAVBAR TOP -->
+        <nav class="top-nav">
+
+            <button class="nav-btn">Rosa</button>
+            <button class="nav-btn">Trasferimenti</button>
+            <button class="nav-btn">Prossima partita</button>
+            <button class="nav-btn">Calendario</button>
+
+            <button onclick="goToHome()" class="nav-btn nav-continue">Indietro</button>
+
+        </nav>
+
+        <main>
+            <!-- AREA CENTRALE -->
+            <section class="team-screen">
+
+                <div class="page-title">
+                    Rosa Squadra
+                </div>
+
+                <div class="team-card">
+
+                    <div class="squad-roster">
+
+                        <!-- HEADER -->
+                        <div class="roster-header">
+                            <div>Num</div>
+                            <div>Nome</div>
+                            <div>Cap</div>
+                            <div>Ruolo</div>
+                            <div>Naz</div>
+                            <div>Cond</div>
+                        </div>
+
+                        <!-- GK -->
+                        <div class="roster-row">
+                            <div class="col num">
+                                <div class="shirt-number">1</div>
+                            </div>
+                            <div class="col name">Alisson Becker</div>
+                            <div class="col cap"></div>
+
+                            <div class="col role">
+                                <div class="role-box">
+                                    <span class="area-left"></span>
+                                    <span class="area-center"></span>
+                                    <span class="area-right"></span>
+                                    <span class="area-midcircle"></span>
+                                    <div class="role-dot gk"></div>
+                                </div>
+                            </div>
+
+                            <div class="col nation">
+                                <div class="flag br"></div>
+                            </div>
+                            <div class="col cond">100%</div>
+                        </div>
+
+                        <!-- DEF -->
+                        <div class="roster-row">
+                            <div class="col num">
+                                <div class="shirt-number">2</div>
+                            </div>
+                            <div class="col name">Giovanni Di Lorenzo</div>
+                            <div class="col cap">C</div>
+
+                            <div class="col role">
+                                <div class="role-box">
+                                    <span class="area-left"></span>
+                                    <span class="area-center"></span>
+                                    <span class="area-right"></span>
+                                    <span class="area-midcircle"></span>
+                                    <div class="role-dot rb"></div>
+                                </div>
+                            </div>
+
+                            <div class="col nation">
+                                <div class="flag it"></div>
+                            </div>
+                            <div class="col cond">97%</div>
+                        </div>
+
+                        <div class="roster-row">
+                            <div class="col num">
+                                <div class="shirt-number">3</div>
+                            </div>
+                            <div class="col name">Gleison Bremer</div>
+                            <div class="col cap"></div>
+
+                            <div class="col role">
+                                <div class="role-box">
+                                    <span class="area-left"></span>
+                                    <span class="area-center"></span>
+                                    <span class="area-right"></span>
+                                    <span class="area-midcircle"></span>
+                                    <div class="role-dot lcb"></div>
+                                </div>
+                            </div>
+
+                            <div class="col nation">
+                                <div class="flag br"></div>
+                            </div>
+                            <div class="col cond">95%</div>
+                        </div>
+
+                        <div class="roster-row">
+                            <div class="col num">
+                                <div class="shirt-number">4</div>
+                            </div>
+                            <div class="col name">Leonardo Bonucci</div>
+                            <div class="col cap"></div>
+
+                            <div class="col role">
+                                <div class="role-box">
+                                    <span class="area-left"></span>
+                                    <span class="area-center"></span>
+                                    <span class="area-right"></span>
+                                    <span class="area-midcircle"></span>
+                                    <div class="role-dot cb"></div>
+                                </div>
+                            </div>
+
+                            <div class="col nation">
+                                <div class="flag it"></div>
+                            </div>
+                            <div class="col cond">88%</div>
+                        </div>
+
+                        <div class="roster-row">
+                            <div class="col num">
+                                <div class="shirt-number">5</div>
+                            </div>
+                            <div class="col name">Theo Hernández</div>
+                            <div class="col cap"></div>
+
+                            <div class="col role">
+                                <div class="role-box">
+                                    <span class="area-left"></span>
+                                    <span class="area-center"></span>
+                                    <span class="area-right"></span>
+                                    <span class="area-midcircle"></span>
+                                    <div class="role-dot lb"></div>
+                                </div>
+                            </div>
+
+                            <div class="col nation">
+                                <div class="flag fr"></div>
+                            </div>
+                            <div class="col cond">99%</div>
+                        </div>
+
+                        <!-- MID -->
+                        <div class="roster-row">
+                            <div class="col num">
+                                <div class="shirt-number">6</div>
+                            </div>
+
+                            <div class="col name">Nicolo Barella</div>
+                            <div class="col cap"></div>
+
+                            <div class="col role">
+                                <div class="role-box">
+                                    <span class="area-left"></span>
+                                    <span class="area-center"></span>
+                                    <span class="area-right"></span>
+                                    <span class="area-midcircle"></span>
+
+                                    <div class="role-dot rcm"></div>
+                                </div>
+                            </div>
+
+                            <div class="col nation">
+                                <div class="flag it"></div>
+                            </div>
+                            <div class="col cond">96%</div>
+                        </div>
+
+                        <div class="roster-row">
+                            <div class="col num">
+                                <div class="shirt-number">7</div>
+                            </div>
+
+                            <div class="col name">Luka Modrić</div>
+                            <div class="col cap"></div>
+
+                            <div class="col role">
+                                <div class="role-box">
+                                    <span class="area-left"></span>
+                                    <span class="area-center"></span>
+                                    <span class="area-right"></span>
+                                    <span class="area-midcircle"></span>
+
+                                    <div class="role-dot lwm"></div>
+                                </div>
+                            </div>
+
+                            <div class="col nation">
+                                <div class="flag hr"></div>
+                            </div>
+                            <div class="col cond">90%</div>
+                        </div>
+
+                        <div class="roster-row">
+                            <div class="col num">
+                                <div class="shirt-number">8</div>
+                            </div>
+
+                            <div class="col name">Sergej Milinković-Savić</div>
+                            <div class="col cap"></div>
+
+                            <div class="col role">
+                                <div class="role-box">
+                                    <span class="area-left"></span>
+                                    <span class="area-center"></span>
+                                    <span class="area-right"></span>
+                                    <span class="area-midcircle"></span>
+
+                                    <div class="role-dot cm"></div>
+                                </div>
+                            </div>
+
+                            <div class="col nation">
+                                <div class="flag rs"></div>
+                            </div>
+                            <div class="col cond">94%</div>
+                        </div>
+
+                        <!-- ATT -->
+                        <div class="roster-row">
+                            <div class="col num">
+                                <div class="shirt-number">9</div>
+                            </div>
+                            <div class="col name">Paulo Dybala</div>
+                            <div class="col cap"></div>
+
+                            <div class="col role">
+                                <div class="role-box">
+                                    <span class="area-left"></span>
+                                    <span class="area-center"></span>
+                                    <span class="area-right"></span>
+                                    <span class="area-midcircle"></span>
+                                    <div class="role-dot rw"></div>
+                                </div>
+                            </div>
+
+                            <div class="col nation">
+                                <div class="flag ar"></div>
+                            </div>
+                            <div class="col cond">92%</div>
+                        </div>
+
+                        <div class="roster-row">
+                            <div class="col num">
+                                <div class="shirt-number">10</div>
+                            </div>
+                            <div class="col name">Victor Osimhen</div>
+                            <div class="col cap"></div>
+
+                            <div class="col role">
+                                <div class="role-box">
+                                    <span class="area-left"></span>
+                                    <span class="area-center"></span>
+                                    <span class="area-right"></span>
+                                    <span class="area-midcircle"></span>
+                                    <div class="role-dot st"></div>
+                                </div>
+                            </div>
+
+                            <div class="col nation">
+                                <div class="flag ng"></div>
+                            </div>
+                            <div class="col cond">98%</div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- NAVBAR BOTTOM -->
+        <nav class="bottom-nav">
+
+            <button class="nav-btn">Tattiche</button>
+            <button class="nav-btn">Allenamento</button>
+            <button class="nav-btn">Ultima partita</button>
+            <button class="nav-btn">Classifica</button>
+            <button class="nav-btn">Storia</button>
+
+        </nav>
+
+    </div>
+
+    <script src="../script.js"></script>
+
+</body>
+
+</html>

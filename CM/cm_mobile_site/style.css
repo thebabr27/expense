@@ -1,0 +1,864 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  background: #cfcfcf;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  color: #fff;
+}
+
+.app {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  background: url('assets/bg.svg') center center / cover no-repeat;
+
+  overflow: hidden;
+  position: relative;
+}
+
+.topbar, .shirt-number {
+  background: linear-gradient(180deg, #8d0000, #ff0000);
+  color: white;
+}
+
+.topbar {
+  padding: 18px 16px;
+  text-align: center;
+  border-bottom: 3px solid #ffe600;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  margin-top: 6px;
+  color: #ffe600;
+  font-size: 13px;
+}
+
+.hero {
+  position: relative;
+  height: 290px;
+  background: url('https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=1200&auto=format&fit=crop') center/cover;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.hero-content {
+  position: absolute;
+  bottom: 24px;
+  left: 20px;
+  right: 20px;
+}
+
+.hero-content h1 {
+  font-size: 42px;
+  color: #ffe600;
+  text-shadow: 0 0 10px rgba(0, 0, 0, .8);
+}
+
+.hero-content p {
+  margin-top: 10px;
+  background: rgba(0, 0, 0, .55);
+  padding: 12px;
+  border-left: 4px solid #ffe600;
+  font-size: 14px;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 18px;
+  background: #171717;
+}
+
+/* TITOLO PAGINA */
+
+.page-title {
+
+  margin: 20px;
+  padding: 10px;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  border: 0;
+  border-radius: 15px;
+
+  color: #ffe600;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  text-align: center;
+
+  backdrop-filter: blur(3px);
+}
+
+/* INPUT NOME */
+
+.name-input {
+
+  width: 100%;
+  height: 58px;
+
+  padding: 0 18px;
+
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+
+  border-top: 1px solid #6fd3ff;
+  border-left: 1px solid #6fd3ff;
+
+  border-right: 1px solid #004a6e;
+  border-bottom: 1px solid #004a6e;
+
+  outline: none;
+
+  font-size: 16px;
+
+  backdrop-filter: blur(3px);
+}
+
+.name-input::placeholder {
+  color: #bbb;
+}
+
+main {
+  height: 100%!important;
+}
+
+/* BOTTONI */
+
+.menu-btn,
+.main-btn,
+.nav-btn,
+.action-btn {
+  height: 60px;
+  font-size: 20px;
+  background: linear-gradient(180deg, #0000007b, #08000044);
+  color: #fff;
+
+  border-top: 3px solid #6fd3ff;
+  border-left: 3px solid #6fd3ff;
+
+  border-right: 3px solid #004a6e;
+  border-bottom: 3px solid #004a6e;
+
+  backdrop-filter: blur(3px);
+
+  transition: .15s;
+}
+
+/* PRESSIONE */
+
+.menu-btn:active,
+.main-btn:active,
+.nav-btn:active,
+.action-btn:active {
+
+  border-top: 3px solid #004a6e;
+  border-left: 3px solid #004a6e;
+
+  border-right: 3px solid #6fd3ff;
+  border-bottom: 3px solid #6fd3ff;
+
+  transform: translateY(1px);
+}
+
+/* NAV ATTIVA */
+
+.nav-btn.active {
+  background: rgba(0, 70, 120, 0.55);
+  color: #fff;
+}
+
+.card {
+  margin: 18px;
+  background: rgba(0, 0, 0, .75);
+  border: 2px solid #222;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 0 25px rgba(255, 0, 0, .2);
+}
+
+.card-title {
+  background: #003cff;
+  color: #fff;
+  text-align: center;
+  padding: 12px;
+  font-weight: 900;
+  font-size: 20px;
+}
+
+.match {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 18px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.score {
+  color: #ffe600;
+  font-size: 30px;
+}
+
+.events {
+  padding: 0 18px 18px;
+  display: grid;
+  gap: 8px;
+  color: #ddd;
+}
+
+.action-btn {
+  width: calc(100% - 24px);
+  margin: 0 12px 18px;
+  border: none;
+  background: #fff;
+  color: #b10000;
+  padding: 16px;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.bottom-nav {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  background: #001b75;
+  border-top: 2px solid #003cff;
+}
+
+@media (min-width: 700px) {
+  body::before {
+    content: "Questa demo è ottimizzata solo per mobile";
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 999px;
+    z-index: 999;
+  }
+}
+
+/* START SCREEN */
+
+.start-content {
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* NEWS */
+
+.news-item {
+  padding: 16px;
+  border-bottom: 3px solid #333;
+  font-size: 15px;
+}
+
+/* MATCH */
+
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 18px;
+}
+
+/* SECOND NAV */
+
+.second-nav {
+  border-top: none;
+  background: #0029aa;
+}
+
+/* TOP NAV (blu) */
+
+.top-nav {
+  display: flex;
+  background: #001b75;
+  border-bottom: 2px solid #003cff;
+}
+
+/* BOTTOM NAV (blu) */
+
+.bottom-nav {
+  display: flex;
+  background: #001b75;
+  border-top: 2px solid #003cff;
+}
+
+/* BOTTONI NAV (già coerenti con il tuo stile) */
+
+.nav-btn {
+  flex: 1;
+  background: transparent;
+  color: #fff;
+  border: none;
+  padding: 14px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  border-left: 3px solid #1b7196;
+  border-right: 3px solid #004a6e;
+}
+
+.nav-btn.active {
+  background: #003cff;
+}
+
+.nav-continue {
+  color: #ffe600;
+  font-weight: 500;
+}
+
+/* CARD GENERALE */
+
+.news-card {
+  margin: 18px;
+
+  background: transparent;
+  backdrop-filter: blur(4px);
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+/* LISTA NOTIZIE */
+
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* SINGOLA RIGA NOTIZIA */
+
+.news-row {
+  display: flex;
+  align-items: center;
+
+  padding: 10px;
+
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 15px;
+
+  cursor: pointer;
+}
+
+.news-row.active {
+  border-left: 2px solid #003cff;
+  background: rgba(0, 60, 255, 0.15);
+}
+
+/* DATA 20% */
+
+.news-date {
+  width: 20%;
+  font-size: 12px;
+  color: #aaa;
+}
+
+/* TITOLO 80% */
+
+.news-title {
+  width: 80%;
+  font-size: 14px;
+  color: #fff;
+}
+
+/* DETTAGLIO */
+
+.news-detail {
+  background: rgba(0, 0, 0, 0.35);
+
+  padding: 14px;
+  border-radius: 15px;
+}
+
+/* TITOLO GRANDE */
+
+.news-detail-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #ffe600;
+
+  margin-bottom: 10px;
+}
+
+/* TESTO ARTICOLO */
+
+.news-detail-text {
+  font-size: 15px;
+  color: #ddd;
+
+  line-height: 1.4;
+
+  text-align: left;
+}
+
+/* HEADER COLONNE */
+.squad-roster {
+  
+  overflow-y: auto;
+  height: calc(100vh - 220px);
+}
+.roster-header {
+  display: grid;
+  grid-template-columns: 15% 25% 15% 15% 15% 15%;
+
+  background: rgba(120, 120, 120, 0.4);
+
+  color: #fff;
+
+  padding: 10px 10px 10px 20px;
+
+  border-radius: 10px;
+
+  font-size: 12px;
+}
+
+/* ROW BASE */
+
+.roster-row {
+  display: grid;
+  grid-template-columns: 15% 25% 15% 15% 15% 15%;
+
+  align-items: center;
+
+  padding: 10px 6px;
+
+  background: transparent;
+
+  color: #fff;
+}
+
+/* GIOCATORE SELEZIONATO (blu) */
+
+.roster-row.active {
+  background: #003cff;
+}
+
+/* COLONNE */
+
+.col {
+  font-size: 13px;
+}
+
+/* CONTAINER NUMERO */
+.col.num {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* NUMERO MAGLIA */
+.shirt-number {
+  width: 26px;
+  height: 26px;  
+  font-size: 12px;
+  font-weight: 600;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 4px;
+}
+
+/* CAPITANO */
+
+.cap {
+  color: #ffe600;
+  font-weight: 700;
+}
+
+/* CONDIZIONE */
+
+.cond {
+  color: #ffe600;
+  font-weight: 600;
+}
+
+/* MINI CAMPO */
+.role-box {
+  width: 44px;
+  height: 28px;
+
+  position: relative;
+
+  background: #1a7f2e;
+
+  border: 1px solid #ffffff;
+
+  overflow: hidden;
+}
+
+.area-left{
+
+  content:"";
+  position:absolute;
+
+  width:8px;
+  height:16px;
+
+  left:0;
+  top:50%;
+
+  transform:translateY(-50%);
+
+  border-right:2px solid rgba(255,255,255,0.9);
+  border-top:2px solid rgba(255,255,255,0.9);
+  border-bottom:2px solid rgba(255,255,255,0.9);
+
+  box-sizing:border-box;
+}
+
+.area-center {  
+  
+
+  position:absolute;
+
+  width:1px;
+  height:26px;
+
+  right:47%;
+  top:50%;
+
+  transform:translateY(-50%);
+
+  border-left:2px solid rgba(255,255,255,0.9);
+  border-top:2px solid rgba(255,255,255,0.9);
+  border-bottom:2px solid rgba(255,255,255,0.9);
+
+  box-sizing:border-box;  
+}
+.area-midcircle{
+  position:absolute;
+
+  width:12px;
+  height:12px;
+
+  border:2px solid #fff;
+  border-radius:50%;
+
+  left:50%;
+  top:50%;
+
+  transform:translate(-50%, -50%);
+}
+.area-right {
+
+  position:absolute;
+
+  width:8px;
+  height:16px;
+
+  right:0;
+  top:50%;
+
+  transform:translateY(-50%);
+
+  border-left:2px solid rgba(255,255,255,0.9);
+  border-top:2px solid rgba(255,255,255,0.9);
+  border-bottom:2px solid rgba(255,255,255,0.9);
+
+  box-sizing:border-box;
+}
+
+/* PALLINO GIOCATORE */
+
+.role-dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  border: 1px solid #111;
+
+  position: absolute;
+
+  z-index: 2;
+}
+
+/* POSIZIONI RUOLO (esempio base GK) */ 
+
+/* =========================
+   COLORI
+========================= */
+
+.role-dot.gk{
+  background:#ffd000;
+}
+
+.role-dot.cb,
+.role-dot.lcb,
+.role-dot.rcb,
+.role-dot.lb,
+.role-dot.rb{
+  background:#2f6dff;
+}
+
+.role-dot.dm,
+.role-dot.cm,
+.role-dot.lcm,
+.role-dot.rcm,
+.role-dot.cam{
+  background:#04d048;
+}
+
+.role-dot.lwm,
+.role-dot.rwm{
+  background:#04d048;
+}
+
+.role-dot.lw,
+.role-dot.rw,
+.role-dot.st{
+  background:#ff3b3b;
+}
+
+
+/* =========================
+   PROFONDITÀ CAMPO (LEFT)
+========================= */
+
+/* PORTIERE */
+.role-dot.gk{
+  left:0;
+}
+
+/* DIFENSORI CENTRALI */
+.role-dot.cb,
+.role-dot.lcb,
+.role-dot.rcb{
+  left:15%;
+}
+
+/* TERZINI */
+.role-dot.lb,
+.role-dot.rb{
+  left:19%;
+}
+
+/* MEDIANO */
+.role-dot.dm{
+  left:35%;
+}
+
+/* CENTROCAMPISTI CENTRALI */
+.role-dot.cm,
+.role-dot.lcm,
+.role-dot.rcm{
+  left:30%;
+}
+
+/* ESTERNI CENTROCAMPO */
+.role-dot.lwm,
+.role-dot.rwm{
+  left:55%;
+}
+
+/* TREQUARTISTA */
+.role-dot.cam{
+  left:65%;
+}
+
+/* ALI */
+.role-dot.lw,
+.role-dot.rw{
+  left:calc(100% - 12px);
+}
+
+/* PUNTA */
+.role-dot.st{
+  left:calc(100% - 8px);
+}
+
+
+/* =========================
+   POSIZIONE VERTICALE (TOP)
+========================= */
+
+/* CENTRO */
+.role-dot.gk,
+.role-dot.cb,
+.role-dot.dm,
+.role-dot.cm,
+.role-dot.cam,
+.role-dot.st{
+  top:calc(50% - 4px);
+}
+
+/* CENTRO SINISTRA */
+.role-dot.lcb,
+.role-dot.lcm{
+  top:calc(65% - 4px);
+}
+
+/* CENTRO DESTRA */
+.role-dot.rcb,
+.role-dot.rcm{
+  top:calc(35% - 4px);
+}
+
+/* SINISTRA */
+.role-dot.lb,
+.role-dot.lwm,
+.role-dot.lw{
+  top:calc(100% - 8px);
+}
+
+/* DESTRA */
+.role-dot.rb,
+.role-dot.rwm,
+.role-dot.rw{
+  top:0;
+}
+
+/* COLONNA NAZIONE */
+.col.nation{
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  font-size:18px;
+
+  line-height:1;
+}/* FLAG BASE */
+.flag{
+  width:18px;
+  height:12px;
+
+  position:relative;
+
+  overflow:hidden;
+
+  border-radius:2px;
+ 
+
+  box-shadow:0 0 2px rgba(0,0,0,0.5);
+}
+.flag.it{
+  background:
+    linear-gradient(
+      to right,
+      #009246 0 33%,
+      #ffffff 33% 66%,
+      #ce2b37 66% 100%
+    );
+}
+.flag.fr{
+  background:
+    linear-gradient(
+      to right,
+      #0055a4 0 33%,
+      #ffffff 33% 66%,
+      #ef4135 66% 100%
+    );
+}
+.flag.ar{
+  background:
+    linear-gradient(
+      to bottom,
+      #6cc6ff 0 33%,
+      #ffffff 33% 66%,
+      #6cc6ff 66% 100%
+    );
+}
+.flag.ng{
+  background:
+    linear-gradient(
+      to right,
+      #008751 0 33%,
+      #ffffff 33% 66%,
+      #008751 66% 100%
+    );
+}
+.flag.hr{
+  background:
+    linear-gradient(
+      to bottom,
+      #ff0000 0 33%,
+      #ffffff 33% 66%,
+      #001489 66% 100%
+    );
+}
+.flag.rs{
+  background:
+    linear-gradient(
+      to bottom,
+      #c6363c 0 24%,
+      #0c4076 33% 67%,
+      #ffffff 66% 100%
+    );
+}
+.flag.br{
+  background:#009739;
+}
+
+.flag.br::before{
+  content:"";
+
+  position:absolute;
+
+  width:10px;
+  height:10px;
+
+  background:#ffdf00;
+
+  left:50%;
+  top:50%;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(45deg);
+}
+
+.flag.br::after{
+  content:"";
+
+  position:absolute;
+
+  width:5px;
+  height:5px;
+
+  background:#002776;
+
+  border-radius:50%;
+
+  left:50%;
+  top:50%;
+
+  transform:translate(-50%, -50%);
+}
