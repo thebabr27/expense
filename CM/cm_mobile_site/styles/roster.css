@@ -1,0 +1,59 @@
+/* roster */ 
+.squad-roster {
+  overflow-y: auto;
+  height: calc(100vh - 210px);
+}
+
+.team-card {
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.roster-header,
+.roster-row {
+  display: grid;
+  grid-template-columns: 15% 25% 15% 15% 15% 15%;
+}
+
+.roster-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(120, 120, 120, 0.4);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 12px;
+}
+
+.roster-row {
+  padding: 10px 6px;
+  align-items: center;
+}
+
+.col.num {
+  display: flex;
+  justify-content: center;
+}
+
+
+.topbar, .shirt-number {
+  background: linear-gradient(180deg, #8d0000, #ff0000);
+  color: white;
+  border: 1px solid white;
+}
+
+.topbar {
+  padding: 18px 16px;
+  text-align: center;
+  border-bottom: 3px solid #ffe600;
+}
+
+.shirt-number {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius:4px;
+}

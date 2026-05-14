@@ -1,0 +1,36 @@
+/* buttons */ 
+.menu-btn,
+.main-btn,
+.nav-btn,
+.action-btn {
+  height: 60px;
+  font-size: 20px;
+
+  background: linear-gradient(180deg, #0000007b, #08000044);
+  color: #fff;
+
+  border-top: 3px solid #6fd3ff;
+  border-left: 3px solid #6fd3ff;
+  border-right: 3px solid #004a6e;
+  border-bottom: 3px solid #004a6e;
+
+  backdrop-filter: blur(3px);
+  transition: .15s;
+}
+
+.menu-btn:active,
+.main-btn:active,
+.nav-btn:active,
+.action-btn:active {
+  border-top: 3px solid #004a6e;
+  border-left: 3px solid #004a6e;
+  border-right: 3px solid #6fd3ff;
+  border-bottom: 3px solid #6fd3ff;
+
+  transform: translateY(1px);
+}
+
+.nav-continue {
+  color: #ffe600;
+  font-weight: 500;
+}

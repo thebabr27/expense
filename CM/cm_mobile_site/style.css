@@ -32,6 +32,7 @@ body {
 .topbar, .shirt-number {
   background: linear-gradient(180deg, #8d0000, #ff0000);
   color: white;
+  border: 1px solid white;
 }
 
 .topbar {
@@ -252,19 +253,21 @@ main {
   border-top: 2px solid #003cff;
 }
 
-@media (min-width: 700px) {
-  body::before {
-    content: "Questa demo è ottimizzata solo per mobile";
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #111;
-    color: #fff;
-    padding: 10px 18px;
-    border-radius: 999px;
-    z-index: 999;
-  }
+::-webkit-scrollbar{
+  width:6px;
+}
+
+::-webkit-scrollbar-track{
+  background:transparent;
+}
+
+::-webkit-scrollbar-thumb{
+  background:rgba(0,140,255,0.8);
+
+  border-radius:999px;
+}
+
+@media (min-width: 700px) { 
 }
 
 /* START SCREEN */
@@ -430,7 +433,21 @@ main {
 .squad-roster {
   
   overflow-y: auto;
-  height: calc(100vh - 220px);
+  height: calc(100vh - 210px);
+}
+
+.team-card{
+  max-height:70vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.roster-header{
+  position:sticky;
+  top:0;
+  z-index:10;
+
+  background:#222;
 }
 .roster-header {
   display: grid;
@@ -516,11 +533,30 @@ main {
 
   position: relative;
 
-  background: #1a7f2e;
 
   border: 1px solid #ffffff;
 
   overflow: hidden;
+}
+
+.role-box.fit-5{
+  background: #1cac39;
+}
+
+.role-box.fit-4{
+  background: #0f6320cb;
+}
+
+.role-box.fit-3{
+  background:rgba(255, 251, 0, 0.693);
+}
+
+.role-box.fit-2{
+  background:rgba(255, 174, 0, 0.512);
+}
+
+.role-box.fit-1{
+  background:rgba(255,0,0,0.22);
 }
 
 .area-left{
@@ -755,7 +791,8 @@ main {
   font-size:18px;
 
   line-height:1;
-}/* FLAG BASE */
+}
+/* FLAG BASE */
 .flag{
   width:18px;
   height:12px;

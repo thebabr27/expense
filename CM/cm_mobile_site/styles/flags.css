@@ -1,0 +1,115 @@
+/* flags */ 
+.col.nation{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+
+/* FLAG BASE */
+.flag{
+  width:18px;
+  height:12px;
+
+  position:relative;
+
+  overflow:hidden;
+
+  border-radius:2px;
+ 
+
+  box-shadow:0 0 2px rgba(0,0,0,0.5);
+}
+.flag.it{
+  background:
+    linear-gradient(
+      to right,
+      #009246 0 33%,
+      #ffffff 33% 66%,
+      #ce2b37 66% 100%
+    );
+}
+.flag.fr{
+  background:
+    linear-gradient(
+      to right,
+      #0055a4 0 33%,
+      #ffffff 33% 66%,
+      #ef4135 66% 100%
+    );
+}
+.flag.ar{
+  background:
+    linear-gradient(
+      to bottom,
+      #6cc6ff 0 33%,
+      #ffffff 33% 66%,
+      #6cc6ff 66% 100%
+    );
+}
+.flag.ng{
+  background:
+    linear-gradient(
+      to right,
+      #008751 0 33%,
+      #ffffff 33% 66%,
+      #008751 66% 100%
+    );
+}
+.flag.hr{
+  background:
+    linear-gradient(
+      to bottom,
+      #ff0000 0 33%,
+      #ffffff 33% 66%,
+      #001489 66% 100%
+    );
+}
+.flag.rs{
+  background:
+    linear-gradient(
+      to bottom,
+      #c6363c 0 24%,
+      #0c4076 33% 67%,
+      #ffffff 66% 100%
+    );
+}
+.flag.br{
+  background:#009739;
+}
+
+.flag.br::before{
+  content:"";
+
+  position:absolute;
+
+  width:10px;
+  height:10px;
+
+  background:#ffdf00;
+
+  left:50%;
+  top:50%;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(45deg);
+}
+
+.flag.br::after{
+  content:"";
+
+  position:absolute;
+
+  width:5px;
+  height:5px;
+
+  background:#002776;
+
+  border-radius:50%;
+
+  left:50%;
+  top:50%;
+
+  transform:translate(-50%, -50%);
+}
