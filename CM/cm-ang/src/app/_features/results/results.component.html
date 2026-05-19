@@ -1,0 +1,92 @@
+<div class="app">
+    <div style="
+    height: calc(100vh - 60px);">
+
+        <app-top-nav-layout [items]="topMenu"></app-top-nav-layout>
+
+        <app-page-layout [title]="'Rosa Squadra'">
+
+            <div class="matchday-header">
+
+                <button class="matchday-arrow" (click)="prevMatchday()">
+                    ‹
+                </button>
+
+                <div class="matchday-center">
+
+                    <div class="matchday-title">
+                        {{ matchdays[currentMatchday].title }}
+                    </div>
+
+                    <div class="matchday-date">
+                        {{ matchdays[currentMatchday].date }}
+                    </div>
+
+                </div>
+
+                <button class="matchday-arrow" (click)="nextMatchday()">
+                    ›
+                </button>
+
+            </div>
+
+            <div *ngFor="let match of matchdays[currentMatchday].matches" class="result-row">
+
+                <div class="team home">
+                    {{ match.home }}
+                </div>
+
+                <div class="score-content">
+
+                    <!-- PARTITA NON INIZIATA -->
+
+                    <ng-container *ngIf="match.status === 'scheduled'; else playedMatch">
+
+                        <div class="kickoff-time">
+                            {{ match.kickoff }}
+                        </div>
+
+                    </ng-container>
+
+                    <!-- PARTITA INIZIATA -->
+
+                    <ng-template #playedMatch>
+
+                        <div class="score-main" [class.pending]="
+              match.status === 'live' ||
+              match.status === 'halftime'
+            ">
+
+                            {{ match.homeGoals }} - {{ match.awayGoals }}
+
+                        </div>
+
+                        <div *ngIf="match.status === 'live'" class="score-sub live-minute">
+
+                            {{ match.minute }}'
+
+                        </div>
+
+                        <div *ngIf="match.status === 'halftime'" class="score-sub halftime">
+
+                            HT
+
+                        </div>
+
+                    </ng-template>
+
+                </div>
+                <div class="team away">
+                    {{ match.away }}
+                </div>
+
+            </div>
+
+
+
+        </app-page-layout>
+
+    </div>
+    <app-bottom-nav-layout [items]="bottomMenu"></app-bottom-nav-layout>
+
+</div>

@@ -1,0 +1,58 @@
+<div class="app">
+    <div style="
+    height: calc(100vh - 60px);">
+
+        <app-top-nav-layout [items]="topMenu"></app-top-nav-layout>
+
+        <app-page-layout [title]="'Statistiche partita'">
+            <div class="match-stats">
+
+                <div *ngFor="let stat of matchStats" class="stats-card">
+
+                    <div class="stats-title">
+                        {{ stat.label }}
+                    </div>
+
+                    <div class="stat-row">
+
+                        <!-- HOME -->
+
+                        <div class="stat-value home">
+
+                            {{ stat.home }}{{ stat.suffix || '' }}
+
+                        </div>
+
+                        <!-- BAR -->
+
+                        <div class="stat-bar">
+
+                            <div class="bar home-bar" [style.width.%]="
+                      (stat.home / (stat.home + stat.away)) * 100
+                    ">
+                            </div>
+
+                            <div class="bar away-bar" [style.width.%]="
+                      (stat.away / (stat.home + stat.away)) * 100
+                    ">
+                            </div>
+
+                        </div>
+
+                        <!-- AWAY -->
+
+                        <div class="stat-value away">
+
+                            {{ stat.away }}{{ stat.suffix || '' }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </app-page-layout>
+        <app-bottom-nav-layout [items]="bottomMenu"></app-bottom-nav-layout>
+    </div>
+</div>

@@ -1,0 +1,112 @@
+/* news */ 
+.news-card {
+  margin: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.news-row {
+  display: flex;
+  align-items: center;
+
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.35);
+
+  border-radius: 15px;
+}
+
+
+/* CARD GENERALE */
+
+.news-card {
+  margin: 18px;
+
+  background: transparent;
+  backdrop-filter: blur(4px);
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+/* LISTA NOTIZIE */
+
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* SINGOLA RIGA NOTIZIA */
+
+.news-row {
+  display: flex;
+  align-items: center;
+
+  padding: 10px;
+
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 15px;
+
+  cursor: pointer;
+}
+
+.news-row.active {
+  border-left: 2px solid #003cff;
+  background: rgba(0, 60, 255, 0.15);
+}
+
+/* DATA 20% */
+
+.news-date {
+  width: 20%;
+  font-size: 12px;
+  color: #aaa;
+}
+
+/* TITOLO 80% */
+
+.news-title {
+  width: 80%;
+  font-size: 14px;
+  color: #fff;
+}
+
+/* DETTAGLIO */
+
+.news-detail {
+  background: rgba(0, 0, 0, 0.35);
+
+  padding: 14px;
+  border-radius: 15px;
+}
+
+/* TITOLO GRANDE */
+
+.news-detail-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #ffe600;
+
+  margin-bottom: 10px;
+}
+
+/* TESTO ARTICOLO */
+
+.news-detail-text {
+  font-size: 15px;
+  color: #ddd;
+
+  line-height: 1.4;
+
+  text-align: left;
+}

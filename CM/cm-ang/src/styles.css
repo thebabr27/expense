@@ -1,0 +1,1403 @@
+/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  background: #cfcfcf;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  color: #fff;
+  overflow: hidden;
+}
+/* scrollbar */ 
+::-webkit-scrollbar{
+  width:6px;
+}
+
+::-webkit-scrollbar-track{
+  background:transparent;
+}
+
+::-webkit-scrollbar-thumb{
+  background:rgba(0,140,255,0.8);
+  border-radius:999px;
+}
+.app {
+  background: url('./assets/bg.svg') center/cover no-repeat;
+  min-height: 100vh;
+  width: 100vw;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* roster */
+/* wrapper principale semitrasparente */
+
+.screen-shell{
+  width:100%;
+  height:100vh;
+
+  display:flex;
+  flex-direction:column;
+
+  background:rgba(0,0,0,.22);
+
+  backdrop-filter:blur(4px);
+}
+
+/* roster */ 
+.squad-roster {
+  overflow-y: auto;
+  height: calc(100% - 35px);
+    padding: 2px;
+    border-radius: 18px; 
+  
+}
+
+.squad-table {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.team-card {
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.cond {
+    color: rgba(236, 219, 38, 0.814);
+    font-weight: 500;
+}
+
+.roster-header  {
+}
+ 
+.roster-row {
+  display: grid;
+  grid-template-columns: 12% 28% 15% 17% 12% 17%;
+}
+
+.roster-header {
+  display: grid;
+  grid-template-columns: 12% 31% 13% 17% 11% 20%;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(120, 120, 120, 0.4);
+  border-radius: 10px;
+  padding: 10px 18px 10px 14px;
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+.roster-row {
+  padding: 10px 6px;
+  align-items: center;
+}
+
+.col.num {
+  display: flex;
+  justify-content: start;
+}
+
+
+.topbar, .shirt-number {
+  background: linear-gradient(180deg, #8d0000, #ff0000);
+  color: white;
+  border: 1px solid white;
+}
+
+.topbar {
+  padding: 18px 16px;
+  text-align: center;
+  border-bottom: 3px solid #ffe600;
+}
+
+.shirt-number {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius:20px;
+}
+
+/* flags */ 
+.col.nation{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+
+/* FLAG BASE */
+.flag{
+  width:18px;
+  height:12px;
+
+  position:relative;
+
+  overflow:hidden;
+
+  border-radius:2px;
+ 
+
+  box-shadow:0 0 2px rgba(0,0,0,0.5);
+}
+.flag.it{
+  background:
+    linear-gradient(
+      to right,
+      #009246 0 33%,
+      #ffffff 33% 66%,
+      #ce2b37 66% 100%
+    );
+}
+.flag.fr{
+  background:
+    linear-gradient(
+      to right,
+      #0055a4 0 33%,
+      #ffffff 33% 66%,
+      #ef4135 66% 100%
+    );
+}
+.flag.ar{
+  background:
+    linear-gradient(
+      to bottom,
+      #6cc6ff 0 33%,
+      #ffffff 33% 66%,
+      #6cc6ff 66% 100%
+    );
+}
+.flag.ng{
+  background:
+    linear-gradient(
+      to right,
+      #008751 0 33%,
+      #ffffff 33% 66%,
+      #008751 66% 100%
+    );
+}
+.flag.hr{
+  background:
+    linear-gradient(
+      to bottom,
+      #ff0000 0 33%,
+      #ffffff 33% 66%,
+      #001489 66% 100%
+    );
+}
+.flag.rs{
+  background:
+    linear-gradient(
+      to bottom,
+      #c6363c 0 24%,
+      #0c4076 33% 67%,
+      #ffffff 66% 100%
+    );
+}
+.flag.br{
+  background:#009739;
+}
+
+.flag.br::before{
+  content:"";
+
+  position:absolute;
+
+  width:10px;
+  height:10px;
+
+  background:#ffdf00;
+
+  left:50%;
+  top:50%;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(45deg);
+}
+
+.flag.br::after{
+  content:"";
+
+  position:absolute;
+
+  width:5px;
+  height:5px;
+
+  background:#002776;
+
+  border-radius:50%;
+
+  left:50%;
+  top:50%;
+
+  transform:translate(-50%, -50%);
+}
+
+/* roles */ 
+
+
+/* MINI CAMPO */
+.role-box {
+  width: 44px;
+  height: 28px;
+
+  position: relative;
+
+
+  border: 1px solid #ffffff;
+
+  overflow: hidden;
+}
+
+.role-box.fit-5{
+  background: #1cac39;
+}
+
+.role-box.fit-4{
+  background: #b5b800cb;
+}
+
+.role-box.fit-3{
+  background:rgba(255, 251, 0, 0.693);
+}
+
+.role-box.fit-2{
+  background:rgba(255, 174, 0, 0.512);
+}
+
+.role-box.fit-1{
+  background:rgba(255,0,0,0.22);
+}
+
+.area-left{
+
+  content:"";
+  position:absolute;
+
+  width:8px;
+  height:16px;
+
+  left:0;
+  top:50%;
+
+  transform:translateY(-50%);
+
+  border-right:2px solid rgba(255,255,255,0.9);
+  border-top:2px solid rgba(255,255,255,0.9);
+  border-bottom:2px solid rgba(255,255,255,0.9);
+
+  box-sizing:border-box;
+}
+
+.area-center {  
+  
+
+  position:absolute;
+
+  width:1px;
+  height:26px;
+
+  right:47%;
+  top:50%;
+
+  transform:translateY(-50%);
+
+  border-left:2px solid rgba(255,255,255,0.9);
+  border-top:2px solid rgba(255,255,255,0.9);
+  border-bottom:2px solid rgba(255,255,255,0.9);
+
+  box-sizing:border-box;  
+}
+.area-midcircle{
+  position:absolute;
+
+  width:12px;
+  height:12px;
+
+  border:2px solid #fff;
+  border-radius:50%;
+
+  left:50%;
+  top:50%;
+
+  transform:translate(-50%, -50%);
+}
+.area-right {
+
+  position:absolute;
+
+  width:8px;
+  height:16px;
+
+  right:0;
+  top:50%;
+
+  transform:translateY(-50%);
+
+  border-left:2px solid rgba(255,255,255,0.9);
+  border-top:2px solid rgba(255,255,255,0.9);
+  border-bottom:2px solid rgba(255,255,255,0.9);
+
+  box-sizing:border-box;
+}
+
+/* PALLINO GIOCATORE */
+
+.role-dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  border: 1px solid #111;
+
+  position: absolute;
+
+  z-index: 2;
+}
+
+/* POSIZIONI RUOLO (esempio base GK) */ 
+
+/* =========================
+   COLORI
+========================= */
+
+.role-dot.gk{
+  background:#ffd000;
+}
+
+.role-dot.cb,
+.role-dot.lcb,
+.role-dot.rcb,
+.role-dot.lb,
+.role-dot.rb{
+  background:#2f6dff;
+}
+
+.role-dot.dm,
+.role-dot.cm,
+.role-dot.lcm,
+.role-dot.rcm,
+.role-dot.cam{
+  background:#04d048;
+}
+
+.role-dot.lwm,
+.role-dot.rwm{
+  background:#04d048;
+}
+
+.role-dot.lw,
+.role-dot.rw,
+.role-dot.st{
+  background:#ff3b3b;
+}
+
+
+/* =========================
+   PROFONDITÀ CAMPO (LEFT)
+========================= */
+
+/* PORTIERE */
+.role-dot.gk{
+  left:0;
+}
+
+/* DIFENSORI CENTRALI */
+.role-dot.cb,
+.role-dot.lcb,
+.role-dot.rcb{
+  left:15%;
+}
+
+/* TERZINI */
+.role-dot.lb,
+.role-dot.rb{
+  left:19%;
+}
+
+/* MEDIANO */
+.role-dot.dm{
+  left:35%;
+}
+
+/* CENTROCAMPISTI CENTRALI */
+.role-dot.cm,
+.role-dot.lcm,
+.role-dot.rcm{
+  left:30%;
+}
+
+/* ESTERNI CENTROCAMPO */
+.role-dot.lwm,
+.role-dot.rwm{
+  left:55%;
+}
+
+/* TREQUARTISTA */
+.role-dot.cam{
+  left:65%;
+}
+
+/* ALI */
+.role-dot.lw,
+.role-dot.rw{
+  left:calc(100% - 12px);
+}
+
+/* PUNTA */
+.role-dot.st{
+  left:calc(100% - 8px);
+}
+
+
+/* =========================
+   POSIZIONE VERTICALE (TOP)
+========================= */
+
+/* CENTRO */
+.role-dot.gk,
+.role-dot.cb,
+.role-dot.dm,
+.role-dot.cm,
+.role-dot.cam,
+.role-dot.st{
+  top:calc(50% - 4px);
+}
+
+/* CENTRO SINISTRA */
+.role-dot.lcb,
+.role-dot.lcm{
+  top:calc(65% - 4px);
+}
+
+/* CENTRO DESTRA */
+.role-dot.rcb,
+.role-dot.rcm{
+  top:calc(35% - 4px);
+}
+
+/* SINISTRA */
+.role-dot.lb,
+.role-dot.lwm,
+.role-dot.lw{
+  top:calc(100% - 8px);
+}
+
+/* DESTRA */
+.role-dot.rb,
+.role-dot.rwm,
+.role-dot.rw{
+  top:0;
+}
+
+.calendar-screen {
+    padding: 0 14px 20px;
+}
+
+.calendar-card {
+
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(4px);
+
+    border-radius: 20px;
+
+    padding: 14px;
+}
+
+.calendar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.calendar-row {
+
+    display: grid;
+    grid-template-columns: 50px 40px 1fr;
+
+    align-items: center;
+
+    padding: 12px;
+
+    background: rgba(255, 255, 255, 0.05);
+
+    border-radius: 14px;
+}.calendar-row{
+  display:grid;
+  grid-template-columns:50px 40px 1fr 60px;
+  align-items:center;
+
+  padding:12px;
+
+  background:rgba(255,255,255,0.05);
+  border-radius:14px;
+}
+
+.calendar-result{
+  text-align:center;
+  font-weight:700;
+  font-size:13px;
+}
+
+/* partita giocata */
+.calendar-result.played{
+  color:#ffe600;
+}
+
+/* partita non giocata */
+.calendar-result.future{
+  color:rgba(255,255,255,0.4);
+}
+
+.calendar-date {
+    color: #ffe600;
+    font-weight: 700;
+    font-size: 12px;
+    text-align: center;
+}
+
+.calendar-icon {
+    font-size: 18px;
+    text-align: center;
+}
+
+.calendar-match {
+    color: #fff;
+    font-size: 14px;
+}
+
+/* =========================
+   ICONA BASE
+========================= */
+
+.fixture-icon {
+    width: 16px;
+    height: 16px;
+
+    position: relative;
+
+    color: #fff;
+}
+
+/* =========================
+   CASA (HOME)
+========================= */
+
+.fixture-icon.home {
+    position: relative;
+}
+
+/* base casa */
+.fixture-icon.home .part-1 {
+    position: absolute;
+    left: 50%;
+    top: 60%;
+    transform: translate(-50%, -50%);
+
+    width: 12px;
+    height: 8px;
+
+    border: 2px solid #fff;
+    border-top: none;
+    border-radius: 2px;
+}
+
+/* tetto */
+.fixture-icon.home .part-2 {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -50%) rotate(45deg);
+
+    width: 12px;
+    height: 12px;
+
+    border-top: 2px solid #fff;
+    border-left: 2px solid #fff;
+
+    border-radius: 2px;
+}
+
+/* porta */
+.fixture-icon.home .part-3 {
+    position: absolute;
+    left: 50%;
+    top: 65%;
+    transform: translate(-50%, -50%);
+
+    width: 4px;
+    height: 5px;
+
+    background: #fff;
+}
+
+/* =========================
+   AEREO (AWAY)
+========================= */
+.fixture-icon.away {
+    position: relative;
+}
+
+/* fusoliera */
+.fixture-icon.away .part-1 {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+
+    width: 18px;
+    height: 4px;
+
+    background: #fff;
+    border-radius: 2px;
+}
+
+/* ala sinistra */
+.fixture-icon.away .part-2 {
+    position: absolute;
+    left: 32%;
+    top: 26%;
+
+    width: 10px;
+    height: 3px;
+
+    background: #fff;
+    border-radius: 2px;
+}
+
+/* ala destra */
+.fixture-icon.away .part-3 {
+    position: absolute;
+    left: -3%;
+    top: 48%;
+    transform: rotate(90deg);
+    width: 12px;
+    height: 3px;
+
+    background: #fff;
+    border-radius: 2px;
+}
+
+/* =========================
+   CLASSIFICA
+========================= */
+
+.league-card {
+  padding: 0 12px 20px;
+} 
+
+/* HEADER */
+
+/* ROW */
+
+.league-row {
+  display: grid;
+
+  grid-template-columns:
+    2.4fr .7fr .7fr .7fr .7fr .8fr .8fr .9fr;
+
+  align-items: center;
+
+  padding: 10px 12px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+
+  font-size: 13px;
+}
+
+/* ultima riga */
+
+.league-row:last-child {
+  border-bottom: none;
+}
+
+/* squadra selezionata */
+
+.league-row.active {
+  background: rgba(0, 60, 255, .18);
+
+  border-radius: 10px;
+}
+
+/* CLUB */
+
+.club {
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+}
+
+.club-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* PUNTI */
+
+.points-box {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: auto;
+
+  border-radius: 10px;
+
+  background: blue;
+
+  border: 3px solid #0055a4;
+
+  color: #ffffff;
+
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* HEADER */
+
+.league-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 4px 2.4fr .7fr .7fr .7fr .7fr .8fr 1.2fr .9fr;
+  align-items: center;
+  padding: 10px 27px 10px 32px;
+  background: rgba(120, 120, 120, .25);
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ROW */
+
+.league-row {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns:
+    4px 2.4fr .7fr .7fr .7fr .7fr .8fr .8fr .9fr;
+
+  align-items: center;
+
+  padding: 10px 12px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+
+  font-size: 13px;
+}
+
+/* BARRA POSIZIONE */
+
+.rank-zone {
+  width: 7px;
+  height: 100%;
+
+  border-radius: 999px;
+  margin-left: -10px;
+}
+
+/* CHAMPIONS (1-4) */
+
+.league-row.champions .rank-zone {
+  background: #5E81FF;
+}
+
+/* EUROPA LEAGUE (5-6) */
+
+.league-row.europa .rank-zone {
+  background: #FF9D73;
+}
+
+/* CONFERENCE (7) */
+
+.league-row.conference .rank-zone {
+  background: #76FF73;
+}
+
+/* RETROCESSIONE */
+
+.league-row.relegation .rank-zone {
+  background: #ff3b3b;
+}
+
+.tactics-field {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  padding-top: 2px!important;
+}
+
+.tactics-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+}
+
+/* =========================
+   PITCH BASE
+========================= */ 
+.tactics-pitch {
+  position: relative;
+
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 1 / 1;
+
+  display: flex;
+
+  background: repeating-linear-gradient(
+    to right,
+    #004100 0px,
+    #004100 calc(100% / 7),
+    #003800 calc(100% / 7),
+    #003800 calc(100% / 7 * 2)
+  );
+
+  border: 2px solid #0BC50B;
+  overflow: hidden;
+}
+/* =========================
+   LAYER GIOCATORI
+========================= */
+
+.inner-pitch {
+  position: absolute;
+
+  inset: -10px; /* lo allarga oltre il campo */
+
+  z-index: 10;
+
+  pointer-events: none;
+}
+
+/* LINEA CENTROCAMPO */
+.midline {
+  position: absolute;
+
+  top: 33%;
+  left: 0;
+  right: 0;
+
+  height: 2px;
+
+  background: #0BC50B;
+}
+
+/* CERCHIO CENTROCAMPO */
+.midcircle {
+  position: absolute;
+
+  top: 33%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  width: 70px;
+  height: 70px;
+
+  border: 2px solid #0BC50B;
+  border-radius: 50%;
+}
+/* =========================
+   AREA DI RIGORE (BASSA)
+========================= */
+
+.penalty-area {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 22%;
+}
+
+/* AREA DI RIGORE GRANDE */
+.penalty-box {
+  position: absolute;
+
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+
+  border: 2px solid #0BC50B;
+  border-bottom: none;
+
+  box-sizing: border-box;
+}
+
+/* AREA PICCOLA */
+.six-yard-box {
+  position: absolute;
+
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 40%;
+  height: 35%;
+
+  border: 2px solid #0BC50B;
+  border-bottom: none;
+
+  box-sizing: border-box;
+}
+
+/* MEZZALUNA */
+.penalty-arc {
+  position: absolute;
+
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 100px;
+  height: 90px;
+}
+
+/* arco reale */
+.penalty-arc::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  border-top: 2px solid #0BC50B;
+  border-left: 2px solid transparent;
+  border-right: 2px solid transparent;
+  border-bottom: none;
+
+  border-radius: 50%;
+}
+
+/* =========================
+   PLAYER BASE
+========================= */
+.tactics-player {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+
+  background: red;
+  border: 3px solid orange;
+  color: orange;
+}
+
+.tactics-player.gk {
+  background: #e6e6e6;
+  border: 3px solid #9a9a9a;
+  color: #333;
+}
+
+/* numero dentro il cerchio */
+.tactics-number {
+  font-size: 11px;
+  font-weight: 700;
+  color: orange;
+  line-height: 1;
+}
+
+/* nome sotto il pallino */
+.tactics-name {
+  position: absolute;
+  top: 36px;
+
+  font-size: 10px;
+  color: #fff;
+
+  white-space: nowrap;
+  text-shadow: 0 0 3px black;
+
+  transform: translateX(-50%);
+  left: 50%;
+}
+
+/* =========================
+   PORTIERE
+========================= */
+/* GK */
+.tactics-player.gk { left: 50%; }
+
+/* DIFESA */
+/* DIFESA SINISTRA / CENTRO / DESTRA */
+.tactics-player.lb  { left: 15%; }
+.tactics-player.lcb { left: 35%; }
+.tactics-player.rcb { left: 65%; }
+.tactics-player.rb  { left: 85%; }
+.tactics-player.cb  { left: 50%; }
+
+/* CENTROCAMPO */
+.tactics-player.lcm { left: 20%; }
+.tactics-player.cm  { left: 50%; }
+.tactics-player.rcm { left: 80%; }
+
+/* ATTACCO */
+.tactics-player.lw { left: 30%; }
+.tactics-player.st { left: 50%; }
+.tactics-player.rw { left: 70%; }
+ /* GK */
+.tactics-player.gk { top: 92%; }
+
+.tactics-player.gk {
+  top: 88%;
+}
+
+.tactics-player.lb,
+.tactics-player.rb {
+  top: 65%;
+}
+
+.tactics-player.lcb,
+.tactics-player.cb,
+.tactics-player.rcb {
+  top: 73%;
+}
+
+.tactics-player.lcm,
+.tactics-player.rcm {
+  top: 45%;
+}
+
+.tactics-player.cm {
+  top: 52%;
+}
+
+.tactics-player.lw,
+.tactics-player.rw {
+  top: 20%;
+}
+
+.tactics-player.st {
+    top: 10%;
+}
+
+/* =========================
+   FORMATION BADGE
+========================= */
+
+.formation-badge-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.formation-badge { 
+  margin-left: auto;
+  margin-right: auto;
+
+  padding: 6px 14px;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  border-radius: 30px;
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  color: #ffe600;
+
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+
+  text-align: center;
+
+  display: inline-block;
+
+  backdrop-filter: blur(4px);
+}
+
+/* results.css */
+
+.results-screen{
+  padding:0 14px 20px;
+}
+
+.results-card{
+
+  max-height: 67vh;
+  overflow-y: auto;
+  background:rgba(0,0,0,0.35);
+
+  backdrop-filter:blur(4px);
+
+  border-radius:20px;
+
+  padding:14px;
+
+  display:flex;
+  flex-direction:column;
+
+  gap:10px;
+}
+
+.matchday-title{
+
+  text-align:center;
+
+  color:#ffe600;
+
+  font-size:16px;
+  font-weight:700;
+
+  padding-bottom:5px;
+
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+.results-list{
+
+  display:flex;
+  flex-direction:column;
+
+  gap:8px;
+}
+
+.result-row{
+
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+
+  align-items:center;
+
+  gap:10px;
+
+  padding:12px;
+
+  background:rgba(255,255,255,0.05);
+
+  border-radius:14px;
+}
+
+.team{
+
+  font-size:14px;
+  font-weight:500;
+
+  color:#fff;
+}
+
+.team.home{
+  text-align:right;
+}
+
+.team.away{
+  text-align:left;
+}
+
+.score-box{
+
+  min-width:64px;
+  height:34px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:rgba(0,0,0,0.45);
+
+  border-radius:999px;
+
+  color:#ffe600;
+
+  font-size:15px;
+  font-weight:700;
+}/* HEADER GIORNATA */
+
+.matchday-header{
+
+  display:flex;
+
+  align-items:center;
+  justify-content:space-between;
+
+  gap:10px;
+
+  padding-bottom:10px;
+
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.matchday-center {
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+}
+
+.matchday-date {
+
+  margin-top: 2px;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  opacity: .6;
+
+  letter-spacing: .3px;
+}
+/* TITOLO */
+
+.matchday-title{
+
+  flex:1;
+
+  text-align:center;
+
+  color:#ffe600;
+
+  font-size:16px;
+  font-weight:700;
+}
+
+/* FRECCE */
+
+.matchday-arrow{
+
+  width:34px;
+  height:34px;
+
+  border:none;
+  border-radius:50%;
+
+  background:rgba(255,255,255,0.08);
+
+  color:#ffe600;
+
+  font-size:22px;
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:.15s;
+}
+
+.matchday-arrow:active{
+
+  transform:scale(0.92);
+
+  background:rgba(255,255,255,0.18);
+}
+.score-content {
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 72px;
+}
+
+.score-main {
+
+  font-size: 20px;
+  font-weight: 900;
+
+  line-height: 1;
+}
+
+.score-main.pending {
+
+  color: #ffd54a;
+
+  text-shadow:
+    0 0 6px rgba(255,213,74,.25);
+}
+
+.score-sub {
+
+  margin-top: 3px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: .4px;
+  margin-bottom: -15px;
+
+}
+
+.live-minute {
+
+  color: #ff5a5a;
+
+  animation: pulse 1.2s infinite;
+}
+
+.halftime {
+
+  color: #ffd54a;
+}
+
+.kickoff-time {
+
+  font-size: 15px;
+  font-weight: 800;
+
+  opacity: .75;
+}
+
+@keyframes pulse {
+
+  0% {
+    opacity: .5;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: .5;
+  }
+
+}
+
+/* Chrome, Safari, Edge */
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+
+  -webkit-appearance: none;
+
+  margin: 0;
+
+}
+
+/* Firefox */
+
+input[type="number"] {
+
+  -moz-appearance: textfield;
+
+}

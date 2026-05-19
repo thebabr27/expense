@@ -1,0 +1,17 @@
+.empty-list {
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 240px;
+
+  text-align: center;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  opacity: .45;
+
+  letter-spacing: .4px;
+}

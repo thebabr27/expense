@@ -1,0 +1,28 @@
+<div class="app">
+    <div style="
+    height: calc(100vh - 60px);">
+
+        <app-top-nav-layout [items]="topMenu"></app-top-nav-layout>
+
+        <app-page-layout [title]="'Rosa Squadra'"> 
+ 
+
+                    <div class="roster-header">
+                        <div>Num</div>
+                        <div>Nome</div>
+                        <div>Cap</div>
+                        <div>Ruolo</div>
+                        <div>Naz</div>
+                        <div>Cond</div>
+                    </div>
+
+                    <div class="squad-roster "> </div>
+ 
+ 
+
+        </app-page-layout>
+
+    </div>
+    <app-bottom-nav-layout [items]="bottomMenu"></app-bottom-nav-layout>
+
+</div>

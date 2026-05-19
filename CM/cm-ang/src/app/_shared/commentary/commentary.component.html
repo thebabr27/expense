@@ -1,0 +1,41 @@
+<div class="commentary-list">
+
+    <div *ngFor="let event of commentary" class="goal-banner" [class.action]="event.type === 'action'"
+        [style.background]="event.team?.colors?.main" [style.color]="event.team?.colors?.second">
+
+
+        <span class="event-minute">
+            {{ event.minute }}'
+        </span>
+
+        <div class="goal-content">
+            <div class="goal-title" [ngClass]="event.type">
+
+
+                <ng-container [ngSwitch]="event.type">
+
+                    <div *ngSwitchCase="'goal'">
+                        {{ event.text | uppercase }}
+                    </div>
+
+                    <div *ngSwitchCase="'yellow'">
+                        🟨 Ammonizione per {{ event.player }}
+                    </div>
+
+                    <div *ngSwitchCase="'red'">
+                        🟥 Espulsione per {{ event.player }}
+                    </div>
+
+                    <div *ngSwitchCase="'action'">
+                        {{ event.text }}
+                    </div>
+
+                </ng-container>
+
+            </div> 
+
+        </div>
+
+    </div>
+
+</div>

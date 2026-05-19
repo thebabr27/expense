@@ -1,0 +1,139 @@
+.editor-screen {
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 18px;
+
+  padding: 8px 4px 24px;
+}
+
+/* INPUT ROW */
+
+.editor-input-row {
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+/* INPUT */
+
+.editor-input {
+
+  flex: 1;
+
+  height: 48px;
+
+  border: none;
+  outline: none;
+
+  border-radius: 14px;
+
+  padding: 0 16px;
+
+  background: rgba(255,255,255,.08);
+
+  color: #fff;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  backdrop-filter: blur(8px);
+}
+
+.editor-input::placeholder {
+
+  color: rgba(255,255,255,.45);
+}
+
+/* ADD BUTTON */
+
+.add-btn {
+
+cursor: pointer;
+  height: 48px;
+
+  padding: 0 18px;
+
+  border: none;
+  outline: none;
+
+  border-radius: 14px;
+
+  background: rgba(255,255,255,.14);
+
+  color: #ffd54a;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  letter-spacing: .4px;
+}
+
+/* EMPTY */
+
+.empty-list {
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 180px;
+
+  text-align: center;
+
+  opacity: .4;
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* LIST */
+
+.nations-list {
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+/* BUTTON */
+
+.nation-btn {
+
+  width: 100%;
+
+  min-height: 58px;
+
+  border: none;
+  outline: none;
+
+  border-radius: 16px;
+
+  background: rgba(255,255,255,.08);
+
+  color: #fff;
+
+  text-align: left;
+
+  padding: 0 18px;
+
+  font-size: 17px;
+  font-weight: 700;
+
+  letter-spacing: .3px;
+
+  backdrop-filter: blur(8px);
+
+  transition: .15s;
+}
+
+.nation-btn:active {
+
+  transform: scale(.985);
+
+  background: rgba(255,255,255,.14);
+}

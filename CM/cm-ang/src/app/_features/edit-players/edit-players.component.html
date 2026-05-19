@@ -1,0 +1,175 @@
+<div class="app">
+
+    <div style="height: calc(100vh - 60px);">
+
+        <app-top-nav-layout [items]="topMenu">
+        </app-top-nav-layout>
+
+        <app-page-layout [title]="'Edit Players'">
+
+            <div class="editor-screen">
+
+                <!-- BTN OPEN FORM -->
+
+                <button *ngIf="!showForm" class="show-form-btn" (click)="showForm = true">
+
+                    Aggiungi Giocatore
+
+                </button>
+
+                <!-- FORM -->
+
+                <div *ngIf="showForm" class="player-form">
+
+                    <!-- CLOSE -->
+
+                    <button class="close-form-btn" (click)="closeForm()">
+
+                        ✕
+
+                    </button>
+
+                    <!-- NOME -->
+
+                    <input type="text" [(ngModel)]="form.fullName" placeholder="Nome completo" class="editor-input">
+
+                    <!-- NOME MAGLIA -->
+
+                    <input type="text" [(ngModel)]="form.shirtName" placeholder="Nome sulla maglia"
+                        class="editor-input">
+
+                    <!-- SOPRANNOME -->
+
+                    <input type="text" [(ngModel)]="form.fanNickname" placeholder="Soprannome tifosi"
+                        class="editor-input">
+
+                    <!-- DATA NASCITA -->
+
+                    <input type="date" [(ngModel)]="form.birthDate" class="editor-input">
+
+                    <!-- CITTA -->
+
+                    <input type="text" [(ngModel)]="form.birthCity" placeholder="Città di nascita" class="editor-input">
+
+                    <!-- NAZIONE -->
+
+                    <button type="button" class="nation-selector" (click)="openNationModal()">
+
+                        <span>
+                            {{
+                            selectedNationName || 'Seleziona nazione'
+                            }}
+                        </span>
+
+                        <span class="selector-arrow">
+                            ›
+                        </span>
+
+                    </button>
+
+                    <!-- SQUADRA -->
+
+                    <button type="button" class="nation-selector" (click)="openTeamModal()">
+
+                        <span>
+                            {{
+                            selectedTeamName || 'Svincolato'
+                            }}
+                        </span>
+
+                        <span class="selector-arrow">
+                            ›
+                        </span>
+
+                    </button>
+
+                    <!-- PRESTITO -->
+
+                    <button type="button" class="nation-selector" (click)="openLoanModal()">
+
+                        <span>
+                            {{
+                            selectedLoanTeamName || 'Nessun prestito'
+                            }}
+                        </span>
+
+                        <span class="selector-arrow">
+                            ›
+                        </span>
+
+                    </button>
+
+                    <!-- FINE PRESTITO -->
+
+                    <input *ngIf="form.loanTeamId" type="date" [(ngModel)]="form.loanEndDate" class="editor-input">
+
+                    <!-- SQUADRA DEL CUORE -->
+
+                    <button type="button" class="nation-selector" (click)="openFavoriteModal()">
+
+                        <span>
+                            {{
+                            selectedFavoriteTeamName || 'Nessuna'
+                            }}
+                        </span>
+
+                        <span class="selector-arrow">
+                            ›
+                        </span>
+
+                    </button>
+
+                    <!-- SAVE -->
+
+                    <button class="add-btn" (click)="savePlayer()">
+
+                        {{
+                        editingPlayerId
+                        ? 'Salva Modifiche'
+                        : 'Aggiungi Giocatore'
+                        }}
+
+                    </button>
+
+                </div>
+
+                <!-- EMPTY -->
+
+                <div *ngIf="players.length === 0" class="empty-list">
+
+                    Nessun elemento in questa lista
+
+                </div>
+
+                <!-- LIST -->
+
+                <div *ngIf="players.length > 0" class="players-list">
+
+                    <div *ngFor="let player of players" class="player-card" (click)="editPlayer(player)">
+                        <div>
+                            <div class="player-name">
+                                {{ player.fullName }}
+                            </div>
+
+                            <div class="player-age">
+                                {{ getPlayerAge(player.birthDate) }} anni
+                            </div>
+                        </div>
+                        <div class="player-nation"> 
+                                {{ getNationality(player.nationId) }} 
+                        </div>
+                        <div class="player-meta">
+                            {{ getTeamById(player.teamId)?.fullName || 'Svincolato' }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </app-page-layout>
+
+    </div>
+
+</div>

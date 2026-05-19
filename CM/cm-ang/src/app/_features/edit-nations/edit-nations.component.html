@@ -1,0 +1,48 @@
+<div class="app">
+
+    <div style="height: calc(100vh - 60px);">
+
+        <app-top-nav-layout [items]="topMenu">
+        </app-top-nav-layout>
+
+        <app-page-layout [title]="'Edit Nations'">
+            <div class="editor-screen">
+
+                <!-- INPUT BAR -->
+
+                <div class="editor-input-row">
+
+                    <input type="text" [(ngModel)]="newNation" placeholder="Nuova nazione..." class="editor-input">
+
+                    <button class="add-btn" (click)="addNation()">
+
+                        Aggiungi
+
+                    </button>
+
+                </div> 
+
+            <div *ngIf="nations.length === 0">
+
+                <app-empty-list>
+                </app-empty-list>
+
+            </div>
+
+                <div *ngIf="nations.length > 0" class="nations-list">
+
+                    <button *ngFor="let nation of nations" class="nation-btn">
+
+                        {{ nation.name }}
+
+                    </button>
+
+                </div>
+            </div>
+            <router-outlet></router-outlet>
+
+        </app-page-layout>
+
+    </div>
+
+</div>

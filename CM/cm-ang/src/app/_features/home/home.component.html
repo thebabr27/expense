@@ -1,0 +1,47 @@
+<div class="app">
+    <div style="
+    height: calc(100vh - 60px);">
+
+        <app-top-nav-layout [items]="topMenu"></app-top-nav-layout>
+
+        <app-page-layout [title]="'Notizie AS Roma - 20 Settembre 2026'">
+
+            <div class="news-list">
+
+                <div class="news-row active">
+                    <div class="news-date">20/05</div>
+                    <div class="news-title">Roma interessata a un nuovo terzino</div>
+                </div>
+
+                <div class="news-row">
+                    <div class="news-date">18/05</div>
+                    <div class="news-title">Pellegrini torna disponibile</div>
+                </div>
+
+                <div class="news-row">
+                    <div class="news-date">15/05</div>
+                    <div class="news-title">Milan primo in classifica</div>
+                </div>
+
+            </div>
+
+            <!-- DETTAGLIO NOTIZIA -->
+            <div class="news-detail">
+
+                <div class="news-detail-title">
+                    Roma interessata a un nuovo terzino
+                </div>
+
+                <div class="news-detail-text">
+                    La dirigenza giallorossa sta valutando diversi profili per rinforzare la fascia destra nella
+                    prossima sessione di mercato.
+                    Il giocatore individuato sarebbe seguito da settimane dagli scout.
+                </div>
+
+            </div>
+        </app-page-layout>
+
+    </div>
+    <app-bottom-nav-layout [items]="bottomMenu"></app-bottom-nav-layout>
+
+</div>

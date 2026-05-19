@@ -1,0 +1,90 @@
+<div class="app">
+    <div style="
+    height: calc(100vh - 60px);">
+
+        <app-top-nav-layout [items]="topMenu"></app-top-nav-layout>
+
+        <app-page-layout [title]="'Tattiche Roma'">
+            <div class="tactics-field">
+                <div class="tactics-pitch">
+
+                    <div class="penalty-area">
+                        <div class="penalty-box"></div>
+                        <div class="six-yard-box"></div>
+                        <div class="penalty-arc"></div>
+                    </div>
+                    <div>
+                        <div class="midline"></div>
+                        <div class="midcircle"></div>
+                    </div>
+                    <div class="inner-pitch">
+
+                        <div class="tactics-player gk">
+                            <div class="tactics-number">1</div>
+                            <div class="tactics-name">Alisson</div>
+                        </div>
+
+                        <div class="tactics-player rb">
+                            <div class="tactics-number">2</div>
+                            <div class="tactics-name">Di Lorenzo</div>
+                        </div>
+
+                        <div class="tactics-player rcb">
+                            <div class="tactics-number">3</div>
+                            <div class="tactics-name">Bremer</div>
+                        </div>
+
+                        <div class="tactics-player lcb">
+                            <div class="tactics-number">4</div>
+                            <div class="tactics-name">Bonucci</div>
+                        </div>
+
+                        <div class="tactics-player lb">
+                            <div class="tactics-number">5</div>
+                            <div class="tactics-name">Theo</div>
+                        </div>
+
+                        <div class="tactics-player rcm">
+                            <div class="tactics-number">6</div>
+                            <div class="tactics-name">Barella</div>
+                        </div>
+
+                        <div class="tactics-player cm">
+                            <div class="tactics-number">7</div>
+                            <div class="tactics-name">Modrić</div>
+                        </div>
+
+                        <div class="tactics-player lcm">
+                            <div class="tactics-number">8</div>
+                            <div class="tactics-name">Milinkovic</div>
+                        </div>
+
+                        <div class="tactics-player rw">
+                            <div class="tactics-number">9</div>
+                            <div class="tactics-name">Dybala</div>
+                        </div>
+
+                        <div class="tactics-player st">
+                            <div class="tactics-number">10</div>
+                            <div class="tactics-name">Osimhen</div>
+                        </div>
+
+                        <div class="tactics-player lw">
+                            <div class="tactics-number">11</div>
+                            <div class="tactics-name">Leão</div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="formation-badge-wrapper">
+                <div class="formation-badge">
+                    4 - 3 - 3
+                </div>
+            </div>
+        </app-page-layout>
+
+        <app-bottom-nav-layout [items]="bottomMenu"></app-bottom-nav-layout>
+    </div>
+</div>

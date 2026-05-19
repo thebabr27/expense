@@ -1,0 +1,204 @@
+/* GOAL BLOCK */
+.goal-banner {
+
+    width: 100%;
+
+    border-radius: 22px;
+
+    padding: 20px 22px;
+
+    margin-bottom: 18px;
+
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, .35);
+
+    overflow: hidden;
+}
+
+.goal-content {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.goal-left {
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.goal-label {
+
+    font-size: 14px;
+    font-weight: 900;
+
+    letter-spacing: 1.5px;
+
+    opacity: .72;
+}
+
+.goal-player {
+
+    font-size: 34px;
+    font-weight: 900;
+
+    line-height: 1;
+
+    text-shadow:
+        0 2px 4px rgba(0, 0, 0, .85),
+        0 0 8px rgba(255, 255, 255, .08);
+}
+
+.goal-right {
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+
+    gap: 8px;
+}
+
+.goal-minute {
+
+    font-size: 18px;
+    font-weight: 800;
+
+    opacity: .85;
+}
+
+.goal-score {
+
+    padding: 10px 16px;
+
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, .88);
+
+    color: #222;
+
+    font-size: 26px;
+    font-weight: 900;
+
+    box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, .5),
+        0 2px 6px rgba(0, 0, 0, .22);
+}
+
+.goal-banner {
+
+    position: relative;
+
+    width: 100%;
+
+    overflow: hidden;
+
+    border-radius: 22px;
+
+    padding: 24px 24px 22px;
+
+    margin-bottom: 18px;
+
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, .35);
+}
+
+/* pallone decorativo */
+
+.goal-banner::after {
+
+    content: "⚽";
+
+    position: absolute;
+
+    right: -10px;
+    top: -24px;
+
+    font-size: 120px;
+
+    opacity: .08;
+
+    pointer-events: none;
+}
+
+.goal-content {
+
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+.goal-title.goal {
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.goal-title.yellow,
+.goal-title.red,
+.goal-title.action {
+  font-size: 20px;
+  font-weight: 500;
+}
+.goal-title {
+ 
+
+    line-height: 1;
+
+    letter-spacing: .8px;
+
+
+    text-shadow:
+        0 2px 4px rgba(0, 0, 0, .9),
+        0 0 8px rgba(255, 255, 255, .08);
+}
+
+.goal-info {
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    opacity: .92;
+
+    text-shadow:
+        0 1px 2px rgba(0, 0, 0, .75);
+}
+/* 
+.goal-player {
+
+    font-weight: 800;
+}
+
+.goal-minute {
+
+    font-weight: 900;
+}
+ */.event-minute {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  opacity: 0.75;
+
+  background: rgba(0, 0, 0, 0.25);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.goal-separator {
+    opacity: .55;
+}
+.goal-banner.action {
+  opacity: 0.95;
+}

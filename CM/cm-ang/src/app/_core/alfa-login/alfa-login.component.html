@@ -1,0 +1,76 @@
+<div *ngIf="isUserRegistered()" class="container">
+    <div class="row">
+        <div class="col-12">
+
+        </div>
+    </div>
+</div>
+<div class="container" style="max-width: 700px;">
+    <div class="row" style="height: 100vh;">
+        <div class="col-12">
+            <form [formGroup]="loginForm" (ngSubmit)="login()">
+                <div class="w-100 d-flex justify-content-center py-4">
+                    <div class="login-logo"></div>
+                </div>
+                <div class="form-group mb-3">
+                    <input type="email" formControlName="email" class="form-control" placeholder="Email o username">
+                    <small *ngIf="emailError" class="text-danger">{{ emailError }}</small>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" formControlName="pw" (keyup.enter)="login()" class="form-control"
+                        placeholder="Password">
+                    <small *ngIf="passwordError" class="text-danger">{{ passwordError }}</small>
+                </div>
+
+                <div class="form-group">
+                    <div class="w-100 d-flex justify-content-between mt-3">
+                        <div class="form-check align-self-center">
+                            <input class="form-check-input" type="checkbox" value="" formControlName="rememberMe"
+                                id="checkDefault">
+                            <label class="form-check-label" for="checkDefault">
+                                Ricordami
+                            </label>
+                        </div>
+                        <button type="button" [routerLink]="['/forgot-password']" class="btn pe-0 text-info">
+                            Password dimenticata?
+                        </button>
+
+                    </div>
+                </div>
+                <div class="d-grid gap-2 mt-2">
+                    <button class="btn btn-primary d-flex justify-content-center" type="button" (click)="login()">
+                        <div> Login </div>
+                        <app-button-spinner #loginSpinner [isVisible]="loginSpinnerIsVisible"></app-button-spinner>
+
+                    </button>
+
+                </div>
+            </form>
+        </div>
+        <hr class="my-2">
+        <div class="col-12">
+            <div class="text-center">
+                <small>Non sei ancora registrato?</small>
+            </div>
+            <div class="d-grid gap-2 mt-2">
+                <button routerLink="/register" class="btn btn-outline-primary" type="button">Sign Up</button>
+            </div>
+
+        </div>
+        <hr class="my-2">
+
+        <div class="text-center">
+            <small class="text-center">oppure</small>
+        </div>
+        <div class="col-12">
+            <!-- <div class="d-grid gap-2 mt-2">
+                <button (click)="loginWithGoogle()" class="btn btn-dark" type="button">Enter with Google</button>
+            </div> -->
+            <div class="d-grid gap-2 mt-2">
+                <button (click)="loginWithFacebook()" class="btn btn-primary" type="button">Enter with Facebook</button>
+            </div>
+        </div>
+
+    </div>
+</div>

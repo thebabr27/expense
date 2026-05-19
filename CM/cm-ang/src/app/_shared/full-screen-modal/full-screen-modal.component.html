@@ -1,0 +1,40 @@
+<div
+    *ngIf="modal.visible"
+    class="fullscreen-modal">
+
+    <!-- HEADER -->
+
+    <div class="modal-header">
+
+        <div class="modal-title">
+
+            {{ modal.title }}
+
+        </div>
+
+        <button
+            class="close-btn"
+            (click)="modal.close()">
+
+            ✕
+
+        </button>
+
+    </div>
+
+    <!-- LIST -->
+
+    <div class="modal-list">
+
+        <button
+            *ngFor="let item of modal.items"
+            class="modal-item"
+            (click)="modal.select(item)">
+
+            {{ item[modal.labelKey] }}
+
+        </button>
+
+    </div>
+
+</div>

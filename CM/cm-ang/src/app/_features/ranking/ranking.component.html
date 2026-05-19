@@ -1,0 +1,38 @@
+<div class="app">
+    <div style="
+    height: calc(100vh - 60px);">
+
+        <app-top-nav-layout [items]="topMenu"></app-top-nav-layout>
+
+        <app-page-layout [title]="'Classifica Serie A'">
+
+            <!-- HEADER -->
+            <div class="league-card">
+                <div class="league-header">
+
+                    <div></div>
+                    <div>Squadra</div>
+                    <div>Gio</div>
+                    <div>Vin</div>
+                    <div>Par</div>
+                    <div>Per</div>
+                    <div>Fat</div>
+                    <div>Sub</div>
+                    <div>Pti</div>
+
+                </div>
+
+                <div class="league-table">
+
+
+                    <!-- RIGHE DINAMICHE -->
+                    <div id="ranking-list" [innerHTML]="rankingHTML"></div>
+
+                </div>
+
+            </div>
+        </app-page-layout>
+
+        <app-bottom-nav-layout [items]="bottomMenu"></app-bottom-nav-layout>
+    </div>
+</div>

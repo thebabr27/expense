@@ -1,0 +1,323 @@
+<div class="app">
+
+    <div style="height: calc(100vh - 60px);">
+
+        <app-top-nav-layout [items]="topMenu">
+        </app-top-nav-layout>
+
+        <app-page-layout [title]="'Edit Competitions'">
+
+            <div class="editor-screen">
+
+                <!-- OPEN FORM -->
+
+                <button *ngIf="!showForm" class="show-form-btn" (click)="openForm()">
+
+                    Aggiungi Competizione
+
+                </button>
+
+                <!-- CLOSE FORM -->
+
+                <button *ngIf="showForm" class="close-form-btn" (click)="closeForm()">
+
+                    ✕
+
+                </button>
+
+                <!-- FORM -->
+
+                <div *ngIf="showForm" class="competition-form">
+
+                    <!-- FULL NAME -->
+
+                    <input type="text" [(ngModel)]="form.fullName" placeholder="Nome completo" class="editor-input">
+
+                    <!-- SHORT NAME -->
+
+                    <input type="text" [(ngModel)]="form.shortName" placeholder="Nome corto" class="editor-input">
+
+                    <!-- COLORS -->
+
+                    <div class="colors-block">
+
+                        <div class="block-title">
+
+                            Colori Competizione
+
+                        </div>
+
+                        <!-- COLOR 1 -->
+
+                        <div class="color-item">
+
+                            <input type="color" [(ngModel)]="form.colors.c1" class="color-picker">
+
+                            <input type="text" [(ngModel)]="form.colors.c1" class="hex-input">
+
+                        </div>
+
+                        <!-- COLOR 2 -->
+
+                        <div class="color-item">
+
+                            <input type="color" [(ngModel)]="form.colors.c2" class="color-picker">
+
+                            <input type="text" [(ngModel)]="form.colors.c2" class="hex-input">
+
+                        </div>
+
+                        <!-- COLOR 3 -->
+
+                        <div class="color-item">
+
+                            <input type="color" [(ngModel)]="form.colors.c3" class="color-picker">
+
+                            <input type="text" [(ngModel)]="form.colors.c3" class="hex-input">
+
+                        </div>
+
+                    </div>
+
+                    <!-- PHASES -->
+
+                    <div class="phases-section">
+
+                        <div class="section-title">
+
+                            Fasi Competizione
+
+                        </div>
+
+                        <!-- OPEN PHASE FORM -->
+
+                        <button *ngIf="!showPhaseForm" class="add-phase-btn" (click)="openPhaseForm()">
+
+                            + Aggiungi Fase
+
+                        </button>
+
+                        <!-- PHASE FORM -->
+
+                        <div *ngIf="showPhaseForm" class="phase-card editing">
+
+                            <!-- CLOSE -->
+
+                            <button class="close-phase-btn" (click)="closePhaseForm()">
+
+                                ✕
+
+                            </button>
+
+                            <!-- NAME -->
+
+                            <input type="text" [(ngModel)]="phaseForm.name" placeholder="Nome fase"
+                                class="editor-input">
+
+                            <!-- TYPE -->
+
+                            <div class="phase-types">
+
+                                <button class="phase-type-btn" [class.active]="phaseForm.type === 'league'"
+                                    (click)="phaseForm.type = 'league'">
+
+                                    Campionato
+
+                                </button>
+
+                                <button class="phase-type-btn" [class.active]="phaseForm.type === 'knockout'"
+                                    (click)="phaseForm.type = 'knockout'">
+
+                                    Knockout
+
+                                </button>
+
+                            </div>
+
+                            <!-- TEAMS -->
+
+                            <input type="number" (wheel)="$event.preventDefault()" [(ngModel)]="phaseForm.teamsCount"
+                                placeholder="Numero squadre" class="editor-input">
+
+                            <!-- LEAGUE -->
+
+                            <ng-container *ngIf="phaseForm.type === 'league'">
+
+                                <label class="phase-checkbox">
+
+                                    <input type="checkbox" [(ngModel)]="phaseForm.rounds">
+
+                                    <span>
+
+                                        Andata e ritorno
+
+                                    </span>
+
+                                </label>
+
+                                <input type="number" (wheel)="$event.preventDefault()" [(ngModel)]="phaseForm.matchdays"
+                                    placeholder="Numero giornate" class="editor-input">
+
+
+                            </ng-container>
+
+                            <!-- KNOCKOUT -->
+
+                        <ng-container *ngIf="phaseForm.type === 'knockout'">
+
+    <label class="phase-checkbox">
+
+        <input
+            type="checkbox"
+            [(ngModel)]="phaseForm.rounds">
+
+        <span>
+
+            Andata e ritorno
+
+        </span>
+
+    </label>
+
+    <input
+        type="number"
+        (wheel)="$event.preventDefault()"
+        [(ngModel)]="phaseForm.knockoutTeamsLeft"
+        placeholder="Squadre rimaste per chiusura fase"
+        class="editor-input">
+
+</ng-container>
+
+                            <!-- DATES -->
+
+                            <input type="date" [(ngModel)]="phaseForm.startDate" class="editor-input">
+
+                            <input type="date" [(ngModel)]="phaseForm.endDate" class="editor-input">
+
+                            <!-- CALENDAR -->
+
+                            <label class="phase-checkbox">
+
+                                <input type="checkbox" [(ngModel)]="phaseForm.generateCalendar">
+
+                                <span>
+                                    Genera calendario automatico
+                                </span>
+
+                            </label>
+
+                            <!-- SAVE PHASE -->
+
+                            <button class="save-phase-btn" (click)="savePhase()">
+
+                                {{
+                                editingPhaseIndex !== null
+                                ? 'Salva Fase'
+                                : 'Aggiungi Fase'
+                                }}
+
+                            </button>
+
+                        </div>
+
+                        <!-- EMPTY -->
+
+                        <div *ngIf="form.phases.length === 0" class="empty-phases">
+
+                            Nessuna fase aggiunta
+
+                        </div>
+
+                        <!-- PHASE LIST -->
+
+                        <div *ngFor="let phase of form.phases; let i = index" class="phase-preview-card">
+
+                            <div class="phase-preview-info" (click)="editPhase(phase, i)">
+
+                                <div class="phase-preview-name">
+
+                                    {{ phase.name }}
+
+                                </div>
+
+                                <div class="phase-preview-meta">
+
+                                    {{
+                                    getPhaseTypeLabel(
+                                    phase.type
+                                    )
+                                    }}
+                                    ·
+                                    {{ phase.teamsCount }}
+                                    squadre
+
+                                </div>
+
+                            </div>
+
+                            <!-- REMOVE -->
+
+                            <button class="remove-phase-inline-btn" (click)="removePhase(i)">
+
+                                ✕
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <!-- SAVE -->
+
+                    <button class="add-btn" (click)="saveCompetition()">
+
+                        {{
+                        editingCompetitionId
+                        ? 'Salva Modifiche'
+                        : 'Aggiungi Competizione'
+                        }}
+
+                    </button>
+
+                </div>
+
+                <!-- EMPTY -->
+
+                <div *ngIf="competitions.length === 0" class="empty-list">
+
+                    Nessun elemento in questa lista
+
+                </div>
+
+                <!-- LIST -->
+
+                <div *ngIf="competitions.length > 0" class="competitions-list">
+
+                    <div *ngFor="let competition of competitions" class="competition-card"
+                        [style.background]="competition.colors.c1" [style.color]="competition.colors.c2"
+                        (click)="editCompetition(competition)">
+
+                        <div class="competition-name">
+
+                            {{ competition.fullName }}
+
+                        </div>
+
+                        <div class="competition-meta">
+
+                            {{ competition.phases.length }}
+                            fasi
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </app-page-layout>
+
+    </div>
+
+</div>

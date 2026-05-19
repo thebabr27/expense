@@ -1,0 +1,201 @@
+<div class="app">
+
+    <div style="height: calc(100vh - 60px);">
+
+        <app-top-nav-layout [items]="topMenu">
+        </app-top-nav-layout>
+
+        <app-page-layout [title]="'Edit Teams'">
+            <div class="editor-screen">
+                <!-- OPEN BUTTON -->
+
+                <button *ngIf="!showForm" class="show-form-btn" (click)="showForm = true">
+
+                    Aggiungi Squadra
+
+                </button>
+
+                <!-- CLOSE BUTTON -->
+
+                <button *ngIf="showForm" class="close-form-btn" (click)="closeForm()">
+
+                    ✕
+
+                </button>
+                <!-- FORM -->
+
+                <div *ngIf="showForm" class="team-form">
+
+                    <!-- NOME -->
+
+                    <input type="text" [(ngModel)]="form.fullName" placeholder="Nome completo" class="editor-input">
+
+                    <!-- NOME BREVE -->
+
+                    <input type="text" [(ngModel)]="form.shortName" placeholder="Nome breve" class="editor-input">
+
+                    <!-- NAZIONE -->
+
+                    <!-- NAZIONE -->
+
+                    <button type="button" class="nation-selector" (click)="openNationModal()">
+
+                        <span>
+
+                            {{
+                            selectedNationName || 'Seleziona nazione'
+                            }}
+
+                        </span>
+
+                        <span class="selector-arrow">
+                            ›
+                        </span>
+
+                    </button>
+
+                    <!-- CASA -->
+
+                    <div class="colors-block">
+
+                        <div class="block-title">
+                            Divisa Casa
+                        </div>
+
+                        <div class="color-item">
+
+                            <input type="color" [(ngModel)]="form.home.c1" class="color-picker">
+
+                            <input type="text" [(ngModel)]="form.home.c1" class="hex-input">
+
+                        </div>
+
+                        <div class="color-item">
+
+                            <input type="color" [(ngModel)]="form.home.c2" class="color-picker">
+
+                            <input type="text" [(ngModel)]="form.home.c2" class="hex-input">
+
+                        </div>
+
+                        <div class="color-item">
+
+                            <input type="color" [(ngModel)]="form.home.c3" class="color-picker">
+
+                            <input type="text" [(ngModel)]="form.home.c3" class="hex-input">
+
+                        </div>
+
+                    </div>
+
+                    <!-- TRASFERTA -->
+
+                    <div class="colors-block">
+
+                        <div class="block-title">
+                            Divisa Trasferta
+                        </div>
+
+                        <div class="color-item">
+
+                            <input type="color" [(ngModel)]="form.away.c1" class="color-picker">
+
+                            <input type="text" [(ngModel)]="form.away.c1" class="hex-input">
+
+                        </div>
+
+                        <div class="color-item">
+
+                            <input type="color" [(ngModel)]="form.away.c2" class="color-picker">
+
+                            <input type="text" [(ngModel)]="form.away.c2" class="hex-input">
+
+                        </div>
+
+                        <div class="color-item">
+
+                            <input type="color" [(ngModel)]="form.away.c3" class="color-picker">
+
+                            <input type="text" [(ngModel)]="form.away.c3" class="hex-input">
+
+                        </div>
+
+                    </div>
+
+                    <!-- TERZA -->
+
+                    <div class="colors-block">
+
+                        <div class="block-title">
+                            Terza Divisa
+                        </div>
+
+                        <div class="color-item">
+
+                            <input type="color" [(ngModel)]="form.third.c1" class="color-picker">
+
+                            <input type="text" [(ngModel)]="form.third.c1" class="hex-input">
+
+                        </div>
+
+                        <div class="color-item">
+
+                            <input type="color" [(ngModel)]="form.third.c2" class="color-picker">
+
+                            <input type="text" [(ngModel)]="form.third.c2" class="hex-input">
+
+                        </div>
+
+                        <div class="color-item">
+
+                            <input type="color" [(ngModel)]="form.third.c3" class="color-picker">
+
+                            <input type="text" [(ngModel)]="form.third.c3" class="hex-input">
+
+                        </div>
+
+                    </div>
+
+                    <!-- BTN -->
+
+                    <button class="add-btn" (click)="addTeam()">
+
+                        {{ editingTeamId ? 'Salva Modifiche' : 'Aggiungi Squadra' }}
+
+                    </button>
+
+                </div>
+
+                <!-- EMPTY -->
+
+                <div *ngIf="teams.length === 0" class="empty-list">
+
+                    Nessun elemento in questa lista
+
+                </div>
+
+                <!-- LIST -->
+
+                <div *ngIf="teams.length > 0" class="teams-list">
+
+                    <div *ngFor="let team of teams" class="team-card" [style.background]="team.home.c1"
+                        [style.color]="team.home.c2" (click)="editTeam(team)">
+
+                        <div class="team-name">
+
+                            {{ team.fullName }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <router-outlet></router-outlet>
+
+        </app-page-layout>
+
+    </div>
+
+</div>

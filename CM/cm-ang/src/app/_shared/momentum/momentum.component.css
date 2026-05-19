@@ -1,0 +1,65 @@
+
+/* MOMENTUM */
+
+.momentum-wrapper {
+
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 6px;
+
+  border-radius: 16px;
+
+  background: rgba(120,120,120,.32);
+
+  margin-bottom: 20px;
+}
+
+.momentum-label {
+
+  padding: 10px 14px;
+
+  border-radius: 12px;
+
+  background: rgba(255,255,255,.08);
+
+  font-size: 14px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+.momentum-bar {
+
+  flex: 1;
+
+  height: 42px;
+
+  display: flex;
+
+  overflow: hidden;
+
+  border-radius: 12px;
+
+  background: rgba(255,255,255,.06);
+}
+
+.momentum-home,
+.momentum-away {
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 15px;
+  font-weight: 900;
+
+  color: #FFF;
+
+  text-shadow:
+    0 1px 2px rgba(0,0,0,.7);
+}

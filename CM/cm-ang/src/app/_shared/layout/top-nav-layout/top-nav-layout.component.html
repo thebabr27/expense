@@ -1,0 +1,13 @@
+<nav class="top-nav">
+
+  <button
+    *ngFor="let item of items"
+    class="nav-btn"
+    [class.yellow]="item.yellow"
+    (click)="onClick(item)">
+
+    {{ item.label }}
+
+  </button>
+
+</nav>

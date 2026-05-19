@@ -1,0 +1,20 @@
+<nav class="teams-nav">
+
+  <div
+    *ngFor="let team of teams"
+    class="team-btn"
+    [class]="team.colors.main == '#111' ? 'team-score-dark-bg' : ''"
+    [style.background]="team.colors.main"
+    [style.color]="team.colors.second">
+
+    <span class="team-name">
+      {{ team.shortName }}
+    </span>
+
+    <div class="team-score">
+      {{ team.goals }}
+    </div>
+
+  </div>
+
+</nav>

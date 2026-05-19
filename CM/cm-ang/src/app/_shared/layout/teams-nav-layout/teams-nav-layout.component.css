@@ -1,0 +1,67 @@
+.teams-nav {
+
+    display: flex;
+    gap: 12px;
+
+    padding: 12px;
+}
+
+.team-btn {
+
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 14px 18px;
+
+    border-radius: 14px;
+
+    min-height: 64px;
+
+    box-sizing: border-box;
+}
+
+.team-name {
+
+    font-size: 22px;
+    font-weight: 800;
+
+    letter-spacing: .3px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow:
+        0 0 6px rgba(0, 0, 0, .55),
+        0 2px 4px rgba(0, 0, 0, .25);
+}
+
+.team-score {
+    text-shadow:
+        0 0 1px rgba(0, 0, 0, .55),
+        0 2px 4px rgba(0, 0, 0, .25);
+
+    min-width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #EEE;
+    color: #333;
+
+    font-size: 22px;
+    font-weight: 900; 
+}
+
+.team-score-dark-bg .team-name {
+    text-shadow:
+        0 0 1px rgba(0, 197, 246, .5),
+        0 2px 2px rgba(255, 255, 255, 0.5)!important;
+    -webkit-font-smoothing: antialiased;
+}

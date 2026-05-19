@@ -1,0 +1,51 @@
+<div class="info-wrapper">
+
+  <!-- RIGA SUPERIORE -->
+
+  <div class="info-bar">
+
+    <!-- ARBITRO -->
+    <div class="badge referee">
+      🧑‍⚖️ {{ referee }}
+    </div>
+
+    <!-- SPETTATORI -->
+    <div class="badge spectators">
+      🏟️ {{ spectators | number }}
+    </div>
+
+    <!-- METEO -->
+    <div class="badge weather">
+
+      <span class="icon">
+
+        <ng-container [ngSwitch]="weather">
+
+          <span *ngSwitchCase="'sun'">☀️</span>
+          <span *ngSwitchCase="'cloud'">☁️</span>
+          <span *ngSwitchCase="'rain'">🌧️</span>
+          <span *ngSwitchCase="'wind'">🌬️</span>
+
+        </ng-container>
+
+      </span>
+
+      <span class="text">
+        {{ weather }}
+      </span>
+
+    </div>
+
+  </div>
+
+  <!-- RIGA STADIO -->
+
+  <div class="stadium-row">
+
+    <div class="badge stadium">
+      📍 {{ stadium }}
+    </div>
+
+  </div>
+
+</div>

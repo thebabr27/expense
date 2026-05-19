@@ -1,0 +1,610 @@
+.editor-screen {
+
+  width: 100%;
+
+  padding: 20px;
+}
+
+/*
+------------------------
+OPEN BUTTON
+------------------------
+*/
+
+.show-form-btn {
+    cursor: pointer;
+  width: 100%;
+
+  height: 56px;
+
+  border: none;
+
+  border-radius: 18px;
+
+  background:
+    rgba(255,255,255,.08);
+
+  backdrop-filter:
+    blur(12px);
+
+  color: #fff;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  margin-bottom: 18px;
+}
+
+/*
+------------------------
+CLOSE BUTTON
+------------------------
+*/
+
+.close-form-btn {
+
+  position: fixed;
+
+  top: 12px;
+
+  right: 20px;
+
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+
+  border: none;
+
+  background:
+    rgba(255,255,255,.08);
+
+  backdrop-filter:
+    blur(12px);
+
+  color: #fff;
+
+  font-size: 20px;
+
+  z-index: 20;
+}
+
+/*
+------------------------
+FORM
+------------------------
+*/
+
+.competition-form {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+/*
+------------------------
+INPUTS
+------------------------
+*/
+
+.editor-input {
+
+  width: 100%;
+
+  height: 54px;
+
+  border: none;
+
+  outline: none;
+
+  padding: 0 16px;
+
+  border-radius: 18px;
+
+  background:
+    rgba(255,255,255,.06);
+
+  backdrop-filter:
+    blur(10px);
+
+  color: #fff;
+
+  font-size: 15px;
+
+  border:
+    1px solid rgba(255,255,255,.06);
+}
+
+.editor-input::placeholder {
+
+  color:
+    rgba(255,255,255,.55);
+}
+
+/*
+------------------------
+COLORS
+------------------------
+*/
+
+.colors-block {
+
+  width: 100%;
+
+  padding: 18px;
+
+  border-radius: 22px;
+
+  background:
+    rgba(255,255,255,.05);
+
+  border:
+    1px solid rgba(255,255,255,.06);
+
+  backdrop-filter:
+    blur(12px);
+}
+
+.block-title {
+
+  color: #fff;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  margin-bottom: 14px;
+}
+
+.color-item {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 12px;
+}
+
+.color-picker {
+
+  width: 54px;
+  height: 54px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  background: transparent;
+}
+
+.hex-input {
+
+  flex: 1;
+
+  height: 54px;
+
+  border: none;
+
+  outline: none;
+
+  border-radius: 16px;
+
+  padding: 0 14px;
+
+  background:
+    rgba(255,255,255,.06);
+
+  color: #fff;
+
+  border:
+    1px solid rgba(255,255,255,.06);
+}
+
+/*
+------------------------
+PHASES
+------------------------
+*/
+
+.phases-section {
+
+  margin-top: 10px;
+}
+
+.section-title {
+
+  font-size: 16px;
+  font-weight: 800;
+
+  color: #fff;
+
+  margin-bottom: 14px;
+}
+
+.empty-phases {
+
+  width: 100%;
+
+  padding: 20px;
+
+  border-radius: 18px;
+
+  text-align: center;
+
+  color:
+    rgba(255,255,255,.6);
+
+  background:
+    rgba(255,255,255,.05);
+}
+
+/*
+------------------------
+PHASE CARD
+------------------------
+*/
+
+.phase-card {
+
+  width: 100%;
+
+  padding: 18px;
+
+  border-radius: 24px;
+
+  margin-bottom: 18px;
+
+  background:
+    rgba(255,255,255,.05);
+
+  backdrop-filter:
+    blur(12px);
+
+  border:
+    1px solid rgba(255,255,255,.06);
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+/*
+------------------------
+PHASE TYPES
+------------------------
+*/
+
+.phase-types {
+
+  display: flex;
+
+  gap: 10px;
+}
+
+.phase-type-btn {
+
+  flex: 1;
+
+  height: 46px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background:
+    rgba(255,255,255,.06);
+
+  color: #fff;
+
+  font-weight: 700;
+}
+
+.phase-type-btn.active {
+
+  background:
+    rgba(255,255,255,.18);
+}
+
+/*
+------------------------
+CHECKBOX
+------------------------
+*/
+
+.phase-checkbox {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  color: #fff;
+
+  font-size: 14px;
+}
+
+/*
+------------------------
+ADD PHASE
+------------------------
+*/
+
+.add-phase-btn {
+    margin-bottom: 15px;
+  width: 100%;
+
+  height: 52px;
+
+  border: none;
+
+  border-radius: 18px;
+
+  background:
+    rgba(255,255,255,.08);
+
+  color: #fff;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  margin-top: 4px;
+}
+
+/*
+------------------------
+REMOVE PHASE
+------------------------
+*/
+
+.remove-phase-btn {
+
+  width: 100%;
+
+  height: 48px;
+
+  border: none;
+
+  border-radius: 16px;
+
+  background:
+    rgba(255,80,80,.16);
+
+  color: #ff8c8c;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/*
+------------------------
+SAVE
+------------------------
+*/
+
+.add-btn {
+    cursor: pointer;
+  width: 100%;
+
+  height: 58px;
+
+  border: none;
+
+  border-radius: 20px;
+
+  margin-top: 10px;
+
+  background: #fff;
+
+  color: #111;
+
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/*
+------------------------
+EMPTY
+------------------------
+*/
+
+.empty-list {
+
+  width: 100%;
+
+  padding: 24px;
+
+  margin-top: 20px;
+
+  border-radius: 22px;
+
+  text-align: center;
+
+  color:
+    rgba(255,255,255,.65);
+
+  background:
+    rgba(255,255,255,.05);
+}
+
+/*
+------------------------
+LIST
+------------------------
+*/
+
+.competitions-list {
+
+  margin-top: 18px;
+}
+
+/*
+------------------------
+CARD
+------------------------
+*/
+
+.competition-card {
+
+  width: 100%;
+
+  padding: 20px;
+
+  border-radius: 22px;
+
+  margin-bottom: 14px;
+
+  cursor: pointer;
+
+  transition: .2s;
+}
+
+.competition-card:active {
+
+  transform: scale(.985);
+}
+
+/*
+------------------------
+TEXT
+------------------------
+*/
+
+.competition-name {
+
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.competition-meta {
+
+  margin-top: 6px;
+
+  font-size: 13px;
+
+  opacity: .72;
+}
+
+.phase-preview-card {
+
+  width: 100%;
+
+  padding: 16px 18px;
+
+  border-radius: 20px;
+
+  margin-top: 14px;
+
+  background:
+    rgba(255,255,255,.05);
+
+  border:
+    1px solid rgba(255,255,255,.06);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 14px;
+}
+
+.phase-preview-info {
+
+  flex: 1;
+
+  cursor: pointer;
+}
+
+.phase-preview-name {
+
+  color: #fff;
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.phase-preview-meta {
+
+  margin-top: 4px;
+
+  color:
+    rgba(255,255,255,.65);
+
+  font-size: 13px;
+}
+
+.remove-phase-inline-btn {
+
+  width: 38px;
+  height: 38px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255,80,80,.16);
+
+  color: #ff8c8c;
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.close-phase-btn {
+
+  position: absolute;
+
+  top: 16px;
+
+  right: 16px;
+
+  width: 38px;
+  height: 38px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255,255,255,.08);
+
+  color: #fff;
+
+  font-size: 16px;
+}
+
+.phase-card.editing {
+
+  position: relative;
+
+  padding-top: 64px;
+}
+
+.save-phase-btn {
+
+  width: 100%;
+
+  height: 52px;
+
+  border: none;
+
+  border-radius: 18px;
+
+  background: #fff;
+
+  color: #111;
+
+  font-size: 15px;
+  font-weight: 800;
+}

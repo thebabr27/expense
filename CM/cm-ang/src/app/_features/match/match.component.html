@@ -1,0 +1,86 @@
+<div class="app">
+
+    <div style="height: calc(100vh - 60px);">
+
+        <app-top-nav-layout [items]="topMenu"></app-top-nav-layout>
+
+        <app-teams-nav-layout [teams]="teams">
+        </app-teams-nav-layout>
+
+        <app-page-layout [title]="'13&rsquo; Primo Tempo'" [customClasses]="'match-card'">
+
+            <div class="events-list">
+
+                <div *ngFor="let row of matchRows" class="event-line">
+
+                    <!-- CASA -->
+                    <div class="event-side home">
+                        <div *ngIf="row.home?.type === 'goal'" class="event-card">
+
+                            <span class="event-icon">
+
+                                <span *ngIf="row.home?.type === 'goal'">⚽</span>
+                                <span *ngIf="row.home?.type === 'yellow'">🟨</span>
+                                <span *ngIf="row.home?.type === 'red'">🟥</span>
+
+                            </span>
+
+                            <span class="player-name">
+                                {{ row.home?.player }}
+                            </span>
+
+                            <span class="minute">
+                                {{ row.home?.minute }}'
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <!-- AWAY -->
+                    <div class="event-side away">
+
+                        <div *ngIf="row.away" class="event-card">
+
+                            <span class="minute">
+                                {{ row.away.minute }}'
+                            </span>
+
+                            <span class="event-icon">
+
+                                <span *ngIf="row.away.type === 'goal'">⚽</span>
+                                <span *ngIf="row.away.type === 'yellow'">🟨</span>
+                                <span *ngIf="row.away.type === 'red'">🟥</span>
+
+                            </span>
+
+                            <span class="player-name">
+                                {{ row.away.player }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <app-commentary [commentary]="commentary"></app-commentary>
+
+            <app-momentum [teams]="teams"></app-momentum>
+
+        <app-match-info
+  [referee]="'Livio Marinelli'"
+  [spectators]="54321"
+  [weather]="'cloud'"
+  [stadium]="'Stadio Giuseppe Meazza - San Siro - Milano'">
+</app-match-info>
+
+        </app-page-layout>
+
+        <app-bottom-nav-layout [items]="bottomMenu"></app-bottom-nav-layout>
+
+    </div>
+
+</div>
