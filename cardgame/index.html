@@ -16,6 +16,82 @@
             font-family: 'Luckiest Guy', cursive;
         }
 
+        .game-actions {
+            width: 100%;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        #game-actions-text {
+            font-size: 1.2rem;
+            font-weight: 200;
+            min-height: 30px;
+        }
+
+        .game-modal {
+            position: fixed;
+            inset: 0;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(0, 0, 0, 0.55);
+
+            z-index: 9999;
+        }
+
+        .game-modal.show {
+            display: flex;
+        }
+
+        .game-modal-content {
+            position: relative;
+
+            width: min(90%, 500px);
+            min-height: 150px;
+
+            padding: 30px;
+
+            background: rgba(0, 0, 0, 0.85);
+
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+
+            color: white;
+
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-modal-close {
+            position: absolute;
+
+            top: 10px;
+            right: 15px;
+
+            width: 35px;
+            height: 35px;
+
+            border: none;
+            border-radius: 50%;
+
+            background: transparent;
+
+            color: white;
+            font-size: 28px;
+            line-height: 1;
+
+            cursor: pointer;
+        }
+
+        .game-modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        #gameModalBody {
+            text-align: center;
+        }
+
         .bg-semi-transparent {
             background: rgba(0, 0, 0, .5) !important;
         }
@@ -1045,9 +1121,36 @@
         </div>
 
         <div id="app-section" class="row h-100">
+            <div id="gameModal" class="game-modal">
+
+                <div class="game-modal-content">
+
+                    <button id="gameModalClose" class="game-modal-close" type="button">
+                        &times;
+                    </button>
+
+                    <div id="gameModalBody">
+                        <!-- Contenuto dinamico -->
+                    </div>
+
+                </div>
+
+            </div>
             <div id="game-selection-section" class="col-12 text-light 
             h-100 bg-semi-transparent d-flex flex-column justify-content-between">
-                <div style="height: 10%;">A</div>
+                <div style="height: 10%;">
+                    <button id="new-game" type="button" class="btn btn-primary">
+                        Nuova partita
+                    </button>
+
+                    <button id="uno-button" type="button" class="btn btn-danger">
+                        ONE!
+                    </button>
+
+                    <button id="current-color" type="button" class="btn btn-secondary">
+                        Colore: -
+                    </button>
+                </div>
                 <div id="opponentsBoard" class="opponents-board" style="display: none; margin-right: -40px; ">
 
                 </div>
@@ -1086,6 +1189,11 @@
                     </div>
 
                 </div>
+                <div id="game-actions" class="game-actions">
+                    <div id="game-actions-text">
+                        In attesa di un'azione...
+                    </div>
+                </div>
             </div>
             <div style="height: 20%;">C</div>
         </div>
@@ -1115,7 +1223,7 @@
         const db = getDatabase(app);
         let gameId = "game4";
         let dbRef = ref(db, `/cards`);
-        let gameRef = ref(db, `/cards/1`);
+        let gameRef = ref(db, `/cards/${gameId}`);
         let chatRef = ref(db, `/cards/${gameId}/chat`);
         let selected;
         let gameSelected = false;
@@ -1128,15 +1236,56 @@
         const opponentsBoard = document.getElementById("opponentsBoard");
         const unoDeck = document.getElementById("uno-deck");
 
-        unoDeck.addEventListener("click", e => handleClick(e));
 
         const authSection = document.getElementById("auth-section");
         const loginBtn = document.getElementById("loginBtn");
         const appSection = document.getElementById("app-section");
+        const newGameBtn = document.getElementById("new-game");
+
+        const gameModal = document.getElementById("gameModal");
+        const gameModalBody = document.getElementById("gameModalBody");
+        const gameModalClose = document.getElementById("gameModalClose");
+
+        const unoButton = document.getElementById("uno-button");
+
+
+        // =========================
+        // EVENTI
+        // =========================
+
+        unoDeck.addEventListener("click", e => handleClick(e));
+        unoButton.addEventListener("click", () => {
+            openGameModal(`
+                <h2 class="mb-0">UNO!</h2>
+                <p class="mt-3 mb-0">
+                    Il Player 1 esclama UNO!
+                </p>
+            `);
+
+        });
+
+        gameModalClose.addEventListener(
+            "click",
+            closeGameModal
+        );
+
+        gameModal.addEventListener("click", (e) => {
+
+            if (e.target === gameModal) {
+                closeGameModal();
+            }
+
+        });
 
         // ===== EVENTI UI =====
         loginBtn.addEventListener("click", async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await signInWithEmailAndPassword(auth, email, password); } catch (e) { alert(e.message); } });
 
+
+        // ===== EVENTI UI =====
+
+        newGameBtn.addEventListener("click", async () => {
+            await newGame();
+        });
 
         // ===== REALTIME LISTENER =====
         onAuthStateChanged(auth, async user => {
@@ -1146,6 +1295,7 @@
                 //console.log("logged", user)
                 hide([authSection])
                 show([appSection, opponentsBoard])
+
                 await playAgainstPC(1)
 
             } else {
@@ -1156,8 +1306,63 @@
         });
 
 
-        async function loadGameState(gameId) {
+        function updateCurrentColor(gameState) {
 
+            const button = document.getElementById("current-color");
+
+            if (!button) return;
+
+            const cardOnBoard = gameState?.board?.boardDeck?.[0];
+
+            if (!cardOnBoard) {
+                button.textContent = "Colore: -";
+                return;
+            }
+
+            const color = cardOnBoard.color;
+
+            if (!color) {
+                button.textContent = "Colore: -";
+                return;
+            }
+
+            const colors = {
+                red: "Rosso",
+                yellow: "Giallo",
+                green: "Verde",
+                blue: "Blu"
+            };
+
+            button.textContent =
+                `Colore: ${colors[color] || color}`;
+        }
+
+
+        // =========================
+        // APRI MODALE
+        // =========================
+
+        function openGameModal(content) {
+
+            gameModalBody.innerHTML = content;
+
+            gameModal.classList.add("show");
+        }
+
+
+        // =========================
+        // CHIUDI MODALE
+        // =========================
+
+        function closeGameModal() {
+
+            gameModal.classList.remove("show");
+
+            gameModalBody.innerHTML = "";
+        }
+
+
+        async function loadGameState(gameId) {
 
             const snapshot = await get(gameRef);
 
@@ -1168,7 +1373,46 @@
 
             gameState = snapshot.val();
 
+            // ==========================================
+            // VALORI DI DEFAULT
+            // ==========================================
+
+            if (gameState.turn === undefined) {
+                gameState.turn = 1;
+            }
+
+            if (gameState.direction === undefined) {
+                gameState.direction = 1;
+            }
+
+            if (gameState.currentColor === undefined) {
+                gameState.currentColor =
+                    gameState.board?.boardDeck?.[0]?.color || null;
+            }
+
+            // ==========================================
+            // PENALITÀ +4
+            // ==========================================
+
+            gameState.drawFourPending =
+                gameState.drawFourPending === true;
+
+            gameState.drawFourPenalty =
+                Number(gameState.drawFourPenalty) || 0;
+
+            // ==========================================
+            // PENALITÀ +2
+            // ==========================================
+
+            gameState.drawTwoPending =
+                gameState.drawTwoPending === true;
+
+            gameState.drawTwoPenalty =
+                Number(gameState.drawTwoPenalty) || 0;
+
             console.log("GAME STATE:", gameState);
+
+            updateCurrentColor(gameState);
 
             return gameState;
         }
@@ -1176,95 +1420,1178 @@
 
         async function playAgainstPC(gameId) {
 
-            const difficulty = "easy";
+            await loadGameState(gameId);
 
-            const snapshot = await get(gameRef);
-
-            if (!snapshot.exists()) {
-                console.log("Partita non trovata");
+            if (!gameState) {
                 return;
             }
 
-            const game = snapshot.val();
+            console.log("PARTITA RIPRISTINATA:", gameState);
 
-            // ==========================================
-            // COPIA LO STATO FIREBASE NEL GAMESTATE
-            // ==========================================
-            const gameState = loadGameState(1)
-            gameState.board = game.board || {
-                mainDeck: [],
-                boardDeck: []
-            };
-
-            gameState.players = game.players || [];
-
-            gameState.pcDifficulty = game.pcDifficulty;
-            gameState.initialized = game.initialized === true;
-
-            // ==========================================
-            // AGGIUNGI IL PC
-            // ==========================================
-
-            if (!gameState.players.some(player => player.id === 2)) {
-
-                gameState.players.push({
-                    id: 2,
-                    deck: []
-                });
+            // Assicuriamoci che la struttura esista
+            if (!gameState.board) {
+                gameState.board = {
+                    mainDeck: [],
+                    boardDeck: []
+                };
             }
 
-            gameState.pcDifficulty = difficulty;
-
-            // ==========================================
-            // INIZIALIZZA SOLO UNA VOLTA
-            // ==========================================
-
-            if (gameState.initialized !== true) {
-                initializeGame(gameState);
+            if (!gameState.players) {
+                gameState.players = [];
             }
 
-            // ==========================================
-            // RENDER
-            // ==========================================
+            // Inizializza SOLO se è una partita nuova
+            initializeGame(gameState);
 
+            // Disegna lo stato salvato
             drawBoard(1, gameState);
 
-            // ==========================================
-            // SALVA LO STESSO STATO
-            // ==========================================
+            // Se il turno salvato appartiene alla CPU,
+            // la CPU deve continuare a giocare
+            if (gameState.turn !== 1) {
+                console.log("Turno della CPU:", gameState.turn);
 
-            await set(gameRef, gameState);
+                await CPUplay();
+            }
         }
 
+        function checkDrawTwoPenalty(player, cardOnBoard) {
 
+            if (!cardOnBoard || cardOnBoard.type !== "draw-two") {
+                return false;
+            }
 
+            return !player.deck.some(
+                card => card.type === "draw-two"
+            );
+        }
 
-        function handleClick(e) {
+        async function handleClick(e) {
+
             const sq = e.target.closest(".card");
 
             if (!sq) return;
-            if (sq.id == "uno-deck") {
+
+            const player = gameState.players[0];
+
+            const cardOnBoard = gameState.board.boardDeck[0];
+
+
+            // =========================
+            // PESCA
+            // =========================
+
+            if (sq.id === "uno-deck") {
+
+                // ==========================================
+                // PENALITÀ +4
+                // ==========================================
+
+                if (gameState.drawFourPending === true) {
+
+                    const penalty =
+                        Number(gameState.drawFourPenalty) || 4;
+
+                    moveCards(
+                        gameState.board.mainDeck,
+                        player.deck,
+                        penalty,
+                        true
+                    );
+
+                    await showGameAction(
+                        `🃏 Player 1 pesca ${penalty} carte`
+                    );
+
+                    console.log(
+                        `Player pesca ${penalty} carte per il +4`
+                    );
+
+                    // Penalità consumata
+                    gameState.drawFourPending = false;
+                    gameState.drawFourPenalty = 0;
+
+                    // Passa il turno rispettando direction
+                    nextTurn(gameState);
+
+                    drawBoard(1, gameState);
+                    await saveGameState(gameState);
+
+                    if (gameState.turn !== 1) {
+                        await CPUplay();
+                    }
+
+                    return;
+                }
+
+
+                // ==========================================
+                // PENALITÀ +2
+                // ==========================================
+
+                if (gameState.drawTwoPending === true) {
+
+                    const penalty =
+                        Number(gameState.drawTwoPenalty) || 2;
+
+                    moveCards(
+                        gameState.board.mainDeck,
+                        player.deck,
+                        penalty,
+                        true
+                    );
+
+                    await showGameAction(
+                        `🃏 Player 1 pesca ${penalty} carte`
+                    );
+
+                    console.log(
+                        `Player pesca ${penalty} carte per il +2`
+                    );
+
+                    gameState.drawTwoPending = false;
+                    gameState.drawTwoPenalty = 0;
+
+                    nextTurn(gameState);
+
+                    drawBoard(1, gameState);
+                    await saveGameState(gameState);
+
+                    if (gameState.turn !== 1) {
+                        await CPUplay();
+                    }
+
+                    return;
+                }
+
+
+                // =========================
+                // PESCA NORMALE
+                // =========================
 
                 moveCards(
                     gameState.board.mainDeck,
-                    gameState.players[0].deck, 1, true
-                )
-            } else {
-                if (!checkGameRules('UNOleaveCard', {
-                    cardToLeave: gameState.players[0].deck.filter(e => e.id == sq.id)[0],
-                    cardOnBoard: gameState.board.boardDeck[0]
-                })) {
-                    return
-                }
-                moveCards(
-                    gameState.players[0].deck,
-                    gameState.board.boardDeck, 1, false, [parseInt(sq.id)],
+                    player.deck,
+                    1,
                     true
-                )
+                );
+
+                await showGameAction(
+                    "🃏 Player 1 pesca 1 carta"
+                );
+
+                const drawnCard =
+                    player.deck[player.deck.length - 1];
+
+                console.log(
+                    "Carta pescata:",
+                    drawnCard
+                );
+
+
+                // =========================
+                // CONTROLLO CARTA PESCATA
+                // =========================
+
+                const canPlayDrawnCard = checkGameRules(
+                    "UNOleaveCard",
+                    {
+                        cardToLeave: drawnCard,
+                        cardOnBoard: cardOnBoard
+                    }
+                );
+
+
+                // =========================
+                // CARTA NON GIOCABILE
+                // =========================
+
+                if (!canPlayDrawnCard) {
+
+                    await showGameAction(
+                        "⏭️ Player 1 passa il turno"
+                    );
+
+                    console.log(
+                        "Carta pescata non giocabile → passa il turno"
+                    );
+
+                    nextTurn(gameState);
+
+                    console.log(
+                        "Dopo pesca:",
+                        {
+                            turn: gameState.turn,
+                            direction: gameState.direction
+                        }
+                    );
+
+                    drawBoard(1, gameState);
+                    await saveGameState(gameState);
+
+                    if (gameState.turn !== 1) {
+                        await CPUplay();
+                    }
+
+                    return;
+                }
+
+
+                // =========================
+                // CARTA PESCATA GIOCABILE
+                // =========================
+
+                console.log(
+                    "Carta pescata giocabile → rimane il turno del player"
+                );
+
+                drawBoard(1, gameState);
+
+                await saveGameState(gameState);
+
+                return;
             }
-            drawBoard(1, gameState)
-            saveGameState(gameState)
-            console.log(gameState)
+
+
+            // =========================
+            // GIOCA CARTA
+            // =========================
+
+            const cardId = parseInt(sq.id);
+
+            const cardToLeave = player.deck.find(
+                card => card.id === cardId
+            );
+
+            if (!cardToLeave) {
+                return;
+            }
+
+
+            // =========================
+            // CONTROLLO REGOLE
+            // =========================
+
+            if (!checkGameRules("UNOleaveCard", {
+                cardToLeave: cardToLeave,
+                cardOnBoard: cardOnBoard
+            })) {
+                return;
+            }
+
+
+            // =========================
+            // SPOSTA CARTA SUL BOARD
+            // =========================
+
+            moveCards(
+                player.deck,
+                gameState.board.boardDeck,
+                1,
+                false,
+                [cardId],
+                true
+            );
+
+
+            // =========================
+            // MOSTRA CARTA GIOCATA
+            // =========================
+
+            await showGameAction(
+                `🎴 Player 1 gioca ${getCardName(cardToLeave)}`
+            );
+
+
+            // =========================
+            // VITTORIA
+            // =========================
+
+            if (checkWinner(player)) {
+
+                await saveGameState(gameState);
+                drawBoard(1, gameState);
+
+                return;
+            }
+
+
+            // =========================
+            // WILD / +4
+            // =========================
+
+            if (
+                cardToLeave.type === "wild" ||
+                cardToLeave.type === "wild-draw-four" ||
+                cardToLeave.type === "wild-gerry"
+            ) {
+
+                const selectedColor = await chooseColor();
+
+                cardToLeave.color = selectedColor;
+
+                gameState.currentColor = selectedColor;
+
+                console.log(
+                    "Colore scelto:",
+                    selectedColor
+                );
+
+
+                // ==========================================
+                // +20
+                // ==========================================
+
+                if (cardToLeave.type === "wild-gerry") {
+
+                    gameState.drawFourPending = true;
+
+                    gameState.drawFourPenalty =
+                        Number(gameState.drawFourPenalty) || 0;
+
+                    gameState.drawFourPenalty += 20;
+
+                    console.log(
+                        "Player ha giocato +20 → penalità totale:",
+                        gameState.drawFourPenalty
+                    );
+                }
+
+
+                // ==========================================
+                // +4
+                // ==========================================
+
+                if (cardToLeave.type === "wild-draw-four") {
+
+                    gameState.drawFourPending = true;
+
+                    gameState.drawFourPenalty =
+                        Number(gameState.drawFourPenalty) || 0;
+
+                    gameState.drawFourPenalty += 4;
+
+                    console.log(
+                        "Player ha giocato +4 → penalità totale:",
+                        gameState.drawFourPenalty
+                    );
+                }
+            }
+
+
+            // =========================
+            // CARTA COLORATA NORMALE
+            // =========================
+
+            else {
+
+                gameState.currentColor = cardToLeave.color;
+            }
+
+
+            // =========================
+            // +2
+            // =========================
+
+            if (cardToLeave.type === "draw-two") {
+
+                gameState.drawTwoPending = true;
+
+                gameState.drawTwoPenalty =
+                    Number(gameState.drawTwoPenalty) || 0;
+
+                gameState.drawTwoPenalty += 2;
+
+                console.log(
+                    "Player ha giocato +2 → penalità totale:",
+                    gameState.drawTwoPenalty
+                );
+            }
+
+
+            // =========================
+            // REVERSE
+            // =========================
+
+            if (cardToLeave.type === "reverse") {
+
+                gameState.direction *= -1;
+
+                console.log(
+                    "Cambio direzione:",
+                    gameState.direction
+                );
+
+                await showGameAction(
+                    "🔄 Turno invertito"
+                );
+            }
+
+
+            // =========================
+            // SKIP
+            // =========================
+
+            const skipTurn =
+                cardToLeave.type === "skip";
+
+            if (skipTurn) {
+
+                await showGameAction(
+                    "⏭️ Il prossimo giocatore salta il turno"
+                );
+            }
+
+
+            // =========================
+            // CAMBIO TURNO
+            // =========================
+
+            nextTurn(gameState, skipTurn);
+
+
+            console.log(
+                "Prossimo turno:",
+                {
+                    turn: gameState.turn,
+                    direction: gameState.direction
+                }
+            );
+
+
+            drawBoard(1, gameState);
+
+            await saveGameState(gameState);
+
+
+            if (gameState.turn !== 1) {
+                await CPUplay();
+            }
+        }
+
+
+        function showReverseModal(player) {
+            openGameModal(`
+        <div class="py-3">
+            <h2 class="fw-bold mb-3">🔄 Turno invertito!</h2>
+            <p class="mb-0">
+                ${player.id === 1 ? "Player 1" : `Player ${player.id}`} ha giocato <strong>Reverse</strong>.
+            </p>
+        </div>
+    `);
+        }
+
+        function showSkipModal(player) {
+            openGameModal(`
+        <div class="py-3">
+            <h2 class="fw-bold mb-3">⏭️ Turno saltato!</h2>
+            <p class="mb-0">
+                ${player.id === 1 ? "Player 1" : `Player ${player.id}`} ha giocato <strong>Skip</strong>.
+            </p>
+        </div>
+    `);
+        }
+
+
+        function showWinnerModal(player) {
+
+            const playerName =
+                player.id === 1
+                    ? "Player 1"
+                    : `Player ${player.id}`;
+
+            openGameModal(`
+        <div class="py-3">
+
+            <h1 class="fw-bold mb-4">
+                ${playerName} vince!
+            </h1>
+
+            <button
+                id="modal-new-game"
+                type="button"
+                class="btn btn-primary px-4"
+            >
+                Nuova partita
+            </button>
+
+        </div>
+    `);
+
+            document
+                .getElementById("modal-new-game")
+                .addEventListener("click", async () => {
+
+                    closeGameModal();
+
+                    await newGame();
+                });
+        }
+
+
+        function checkWinner(player) {
+
+            if (!player) return false;
+
+            if (player.deck.length === 0) {
+
+                console.log(
+                    `Player ${player.id} ha vinto!`
+                );
+
+                showWinnerModal(player);
+
+                return true;
+            }
+
+            return false;
+        }
+
+
+        function checkType(cardToLeave, cardOnBoard) {
+
+            if (!cardToLeave || !cardOnBoard) {
+                return false;
+            }
+
+            return (
+                cardToLeave.type === cardOnBoard.type &&
+                cardToLeave.type !== "number"
+            );
+        }
+
+
+        async function checkTurn() {
+
+            if (gameState.turn !== 1) {
+                await CPUplay();
+            }
+        }
+
+
+        function chooseColor() {
+
+            return new Promise(resolve => {
+
+                openGameModal(`
+            <h4>Scegli un colore</h4>
+
+            <div class="d-flex justify-content-center gap-3 mt-4">
+
+                <button
+                    type="button"
+                    class="btn btn-danger color-choice"
+                    data-color="red"
+                >
+                    Rosso
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-warning color-choice"
+                    data-color="yellow"
+                >
+                    Giallo
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-success color-choice"
+                    data-color="green"
+                >
+                    Verde
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-primary color-choice"
+                    data-color="blue"
+                >
+                    Blu
+                </button>
+
+            </div>
+        `);
+
+                const buttons = document.querySelectorAll(
+                    ".color-choice"
+                );
+
+                buttons.forEach(button => {
+
+                    button.addEventListener("click", () => {
+
+                        const color = button.dataset.color;
+
+                        closeGameModal();
+
+                        resolve(color);
+
+                    });
+
+                });
+
+            });
+        }
+
+
+        function cpuCallUno(cpu) {
+
+            if (!cpu || cpu.deck.length !== 1) {
+                return;
+            }
+
+            openGameModal(`
+        <div class="py-3">
+            <h1 class="fw-bold mb-3">UNO!</h1>
+            <p class="mb-0">
+                🖥️ Il Player ${cpu.id} esclama UNO!
+            </p>
+        </div>
+    `);
+        }
+        async function CPUplay() {
+
+            const cpu = gameState.players.find(
+                player => player.id === gameState.turn
+            );
+
+            if (!cpu) {
+                console.error("CPU non trovata:", gameState.turn);
+                return;
+            }
+
+            // Simula il tempo di pensiero
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            const cardOnBoard = gameState.board.boardDeck[0];
+
+
+            // ==========================================
+            // PENALITÀ +4
+            // ==========================================
+
+            if (gameState.drawFourPending === true) {
+
+                const wildDrawFour = cpu.deck.find(
+                    card => card.type === "wild-draw-four"
+                );
+
+
+                // ==========================================
+                // CPU RISPONDE CON +4
+                // ==========================================
+
+                if (wildDrawFour) {
+
+                    moveCards(
+                        cpu.deck,
+                        gameState.board.boardDeck,
+                        1,
+                        false,
+                        [wildDrawFour.id],
+                        true
+                    );
+
+                    await showGameAction(
+                        `🎴 Player ${cpu.id} gioca +4`
+                    );
+
+
+                    // ==========================================
+                    // VITTORIA
+                    // ==========================================
+
+                    if (checkWinner(cpu)) {
+
+                        await saveGameState(gameState);
+                        drawBoard(1, gameState);
+
+                        return;
+                    }
+
+
+                    const colors = [
+                        "red",
+                        "yellow",
+                        "green",
+                        "blue"
+                    ];
+
+                    const selectedColor =
+                        colors[
+                        Math.floor(Math.random() * colors.length)
+                        ];
+
+
+                    wildDrawFour.color = selectedColor;
+
+                    gameState.currentColor = selectedColor;
+
+
+                    // Accumula la penalità
+                    gameState.drawFourPending = true;
+
+                    gameState.drawFourPenalty =
+                        Number(gameState.drawFourPenalty) || 4;
+
+                    gameState.drawFourPenalty += 4;
+
+
+                    console.log(
+                        `CPU ${cpu.id} risponde con +4 → penalità totale: ${gameState.drawFourPenalty}`
+                    );
+
+
+                    if (cpu.deck.length === 1) {
+                        cpuCallUno(cpu);
+                    }
+
+                }
+
+
+                // ==========================================
+                // CPU NON HA +4 → PESCA PENALITÀ
+                // ==========================================
+
+                else {
+
+                    const penalty =
+                        Number(gameState.drawFourPenalty) || 4;
+
+                    moveCards(
+                        gameState.board.mainDeck,
+                        cpu.deck,
+                        penalty,
+                        true
+                    );
+
+
+                    await showGameAction(
+                        `🃏 Player ${cpu.id} pesca ${penalty} carte`
+                    );
+
+
+                    console.log(
+                        `CPU ${cpu.id} pesca ${penalty} carte per il +4`
+                    );
+
+
+                    gameState.drawFourPending = false;
+                    gameState.drawFourPenalty = 0;
+
+
+                    await showGameAction(
+                        `⏭️ Player ${cpu.id} passa il turno`
+                    );
+                }
+
+
+                nextTurn(gameState);
+
+                drawBoard(1, gameState);
+                await saveGameState(gameState);
+
+
+                if (gameState.turn !== 1) {
+                    await CPUplay();
+                }
+
+                return;
+            }
+
+
+            // ==========================================
+            // PENALITÀ +2
+            // ==========================================
+
+            if (gameState.drawTwoPending === true) {
+
+                const drawTwoCard = cpu.deck.find(
+                    card => card.type === "draw-two"
+                );
+
+
+                // ==========================================
+                // CPU RISPONDE CON +2
+                // ==========================================
+
+                if (drawTwoCard) {
+
+                    moveCards(
+                        cpu.deck,
+                        gameState.board.boardDeck,
+                        1,
+                        false,
+                        [drawTwoCard.id],
+                        true
+                    );
+
+
+                    await showGameAction(
+                        `🎴 Player ${cpu.id} gioca ${getCardName(drawTwoCard)}`
+                    );
+
+
+                    gameState.drawTwoPending = true;
+
+                    gameState.drawTwoPenalty =
+                        Number(gameState.drawTwoPenalty) || 2;
+
+                    gameState.drawTwoPenalty += 2;
+
+
+                    gameState.currentColor =
+                        drawTwoCard.color;
+
+
+                    console.log(
+                        `CPU ${cpu.id} risponde con +2 → penalità totale: ${gameState.drawTwoPenalty}`
+                    );
+
+
+                    if (cpu.deck.length === 1) {
+                        cpuCallUno(cpu);
+                    }
+
+                }
+
+
+                // ==========================================
+                // CPU NON HA +2 → PESCA PENALITÀ
+                // ==========================================
+
+                else {
+
+                    const penalty =
+                        Number(gameState.drawTwoPenalty) || 2;
+
+
+                    moveCards(
+                        gameState.board.mainDeck,
+                        cpu.deck,
+                        penalty,
+                        true
+                    );
+
+
+                    await showGameAction(
+                        `🃏 Player ${cpu.id} pesca ${penalty} carte`
+                    );
+
+
+                    console.log(
+                        `CPU ${cpu.id} pesca ${penalty} carte per il +2`
+                    );
+
+
+                    gameState.drawTwoPending = false;
+                    gameState.drawTwoPenalty = 0;
+
+
+                    await showGameAction(
+                        `⏭️ Player ${cpu.id} passa il turno`
+                    );
+                }
+
+
+                nextTurn(gameState);
+
+                drawBoard(1, gameState);
+                await saveGameState(gameState);
+
+
+                if (gameState.turn !== 1) {
+                    await CPUplay();
+                }
+
+                return;
+            }
+
+
+            // ==========================================
+            // GIOCO NORMALE
+            // ==========================================
+
+            const playableCards = cpu.deck.filter(card => {
+
+                return checkGameRules("UNOleaveCard", {
+                    cardToLeave: card,
+                    cardOnBoard: cardOnBoard
+                });
+
+            });
+
+
+            if (playableCards.length > 0) {
+
+                const cardToPlay =
+                    playableCards[
+                    Math.floor(Math.random() * playableCards.length)
+                    ];
+
+
+                moveCards(
+                    cpu.deck,
+                    gameState.board.boardDeck,
+                    1,
+                    false,
+                    [cardToPlay.id],
+                    true
+                );
+
+
+                // ==========================================
+                // MOSTRA CARTA GIOCATA
+                // ==========================================
+
+                await showGameAction(
+                    `🎴 Player ${cpu.id} gioca ${getCardName(cardToPlay)}`
+                );
+
+
+                console.log(
+                    `CPU ${cpu.id} ha giocato`,
+                    cardToPlay
+                );
+
+
+                // ==========================================
+                // VITTORIA
+                // ==========================================
+
+                if (checkWinner(cpu)) {
+
+                    await saveGameState(gameState);
+                    drawBoard(1, gameState);
+
+                    return;
+                }
+
+
+                // ==========================================
+                // CAMBIO COLORE
+                // ==========================================
+
+                if (
+                    cardToPlay.type === "wild" ||
+                    cardToPlay.type === "wild-draw-four" ||
+                    cardToPlay.type === "wild-gerry"
+                ) {
+
+                    const colors = [
+                        "red",
+                        "yellow",
+                        "green",
+                        "blue"
+                    ];
+
+
+                    const selectedColor =
+                        colors[
+                        Math.floor(Math.random() * colors.length)
+                        ];
+
+
+                    cardToPlay.color = selectedColor;
+
+                    gameState.currentColor = selectedColor;
+
+
+                    console.log(
+                        `CPU ${cpu.id} sceglie il colore: ${selectedColor}`
+                    );
+
+                } else {
+
+                    gameState.currentColor =
+                        cardToPlay.color;
+                }
+
+
+                // ==========================================
+                // +20
+                // ==========================================
+
+                if (cardToPlay.type === "wild-gerry") {
+
+                    gameState.drawFourPending = true;
+
+                    gameState.drawFourPenalty = 20;
+
+
+                    console.log(
+                        "CPU ha giocato +4 → penalità:",
+                        gameState.drawFourPenalty
+                    );
+                }
+
+
+                // ==========================================
+                // +4
+                // ==========================================
+
+                if (cardToPlay.type === "wild-draw-four") {
+
+                    gameState.drawFourPending = true;
+
+                    gameState.drawFourPenalty = 4;
+
+
+                    console.log(
+                        "CPU ha giocato +4 → penalità:",
+                        gameState.drawFourPenalty
+                    );
+                }
+
+
+                // ==========================================
+                // +2
+                // ==========================================
+
+                if (cardToPlay.type === "draw-two") {
+
+                    gameState.drawTwoPending = true;
+
+                    gameState.drawTwoPenalty = 2;
+
+
+                    console.log(
+                        "CPU ha giocato +2 → penalità:",
+                        gameState.drawTwoPenalty
+                    );
+                }
+
+
+                // ==========================================
+                // REVERSE
+                // ==========================================
+
+                if (cardToPlay.type === "reverse") {
+
+                    gameState.direction *= -1;
+
+
+                    console.log(
+                        "REVERSE! Nuova direzione:",
+                        gameState.direction
+                    );
+
+
+                    await showGameAction(
+                        "🔄 Turno invertito"
+                    );
+                }
+
+
+                // ==========================================
+                // UNO
+                // ==========================================
+
+                if (cpu.deck.length === 1) {
+                    cpuCallUno(cpu);
+                }
+
+
+                // ==========================================
+                // SKIP
+                // ==========================================
+
+                const skipTurn =
+                    cardToPlay.type === "skip";
+
+
+                if (skipTurn) {
+
+                    await showGameAction(
+                        `⏭️ Il prossimo giocatore salta il turno`
+                    );
+                }
+
+
+                // ==========================================
+                // CAMBIO TURNO
+                // ==========================================
+
+                nextTurn(gameState, skipTurn);
+
+            }
+
+
+            // ==========================================
+            // NESSUNA CARTA GIOCABILE
+            // ==========================================
+
+            else {
+
+                moveCards(
+                    gameState.board.mainDeck,
+                    cpu.deck,
+                    1,
+                    true
+                );
+
+
+                await showGameAction(
+                    `🃏 Player ${cpu.id} pesca 1 carta`
+                );
+
+
+                console.log(
+                    `CPU ${cpu.id} pesca 1`
+                );
+
+
+                await showGameAction(
+                    `⏭️ Player ${cpu.id} passa il turno`
+                );
+
+
+                nextTurn(gameState);
+            }
+
+
+            console.log(
+                "Prossimo turno:",
+                gameState.turn
+            );
+
+
+            drawBoard(1, gameState);
+            await saveGameState(gameState);
+
+
+            if (gameState.turn !== 1) {
+                await CPUplay();
+            }
+        }
+
+
+        function checkWildDrawFourPenalty(player, cardOnBoard) {
+
+            if (
+                !cardOnBoard ||
+                cardOnBoard.type !== "wild-draw-four"
+            ) {
+                return false;
+            }
+
+            return !player.deck.some(
+                card => card.type === "wild-draw-four"
+            );
+        }
+
+
+        function checkDrawTwo(cardToLeave, cardOnBoard) {
+
+            if (!cardToLeave || !cardOnBoard) {
+                return false;
+            }
+
+            return (
+                cardToLeave.type === "draw-two" &&
+                cardOnBoard.type === "draw-two"
+            );
         }
 
 
@@ -1276,7 +2603,8 @@
 
             return (
                 cardToLeave.type === "wild" ||
-                cardToLeave.type === "wild-draw-four"
+                cardToLeave.type === "wild-draw-four" ||
+                cardToLeave.type === "wild-gerry"
             );
         }
 
@@ -1299,13 +2627,12 @@
         }
 
 
-        function checkColor(cardToLeave, cardOnBoard) {
+        function checkColor(cardToLeave, cardOnBoard, currentColor = null) {
 
             if (!cardToLeave || !cardOnBoard) {
                 return false;
             }
 
-            // Wild può essere giocata indipendentemente dal colore
             if (
                 cardToLeave.type === "wild" ||
                 cardToLeave.type === "wild-draw-four"
@@ -1313,7 +2640,10 @@
                 return true;
             }
 
-            return cardToLeave.color === cardOnBoard.color;
+            const boardColor =
+                currentColor || cardOnBoard.color;
+
+            return cardToLeave.color === boardColor;
         }
 
 
@@ -1342,22 +2672,38 @@
 
 
         function checkGameRules(action, cards) {
-            let allowed = false;
 
             const unoRules = [
-                { name: "colorCheck", check: checkColor },
-                { name: "numberCheck", check: checkNumber },
-                { name: "wildCheck", check: checkWild }
+                {
+                    name: "colorCheck",
+                    check: (cardToLeave, cardOnBoard) =>
+                        checkColor(
+                            cardToLeave,
+                            cardOnBoard,
+                            gameState.currentColor
+                        )
+                },
+                {
+                    name: "numberCheck",
+                    check: checkNumber
+                },
+                {
+                    name: "typeCheck",
+                    check: checkType
+                },
+                {
+                    name: "wildCheck",
+                    check: checkWild
+                },
+                {
+                    name: "drawTwoCheck",
+                    check: checkDrawTwo
+                }
             ];
 
             switch (action) {
 
                 case "UNOleaveCard":
-
-                    console.log(
-                        cards.cardToLeave,
-                        cards.cardOnBoard
-                    );
 
                     return evaluateRules(
                         unoRules,
@@ -1366,22 +2712,85 @@
                         "any"
                     );
 
+                default:
 
-                default: console.log("not managed rule: ", rule)
+                    console.log(
+                        "not managed rule:",
+                        action
+                    );
+
+                    return false;
             }
-
-            return allowed
         }
 
 
-        function saveGameState(gameState) {
+        async function newGame() {
+
+            gameState.initialized = false;
+
+            gameState.turn = 1;
+            gameState.direction = 1;
+
+            // ==========================================
+            // PENALITÀ
+            // ==========================================
+
+            gameState.drawFourPending = false;
+            gameState.drawFourPenalty = 0;
+
+            gameState.drawTwoPending = false;
+            gameState.drawTwoPenalty = 0;
+
+            // ==========================================
+            // COLORE
+            // ==========================================
+
+            gameState.currentColor = null;
+
+            // ==========================================
+            // BOARD
+            // ==========================================
+
+            gameState.board = {
+                mainDeck: [],
+                boardDeck: []
+            };
+
+            // ==========================================
+            // PLAYERS
+            // ==========================================
+
+            gameState.players = [
+                { id: 1, deck: [] },
+                { id: 2, deck: [] },
+                { id: 3, deck: [] },
+                { id: 4, deck: [] }
+            ];
+
+            // ==========================================
+            // INIZIALIZZA PARTITA
+            // ==========================================
+
+            initializeGame(gameState);
+
+            drawBoard(1, gameState);
+
+            await saveGameState(gameState);
+
+            console.log("NUOVA PARTITA:", gameState);
+        }
+
+        async function saveGameState(gameState) {
+
             if (!gameState) return;
 
+            const gameRef = ref(db, `/cards/${gameId}`);
 
-            console.log(
-                gameState
-            )
-            return set(gameRef, gameState);
+            await set(gameRef, gameState);
+
+            updateCurrentColor(gameState);
+
+            console.log("Game salvato:", gameState);
         }
 
 
@@ -1490,6 +2899,11 @@
                 });
 
             }
+
+            deck.push({
+                    id: id++,
+                    type: "wild-gerry"
+                });
 
             // =========================
             // MESCOLA
@@ -1623,6 +3037,37 @@
         }
 
 
+        function nextTurn(gameState, skip = false) {
+
+            // Primo passaggio al giocatore successivo
+            gameState.turn += gameState.direction;
+
+            if (gameState.turn > gameState.players.length) {
+                gameState.turn = 1;
+            }
+
+            if (gameState.turn < 1) {
+                gameState.turn = gameState.players.length;
+            }
+
+            // Skip: salta un altro giocatore
+            if (skip) {
+
+                gameState.turn += gameState.direction;
+
+                if (gameState.turn > gameState.players.length) {
+                    gameState.turn = 1;
+                }
+
+                if (gameState.turn < 1) {
+                    gameState.turn = gameState.players.length;
+                }
+            }
+
+            return gameState.turn;
+        }
+
+
         function initializeGame(gameState) {
 
             if (!gameState) return;
@@ -1636,6 +3081,14 @@
                     mainDeck: [],
                     boardDeck: []
                 };
+            }
+
+            if (gameState.turn === undefined) {
+                gameState.turn = 1;
+            }
+
+            if (gameState.direction === undefined) {
+                gameState.direction = 1;
             }
 
             // Se la partita è già inizializzata NON fare nulla
@@ -1666,12 +3119,33 @@
                     Math.random() * gameState.board.mainDeck.length
                 );
 
-                const card = gameState.board.mainDeck.splice(
-                    randomIndex,
-                    1
-                )[0];
+                const validStartingCards =
+                    gameState.board.mainDeck.filter(
+                        card =>
+                            card.type === "number"
+                    );
 
-                gameState.board.boardDeck.push(card);
+                if (validStartingCards.length > 0) {
+
+                    const randomIndex =
+                        Math.floor(
+                            Math.random() * validStartingCards.length
+                        );
+
+                    const card =
+                        validStartingCards[randomIndex];
+
+                    const deckIndex =
+                        gameState.board.mainDeck.findIndex(
+                            deckCard => deckCard.id === card.id
+                        );
+
+                    gameState.board.mainDeck.splice(deckIndex, 1);
+
+                    gameState.board.boardDeck.push(card);
+
+                    gameState.currentColor = card.color;
+                } 
             }
 
             // IMPORTANTE
@@ -1900,15 +3374,39 @@
                     const opponentCards = document.createElement("div");
 
                     opponentCards.className = "opponent-cards";
+                    // Header giocatore
+                    // Header giocatore
+                    const playerHeader = document.createElement("div");
+
+                    playerHeader.className = "d-flex align-items-center";
+                    playerHeader.style.marginRight = "40px";
+                    playerHeader.style.marginBottom = "30px";
+
+                    // Spinner
+                    const spinner = document.createElement("div");
+
+                    spinner.id = `spinner-player-${opponent.id}`;
+                    spinner.className = "spinner-border spinner-border-sm";
+                    spinner.setAttribute("role", "status");
+                    spinner.setAttribute("aria-hidden", "true");
+
+                    spinner.style.display =
+                        gameState.turn === opponent.id
+                            ? "block"
+                            : "none";
 
                     // Nome giocatore
                     const title = document.createElement("h6");
 
-                    title.style.marginRight = "40px";
-                    title.style.marginBottom = "30px";
+                    title.className = "mb-0";
+                    title.style.marginLeft = "10px";
                     title.textContent = `Player ${opponent.id}`;
 
-                    opponentCards.appendChild(title);
+                    // Composizione
+                    playerHeader.appendChild(spinner);
+                    playerHeader.appendChild(title);
+
+                    opponentCards.appendChild(playerHeader);
 
                     // Una carta coperta per ogni carta nel deck
                     opponent.deck.forEach(() => {
@@ -1934,6 +3432,57 @@
                 opponentsBoard.appendChild(playersContainer);
             }
 
+        }
+
+
+        function getCardName(card) {
+
+            if (!card) return "carta";
+
+            const colors = {
+                red: "Rosso",
+                yellow: "Giallo",
+                green: "Verde",
+                blue: "Blu"
+            };
+
+            const color = colors[card.color] || "";
+
+            switch (card.type) {
+
+                case "number":
+                    return `${color} ${card.value}`;
+
+                case "skip":
+                    return `${color} Skip`;
+
+                case "reverse":
+                    return `${color} Reverse`;
+
+                case "draw-two":
+                    return `${color} +2`;
+
+                case "wild":
+                    return "Wild";
+
+                case "wild-draw-four":
+                    return "+4";
+
+                case "wild-gerry":
+                    return "+20";
+
+                default:
+                    return "carta";
+            }
+        }
+
+
+        function showGameAction(message) {
+            const actions = document.getElementById("game-actions-text");
+
+            if (!actions) return;
+
+            actions.textContent = message;
         }
 
 
