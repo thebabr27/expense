@@ -1146,6 +1146,7 @@
                 //console.log("logged", user)
                 hide([authSection])
                 show([appSection, opponentsBoard])
+                await playAgainstPC(1)
 
             } else {
                 console.log("logged out")
@@ -1153,9 +1154,6 @@
                 hide([appSection, opponentsBoard])
             }
         });
-
-
-        await playAgainstPC(1)
 
 
         async function loadGameState(gameId) {
@@ -1354,24 +1352,24 @@
 
             switch (action) {
 
-                        case "UNOleaveCard":
+                case "UNOleaveCard":
 
-                            console.log(
-                                cards.cardToLeave,
-                                cards.cardOnBoard
-                            );
+                    console.log(
+                        cards.cardToLeave,
+                        cards.cardOnBoard
+                    );
 
-                            return evaluateRules(
-                                unoRules,
-                                cards.cardToLeave,
-                                cards.cardOnBoard,
-                                "any"
-                            );
+                    return evaluateRules(
+                        unoRules,
+                        cards.cardToLeave,
+                        cards.cardOnBoard,
+                        "any"
+                    );
 
 
-                        default: console.log("not managed rule: ", rule)
-                    }
- 
+                default: console.log("not managed rule: ", rule)
+            }
+
             return allowed
         }
 
