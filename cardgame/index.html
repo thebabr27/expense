@@ -1,13 +1,1960 @@
-<!doctype html>
-<html lang="en" data-critters-container>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <title>Game</title>
-  <base href="/expense/cardgame/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-<style>@charset "UTF-8";:root{--bs-blue:#0d6efd;--bs-indigo:#6610f2;--bs-purple:#6f42c1;--bs-pink:#d63384;--bs-red:#dc3545;--bs-orange:#fd7e14;--bs-yellow:#ffc107;--bs-green:#198754;--bs-teal:#20c997;--bs-cyan:#0dcaf0;--bs-black:#000;--bs-white:#fff;--bs-gray:#6c757d;--bs-gray-dark:#343a40;--bs-gray-100:#f8f9fa;--bs-gray-200:#e9ecef;--bs-gray-300:#dee2e6;--bs-gray-400:#ced4da;--bs-gray-500:#adb5bd;--bs-gray-600:#6c757d;--bs-gray-700:#495057;--bs-gray-800:#343a40;--bs-gray-900:#212529;--bs-primary:#0d6efd;--bs-secondary:#6c757d;--bs-success:#198754;--bs-info:#0dcaf0;--bs-warning:#ffc107;--bs-danger:#dc3545;--bs-light:#f8f9fa;--bs-dark:#212529;--bs-primary-rgb:13,110,253;--bs-secondary-rgb:108,117,125;--bs-success-rgb:25,135,84;--bs-info-rgb:13,202,240;--bs-warning-rgb:255,193,7;--bs-danger-rgb:220,53,69;--bs-light-rgb:248,249,250;--bs-dark-rgb:33,37,41;--bs-primary-text-emphasis:#052c65;--bs-secondary-text-emphasis:#2b2f32;--bs-success-text-emphasis:#0a3622;--bs-info-text-emphasis:#055160;--bs-warning-text-emphasis:#664d03;--bs-danger-text-emphasis:#58151c;--bs-light-text-emphasis:#495057;--bs-dark-text-emphasis:#495057;--bs-primary-bg-subtle:#cfe2ff;--bs-secondary-bg-subtle:#e2e3e5;--bs-success-bg-subtle:#d1e7dd;--bs-info-bg-subtle:#cff4fc;--bs-warning-bg-subtle:#fff3cd;--bs-danger-bg-subtle:#f8d7da;--bs-light-bg-subtle:#fcfcfd;--bs-dark-bg-subtle:#ced4da;--bs-primary-border-subtle:#9ec5fe;--bs-secondary-border-subtle:#c4c8cb;--bs-success-border-subtle:#a3cfbb;--bs-info-border-subtle:#9eeaf9;--bs-warning-border-subtle:#ffe69c;--bs-danger-border-subtle:#f1aeb5;--bs-light-border-subtle:#e9ecef;--bs-dark-border-subtle:#adb5bd;--bs-white-rgb:255,255,255;--bs-black-rgb:0,0,0;--bs-font-sans-serif:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";--bs-font-monospace:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;--bs-gradient:linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, 0));--bs-body-font-family:var(--bs-font-sans-serif);--bs-body-font-size:1rem;--bs-body-font-weight:400;--bs-body-line-height:1.5;--bs-body-color:#212529;--bs-body-color-rgb:33,37,41;--bs-body-bg:#fff;--bs-body-bg-rgb:255,255,255;--bs-emphasis-color:#000;--bs-emphasis-color-rgb:0,0,0;--bs-secondary-color:rgba(33, 37, 41, .75);--bs-secondary-color-rgb:33,37,41;--bs-secondary-bg:#e9ecef;--bs-secondary-bg-rgb:233,236,239;--bs-tertiary-color:rgba(33, 37, 41, .5);--bs-tertiary-color-rgb:33,37,41;--bs-tertiary-bg:#f8f9fa;--bs-tertiary-bg-rgb:248,249,250;--bs-heading-color:inherit;--bs-link-color:#0d6efd;--bs-link-color-rgb:13,110,253;--bs-link-decoration:underline;--bs-link-hover-color:#0a58ca;--bs-link-hover-color-rgb:10,88,202;--bs-code-color:#d63384;--bs-highlight-color:#212529;--bs-highlight-bg:#fff3cd;--bs-border-width:1px;--bs-border-style:solid;--bs-border-color:#dee2e6;--bs-border-color-translucent:rgba(0, 0, 0, .175);--bs-border-radius:.375rem;--bs-border-radius-sm:.25rem;--bs-border-radius-lg:.5rem;--bs-border-radius-xl:1rem;--bs-border-radius-xxl:2rem;--bs-border-radius-2xl:var(--bs-border-radius-xxl);--bs-border-radius-pill:50rem;--bs-box-shadow:0 .5rem 1rem rgba(0, 0, 0, .15);--bs-box-shadow-sm:0 .125rem .25rem rgba(0, 0, 0, .075);--bs-box-shadow-lg:0 1rem 3rem rgba(0, 0, 0, .175);--bs-box-shadow-inset:inset 0 1px 2px rgba(0, 0, 0, .075);--bs-focus-ring-width:.25rem;--bs-focus-ring-opacity:.25;--bs-focus-ring-color:rgba(13, 110, 253, .25);--bs-form-valid-color:#198754;--bs-form-valid-border-color:#198754;--bs-form-invalid-color:#dc3545;--bs-form-invalid-border-color:#dc3545}*,:after,:before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:var(--bs-body-font-family);font-size:var(--bs-body-font-size);font-weight:var(--bs-body-font-weight);line-height:var(--bs-body-line-height);color:var(--bs-body-color);text-align:var(--bs-body-text-align);background-color:var(--bs-body-bg);-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}:root{--bs-breakpoint-xs:0;--bs-breakpoint-sm:576px;--bs-breakpoint-md:768px;--bs-breakpoint-lg:992px;--bs-breakpoint-xl:1200px;--bs-breakpoint-xxl:1400px}:root{--bs-btn-close-filter: }:root{--bs-carousel-indicator-active-bg:#fff;--bs-carousel-caption-color:#fff;--bs-carousel-control-icon-filter: }</style><link rel="stylesheet" href="styles.55a2e23a713ebb92.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="styles.55a2e23a713ebb92.css"></noscript></head>
-<body>
-  <app-root></app-root>
-<script src="runtime.7a55c70cec2c4c00.js" type="module"></script><script src="polyfills.e0f71f2c325d486c.js" type="module"></script><script src="scripts.425520de70bbab43.js" defer></script><script src="main.b8df5a16d2f28de9.js" type="module"></script></body>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cards</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+
+        * {
+
+            font-family: 'Luckiest Guy', cursive;
+        }
+
+        .bg-semi-transparent {
+            background: rgba(0, 0, 0, .5) !important;
+        }
+
+        .bg-semi-transparent h3 {
+            color: white;
+        }
+
+        .opponents-board {
+            position: fixed;
+            top: 36%;
+            right: 0;
+
+            transform: translateY(-50%);
+
+            z-index: 100;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px 10px;
+
+            pointer-events: none;
+        }
+
+        .flex-column:has(.opponent-cards) {
+            height: 70vh;
+        }
+
+        .opponent-cards {
+            margin-bottom: 45px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0px;
+        }
+
+        .opponent-card {
+            width: 0px;
+            height: 35px;
+            margin-top: -15px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .opponent-card .deck-card.uno-back {
+            width: 140px;
+            height: 200px;
+
+            transform: rotate(90deg) scale(0.45);
+
+            transform-origin: center center;
+
+            flex-shrink: 0;
+        }
+
+        .card {
+            border-radius: 20px;
+            transform: scale(.8);
+        }
+
+        @media (max-width: 600px) {
+
+            .card:has(.uno-back):hover {
+                transform: translateY(-15px) scale(.6) !important;
+            }
+
+            .card:has(.uno-back),
+            .card {
+                transform: translateY(0px) scale(.6) !important;
+            }
+
+            /* Effetto hover */
+            .card:has(.uno):hover,
+            .card:has(.denari):hover {
+                transform: translateY(-8px) scale(.6) !important;
+            }
+        }
+
+        .card-body {
+            padding: 0;
+        }
+
+        /* Colori Scopa */
+        .deck-denari,
+        .deck-spade,
+        .deck-bastoni,
+        .deck-coppe {
+            background-color: #FFF;
+        }
+
+        /* =========================
+   DORSO CARTA UNO
+   ========================= */
+
+        .deck-card.uno-back {
+            position: relative;
+
+            width: 140px;
+            height: 200px;
+
+            background: #000;
+
+            border: 4px solid #fff;
+            border-radius: 14px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            overflow: hidden;
+
+
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.45),
+                inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+        }
+
+
+        /* =========================
+   OVALE ROSSO
+   ========================= */
+        .card:has(.uno-back-oval) {
+            transition: .2s;
+            transform: scale(.8);
+        }
+
+        .card:has(.uno-back-oval):hover {
+            transform: translateY(-15px) scale(.8);
+        }
+
+        .uno-back-oval {
+            transition: .2s;
+            width: 115px;
+            height: 165px;
+
+            background: #ed1c24;
+
+            border: 4px solid #fff;
+            border-radius: 50%;
+
+            box-sizing: border-box;
+
+            transform: rotate(27deg) skewX(-8deg);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            box-shadow:
+                3px 4px 5px rgba(0, 0, 0, 0.45);
+        }
+
+        .card-content {
+            position: relative;
+
+            width: 100%;
+            height: 100%;
+
+            overflow: hidden;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        /* =========================
+   SCRITTA UNO
+   ========================= */
+
+        .uno-back-oval span {
+            position: relative;
+
+            color: #ffde17;
+            text-shadow:
+                0 0 2px #fff,
+                0 0 5px #fff,
+                0 0 8px rgba(255, 255, 255, 0.9),
+                3px 4px 0 rgba(0, 0, 0, 0.45),
+                4px 5px 4px rgba(0, 0, 0, 0.35);
+
+
+            font-size: 50px;
+            font-weight: 500;
+
+            letter-spacing: 3px;
+
+            /*
+     * Compensa il rotate(27deg)
+     * dell'ovale.
+     */
+            transform: rotate(-50deg);
+
+            text-shadow:
+                2px 2px 0 rgba(0, 0, 0, 0.25);
+
+            white-space: nowrap;
+        }
+
+        /* =========================
+   UNO WILD - CAMBIO COLORE
+   ========================= */
+
+        /* =========================
+   SIMBOLO WILD - CAMBIO COLORE
+   ========================= */
+
+        /* =========================
+   WILD - CAMBIO COLORE
+   ========================= */
+        .uno-deck-wild .uno-symbol-wild {
+
+            transform: rotate(45deg) scale(1.5);
+        }
+
+        .uno-symbol-wild {
+            position: relative;
+
+            width: 82px;
+            height: 118px;
+
+            border: 4px solid #fff;
+            border-radius: 50%;
+
+            box-sizing: border-box;
+
+            overflow: hidden;
+
+            transform: rotate(-25deg) skewX(-8deg);
+
+            background:
+                conic-gradient(from 0deg,
+                    #0072bc 0deg 45deg,
+                    #00a651 45deg 155deg,
+                    #ffde17 155deg 225deg,
+                    #ed1c24 225deg 335deg,
+                    #0072bc 335deg 360deg);
+
+            box-shadow:
+                2px 4px 4px rgba(0, 0, 0, 0.4);
+        }
+
+
+        /* =========================
+   QUATTRO QUARTI
+   ========================= */
+
+        .wild-quarter {
+            position: absolute;
+
+            width: 50%;
+            height: 50%;
+
+            box-sizing: border-box;
+        }
+
+
+        /* BLU - alto sinistra */
+        .wild-blue {
+            top: 0;
+            left: 0;
+            background: #0072bc;
+        }
+
+
+        /* VERDE - alto destra */
+        .wild-green {
+            top: 0;
+            right: 0;
+            background: #00a651;
+        }
+
+
+        /* GIALLO - basso sinistra */
+        .wild-yellow {
+            bottom: 0;
+            left: 0;
+            background: #ffde17;
+        }
+
+
+        /* ROSSO - basso destra */
+        .wild-red {
+            bottom: 0;
+            right: 0;
+            background: #ed1c24;
+        }
+
+        /* =========================
+   UNO SKIP / DIVIETO
+   ========================= */
+
+        .uno-skip {
+            position: relative;
+
+            width: 82px;
+            height: 82px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        /* =========================
+   CERCHIO
+   ========================= */
+
+        .skip-circle {
+            width: 65px;
+            height: 65px;
+            border: 9px solid #fff;
+            border-radius: 50%;
+            box-sizing: border-box;
+            /* Ombra del cerchio */
+            filter: drop-shadow(2px 3px 2px rgba(0, 0, 0, 0.45));
+        }
+
+
+        /* =========================
+   BARRA DI DIVIETO
+   ========================= */
+
+        .skip-bar {
+            position: absolute;
+            margin-left: 1px;
+            margin-top: 1px;
+            width: 60px;
+            height: 10px;
+            background: #fff;
+            border-radius: 6px;
+            transform: rotate(-45deg);
+        }
+
+        /* =========================
+   UNO REVERSE
+   ========================= */
+
+        .uno-reverse,
+        .uno-reverse-small {
+            position: relative;
+            width: 80px;
+            height: 80px;
+
+        }
+
+
+        /* Base comune delle frecce */
+        .reverse-arrow {
+            position: absolute;
+
+            width: 33px;
+            height: 14px;
+
+            background: #fff;
+
+            border-radius: 3px;
+
+            transform-origin: center;
+
+        }
+
+        /* Punta triangolare */
+        .reverse-arrow::after {
+            content: "";
+
+            position: absolute;
+
+            width: 0;
+            height: 0;
+
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-left: 25px solid #fff;
+
+            /* Ombra della punta */
+            filter: drop-shadow(2px -3px 2px rgba(0, 0, 0, 0.45));
+        }
+
+
+        /* =========================
+   FRECCIA ↗
+   ========================= */
+
+        .reverse-arrow-up {
+            border-top-left-radius: 10px;
+            top: 24px;
+            left: 20px;
+            transform: rotate(-41deg);
+            box-shadow: -2px -3px 3px rgba(0, 0, 0, 0.45);
+        }
+
+        .reverse-arrow-up::after {
+            right: -22px;
+            top: -8px;
+
+        }
+
+
+        /* =========================
+   FRECCIA ↙
+   ========================= */
+
+        .reverse-arrow-down {
+            bottom: 20px;
+            right: 26px;
+            border-bottom-right-radius: 10px;
+            transform: rotate(-41deg);
+            box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.45);
+        }
+
+        .reverse-arrow-down::after {
+            left: -22px;
+            top: -8px;
+
+            transform: rotate(180deg);
+        }
+
+        /* =========================
+            UNO WILD
+        ========================= */
+        /* Contenitore delle 4 carte */
+        .deck-wild .uno-symbol-plus-two,
+        .deck-wild .uno-symbol-plus-four {
+            position: relative;
+            width: 70px;
+            height: 70px;
+        }
+
+        /* Mini carte */
+        .deck-wild .mini-card {
+            position: absolute;
+
+            width: 38px;
+            height: 52px;
+
+            border-radius: 7px;
+
+            box-sizing: border-box;
+
+            box-shadow:
+                2px 4px 5px rgba(0, 0, 0, 0.45);
+        }
+
+        /* ROSSA */
+        .deck-wild .mini-card-red {
+            background: #ed1c24;
+            top: 8px;
+            left: 34px;
+            transform: rotate(27deg);
+        }
+
+        /* GIALLA */
+        .deck-wild .mini-card-yellow {
+            background: #ffde17;
+            top: 1px;
+            left: 25px;
+            transform: rotate(7deg);
+        }
+
+        /* VERDE */
+        .deck-wild .mini-card-green {
+            background: #00a651;
+            top: 1px;
+            left: 13px;
+            transform: rotate(-6deg);
+        }
+
+        /* BLU */
+        .deck-wild .mini-card-blue {
+            background: #0072bc;
+            top: 4px;
+            left: 0px;
+            transform: rotate(-18deg);
+        }
+
+        .deck-card.uno.deck-wild>.card-content {
+            position: relative;
+
+            width: 140px;
+            height: 200px;
+            background: #000;
+
+            border: 4px solid #fff;
+            border-radius: 14px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            overflow: hidden;
+
+            font-family: Arial, Helvetica, sans-serif;
+
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.45),
+                inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+        }
+
+        /* Ovale centrale bianco */
+        .deck-card.uno.deck-wild>.card-content:not(.uno-symbol-wild)::before {
+            content: "";
+
+            position: absolute;
+
+            width: 115px;
+            height: 165px;
+
+            background: #fff;
+
+            border: 4px solid #fff;
+
+            border-radius: 50%;
+
+            transform: rotate(27deg) skewX(-8deg);
+
+            box-sizing: border-box;
+        }
+
+        .deck-card.uno.deck-wild>.card-content:has(.uno-symbol-wild)::before {
+            content: "";
+
+            position: absolute;
+
+            width: 115px;
+            height: 165px;
+
+            background: #fff;
+
+            border: 4px solid #fff;
+
+            border-radius: 50%;
+
+            transform: rotate(27deg) skewX(-8deg);
+
+            box-sizing: border-box;
+
+        }
+
+        /* Simbolo centrale */
+        .deck-card.uno.deck-wild>.card-content>div:nth-child(2) {
+            position: relative;
+
+            color: #000;
+
+            font-size: 72px;
+
+            line-height: 1;
+
+
+            text-shadow: none;
+        }
+
+        .deck-card.uno.deck-wild>.card-content:has(.uno-symbol-wild)>div:nth-child(2) {
+            transform: rotate(45deg) scale(1.4);
+            box-shadow: none !important;
+        }
+
+        .uno-symbol-plus-two-white .mini-card {
+            background: #fff;
+        }
+
+        .uno-symbol-plus-two {
+            position: relative;
+            width: 65px;
+            height: 65px;
+        }
+
+        /* Le due mini-carte */
+        .uno-symbol-plus-two .mini-card {
+            position: absolute;
+
+            width: 38px;
+            height: 52px;
+
+            border: 3px solid #fff;
+            border-radius: 7px;
+
+            box-sizing: border-box;
+
+            box-shadow:
+                2px 4px 5px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Carta dietro */
+        .uno-symbol-plus-two .mini-card-back {
+            top: 5px;
+            left: 7px;
+
+            transform: rotate(-12deg);
+            box-shadow:
+                -3px 5px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Carta davanti */
+        .uno-symbol-plus-two .mini-card-front {
+            top: 8px;
+            left: 22px;
+
+            transform: rotate(8deg);
+
+            box-shadow:
+                -3px 5px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Colori UNO */
+        .deck-red {
+            background-color: #e74c3c;
+        }
+
+        .deck-green {
+            background-color: #45BB32;
+        }
+
+        .deck-blue {
+            background-color: #2673E8;
+        }
+
+        .deck-yellow {
+            background-color: #f1c40f;
+            color: black;
+        }
+
+        /* testo scuro per contrasto */
+        .deck-wild {
+            background: linear-gradient(135deg, #000000, #333333, #555555, #000000);
+            background-size: 400% 400%;
+            animation: wildGradientBlack 5s ease infinite;
+            color: white;
+            /* testo leggibile sul gradiente */
+        }
+
+        .change-color-icon,
+        .plus-four-icon,
+        .denari,
+        .spade,
+        .bastoni,
+        .coppe {
+            background-position: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+            width: 20px;
+            height: 20px;
+        }
+
+        .deck-card {
+            min-width: 100px;
+            width: 100px;
+            height: 135px;
+            border-radius: 10px;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            text-align: center;
+            transition: transform 0.2s;
+            /* position: absolute; */
+            cursor: pointer;
+        }
+
+        .deck-card.uno {
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .scopa-deck-card .card-body {
+            background-image: url("./assets/images/scopa-deck-card.svg");
+            background-position: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+            width: 100px;
+            height: 100px;
+        }
+
+
+        /* === UNO === */
+
+        .plus-four-icon {
+            background-image: url('./assets/icons/plus-four-icon.svg');
+        }
+
+        .change-color-icon {
+            background-image: url('./assets/icons/change-color-icon.svg');
+        }
+
+        /* === DENARI === */
+        .denari-1 {
+            background-image: url('./assets/images/Denari_1.svg');
+        }
+
+        .denari-2 {
+            background-image: url('./assets/images/Denari_2.svg');
+        }
+
+        .denari-3 {
+            background-image: url('./assets/images/Denari_3.svg');
+        }
+
+        .denari-4 {
+            background-image: url('./assets/images/Denari_4.svg');
+        }
+
+        .denari-5 {
+            background-image: url('./assets/images/Denari_5.svg');
+        }
+
+        .denari-6 {
+            background-image: url('./assets/images/Denari_6.svg');
+        }
+
+        .denari-7 {
+            background-image: url('./assets/images/Denari_7.svg');
+        }
+
+        .denari-fante {
+            background-image: url('./assets/images/Denari_8.svg');
+        }
+
+        .denari-cavallo {
+            background-image: url('./assets/images/Denari_9.svg');
+        }
+
+        .denari-re {
+            background-image: url('./assets/images/Denari_10.svg');
+        }
+
+        /* === COPPE === */
+        .coppe-1 {
+            background-image: url('./assets/images/Coppe_1.svg');
+        }
+
+        .coppe-2 {
+            background-image: url('./assets/images/Coppe_2.svg');
+        }
+
+        .coppe-3 {
+            background-image: url('./assets/images/Coppe_3.svg');
+        }
+
+        .coppe-4 {
+            background-image: url('./assets/images/Coppe_4.svg');
+        }
+
+        .coppe-5 {
+            background-image: url('./assets/images/Coppe_5.svg');
+        }
+
+        .coppe-6 {
+            background-image: url('./assets/images/Coppe_6.svg');
+        }
+
+        .coppe-7 {
+            background-image: url('./assets/images/Coppe_7.svg');
+        }
+
+        .coppe-fante {
+            background-image: url('./assets/images/Coppe_8.svg');
+        }
+
+        .coppe-cavallo {
+            background-image: url('./assets/images/Coppe_9.svg');
+        }
+
+        .coppe-re {
+            background-image: url('./assets/images/Coppe_10.svg');
+        }
+
+        /* === SPADE === */
+        .spade-1 {
+            background-image: url('./assets/images/Spade_1.svg');
+        }
+
+        .spade-2 {
+            background-image: url('./assets/images/Spade_2.svg');
+        }
+
+        .spade-3 {
+            background-image: url('./assets/images/Spade_3.svg');
+        }
+
+        .spade-4 {
+            background-image: url('./assets/images/Spade_4.svg');
+        }
+
+        .spade-5 {
+            background-image: url('./assets/images/Spade_5.svg');
+        }
+
+        .spade-6 {
+            background-image: url('./assets/images/Spade_6.svg');
+        }
+
+        .spade-7 {
+            background-image: url('./assets/images/Spade_7.svg');
+        }
+
+        .spade-fante {
+            background-image: url('./assets/images/Spade_8.svg');
+        }
+
+        .spade-cavallo {
+            background-image: url('./assets/images/Spade_9.svg');
+        }
+
+        .spade-re {
+            background-image: url('./assets/images/Spade_10.svg');
+        }
+
+        /* === BASTONI === */
+        .bastoni-1 {
+            background-image: url('./assets/images/Bastoni_1.svg');
+        }
+
+        .bastoni-2 {
+            background-image: url('./assets/images/Bastoni_2.svg');
+        }
+
+        .bastoni-3 {
+            background-image: url('./assets/images/Bastoni_3.svg');
+        }
+
+        .bastoni-4 {
+            background-image: url('./assets/images/Bastoni_4.svg');
+        }
+
+        .bastoni-5 {
+            background-image: url('./assets/images/Bastoni_5.svg');
+        }
+
+        .bastoni-6 {
+            background-image: url('./assets/images/Bastoni_6.svg');
+        }
+
+        .bastoni-7 {
+            background-image: url('./assets/images/Bastoni_7.svg');
+        }
+
+        .bastoni-fante {
+            background-image: url('./assets/images/Bastoni_8.svg');
+        }
+
+        .bastoni-cavallo {
+            background-image: url('./assets/images/Bastoni_9.svg');
+        }
+
+        .bastoni-re {
+            background-image: url('./assets/images/Bastoni_10.svg');
+        }
+
+
+        .deck-card.uno {
+            position: relative;
+            width: 140px;
+            height: 200px;
+
+            border: 4px solid #fff;
+            border-radius: 14px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            overflow: hidden;
+        }
+
+        /* Sfondo carta */
+        .deck-card.uno.deck-red {
+            background: #ed1c24;
+        }
+
+        /* Ovale centrale: SOLO lui è ruotato */
+        .deck-card.uno::before {
+            content: "";
+
+            position: absolute;
+
+            width: 115px;
+            height: 165px;
+
+            border: 4px solid #fff;
+
+            border-radius: 50%;
+
+            transform: rotate(27deg) skewX(-8deg);
+
+            box-sizing: border-box;
+        }
+
+        /* Tutto il contenuto sopra l'ovale */
+        .deck-card.uno>.card-content>div {
+            position: relative;
+        }
+
+        /* Numero centrale: DRITTO */
+        .deck-card.uno>.card-content>div:nth-child(2) {
+            font-size: 72px;
+
+            color: #fff;
+
+            line-height: 1;
+
+            /* NESSUNA ROTAZIONE */
+            transform: none;
+
+            text-shadow: -5px 5px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        /* Numero in alto */
+        .deck-card.uno>.card-content>div.small-symbol:first-child {
+            transform: scale(.4);
+            transform-origin: top;
+            left: -20px !important;
+        }
+
+        .deck-card.uno>.card-content>div.uno-symbol-wild:first-child {
+            transform: scale(.3) rotate(45deg) translate(37px, -27px);
+            transform-origin: top;
+            left: -20px !important;
+        }
+
+        #board {
+            margin-bottom: -120px;
+        }
+
+        .deck-card.uno>.card-content>div.small-symbol:first-child,
+        .deck-card.uno>.card-content>div.small-number:first-child {
+            position: absolute;
+
+            top: 8px;
+            left: 10px;
+
+            color: #fff;
+            font-size: 26px;
+            text-shadow: 2px 3px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Numero in basso */
+        .deck-card.uno>.card-content>div.small-symbol:last-child {
+            transform: scale(.4);
+            transform-origin: bottom;
+            right: -20px !important;
+        }
+
+        .deck-card.uno>.card-content>div.uno-symbol-wild:last-child {
+            transform: scale(.3) rotate(45deg) translate(29px, -35px);
+            transform-origin: bottom;
+            right: 8px !important;
+        }
+
+        .deck-card.uno>.card-content>div.small-symbol:last-child,
+        .deck-card.uno>.card-content>div.small-number:last-child {
+            position: absolute;
+
+            bottom: 8px;
+            right: 10px;
+
+            color: #fff;
+            font-size: 26px;
+            text-shadow: -2px 3px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .card:has(.denari) {
+            height: 200px;
+        }
+
+        .card,
+        .card:has(.uno):hover,
+        .card:has(.denari):hover {
+            transition: .2s;
+        }
+
+        /* Effetto hover */
+        .card:has(.uno):hover {
+            transform: translateY(-8px) scale(.8);
+        }
+
+        /* Effetto hover */
+        .card:has(.denari):hover {
+            transform: translateY(-8px) scale(.8);
+        }
+    </style>
+</head>
+
+<body style="height: 100vh; overflow: hidden;">
+
+
+    <div class="container-fluid" style="height: 100vh;  
+    padding-top: 10px;
+    background-image: url('./assets/playing-cards.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    overflow:hidden;
+    position: absolute">
+        <div id="auth-section" class="row h-100">
+            <div class="col-3 d-none d-md-block">
+
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="d-flex h-100 flex-column justify-content-center">
+                    <div class="text-center">
+                        <h1 class="display-3">Cards</h1>
+                    </div>
+                    <div class="card p-4 shadow bg-semi-transparent rounded" style="border: 2px solid white">
+                        <h3 class="card-title text-center mb-3">Login / Registrati</h3>
+                        <div class="mb-3">
+                            <input type="email" id="email" class="form-control" placeholder="Email">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" id="password" class="form-control" placeholder="Password">
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button id="loginBtn" class="btn btn-primary">Login</button>
+                            <button id="registerBtn" class="btn btn-success">Registrati</button>
+                        </div>
+                        <div class="text-center mt-2">
+                            <a href="#" id="resetPasswordLink">Hai dimenticato la password?</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="app-section" class="row h-100">
+            <div id="game-selection-section" class="col-12 text-light 
+            h-100 bg-semi-transparent d-flex flex-column justify-content-between">
+                <div style="height: 10%;">A</div>
+                <div id="opponentsBoard" class="opponents-board" style="display: none; margin-right: -40px; ">
+
+                </div>
+                <div style="height: 60%;" class="d-flex flex-column">
+                    <div class="h-100">
+                        <div class="h-100 d-flex flex-column justify-content-center">
+                            <div class="d-flex justify-content-around">
+                                <div class="d-flex justify-content-center align-items-center gap-4">
+                                    <div class="card" id="uno-deck">
+                                        <div class="card-body deck-card uno-back">
+                                            <div class="uno-back-oval">
+                                                <span>ONE</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="boardDeck" class="d-flex justify-content-around" style="max-width: 600px;">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-100">
+                    <div class="d-flex justify-content-center">
+                        <div class="h-100 d-flex flex-column justify-content-center">
+                            <div class="d-flex flex-column ">
+                                <div id="board" class="d-flex justify-content-around" style="  
+                                max-width: 600px;"> </div>
+
+                                <div id="board2" class="d-flex justify-content-around" style="  
+                                max-width: 600px;"> </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div style="height: 20%;">C</div>
+        </div>
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+        // ===== CONFIG FIREBASE =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEMsSffsu2_Rex1mKshOIDb-kJYvFqutc",
+            authDomain: "farmazon-a2fae.firebaseapp.com",
+            databaseURL: "https://farmazon-a2fae.firebaseio.com",
+            projectId: "farmazon-a2fae",
+            storageBucket: "farmazon-a2fae.firebasestorage.app",
+            messagingSenderId: "513177430863",
+            appId: "1:513177430863:web:d84e2ad140e1aaa342733a"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        let gameId = "game4";
+        let dbRef = ref(db, `/cards`);
+        let gameRef = ref(db, `/cards/1`);
+        let chatRef = ref(db, `/cards/${gameId}/chat`);
+        let selected;
+        let gameSelected = false;
+        let currentUser;
+        let gameState;
+
+        const boardDeckElement = document.getElementById("boardDeck");
+        const boardElement = document.getElementById("board");
+        const boardElement2 = document.getElementById("board2");
+        const opponentsBoard = document.getElementById("opponentsBoard");
+        const unoDeck = document.getElementById("uno-deck");
+
+        unoDeck.addEventListener("click", e => handleClick(e));
+
+        const authSection = document.getElementById("auth-section");
+        const loginBtn = document.getElementById("loginBtn");
+        const appSection = document.getElementById("app-section");
+
+        // ===== EVENTI UI =====
+        loginBtn.addEventListener("click", async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await signInWithEmailAndPassword(auth, email, password); } catch (e) { alert(e.message); } });
+
+
+        // ===== REALTIME LISTENER =====
+        onAuthStateChanged(auth, async user => {
+            if (user) {
+                console.log("logged in")
+                currentUser = user;
+                //console.log("logged", user)
+                hide([authSection])
+                show([appSection, opponentsBoard])
+
+            } else {
+                console.log("logged out")
+                show([authSection])
+                hide([appSection, opponentsBoard])
+            }
+        });
+
+
+        await playAgainstPC(1)
+
+
+        async function loadGameState(gameId) {
+
+
+            const snapshot = await get(gameRef);
+
+            if (!snapshot.exists()) {
+                console.log("Partita non trovata");
+                return null;
+            }
+
+            gameState = snapshot.val();
+
+            console.log("GAME STATE:", gameState);
+
+            return gameState;
+        }
+
+
+        async function playAgainstPC(gameId) {
+
+            const difficulty = "easy";
+
+            const snapshot = await get(gameRef);
+
+            if (!snapshot.exists()) {
+                console.log("Partita non trovata");
+                return;
+            }
+
+            const game = snapshot.val();
+
+            // ==========================================
+            // COPIA LO STATO FIREBASE NEL GAMESTATE
+            // ==========================================
+            const gameState = loadGameState(1)
+            gameState.board = game.board || {
+                mainDeck: [],
+                boardDeck: []
+            };
+
+            gameState.players = game.players || [];
+
+            gameState.pcDifficulty = game.pcDifficulty;
+            gameState.initialized = game.initialized === true;
+
+            // ==========================================
+            // AGGIUNGI IL PC
+            // ==========================================
+
+            if (!gameState.players.some(player => player.id === 2)) {
+
+                gameState.players.push({
+                    id: 2,
+                    deck: []
+                });
+            }
+
+            gameState.pcDifficulty = difficulty;
+
+            // ==========================================
+            // INIZIALIZZA SOLO UNA VOLTA
+            // ==========================================
+
+            if (gameState.initialized !== true) {
+                initializeGame(gameState);
+            }
+
+            // ==========================================
+            // RENDER
+            // ==========================================
+
+            drawBoard(1, gameState);
+
+            // ==========================================
+            // SALVA LO STESSO STATO
+            // ==========================================
+
+            await set(gameRef, gameState);
+        }
+
+
+
+
+        function handleClick(e) {
+            const sq = e.target.closest(".card");
+
+            if (!sq) return;
+            if (sq.id == "uno-deck") {
+
+                moveCards(
+                    gameState.board.mainDeck,
+                    gameState.players[0].deck, 1, true
+                )
+            } else {
+                if (!checkGameRules('UNOleaveCard', {
+                    cardToLeave: gameState.players[0].deck.filter(e => e.id == sq.id)[0],
+                    cardOnBoard: gameState.board.boardDeck[0]
+                })) {
+                    return
+                }
+                moveCards(
+                    gameState.players[0].deck,
+                    gameState.board.boardDeck, 1, false, [parseInt(sq.id)],
+                    true
+                )
+            }
+            drawBoard(1, gameState)
+            saveGameState(gameState)
+            console.log(gameState)
+        }
+
+
+        function checkWild(cardToLeave, cardOnBoard) {
+
+            if (!cardToLeave) {
+                return false;
+            }
+
+            return (
+                cardToLeave.type === "wild" ||
+                cardToLeave.type === "wild-draw-four"
+            );
+        }
+
+
+        function checkNumber(cardToLeave, cardOnBoard) {
+
+            if (!cardToLeave || !cardOnBoard) {
+                return false;
+            }
+
+            // Controlliamo il numero solo se entrambe sono carte numeriche
+            if (
+                cardToLeave.type !== "number" ||
+                cardOnBoard.type !== "number"
+            ) {
+                return false;
+            }
+
+            return cardToLeave.value === cardOnBoard.value;
+        }
+
+
+        function checkColor(cardToLeave, cardOnBoard) {
+
+            if (!cardToLeave || !cardOnBoard) {
+                return false;
+            }
+
+            // Wild può essere giocata indipendentemente dal colore
+            if (
+                cardToLeave.type === "wild" ||
+                cardToLeave.type === "wild-draw-four"
+            ) {
+                return true;
+            }
+
+            return cardToLeave.color === cardOnBoard.color;
+        }
+
+
+        function evaluateRules(rules, cardToLeave, cardOnBoard, mode = "all") {
+
+            if (mode === "any") {
+
+                return rules.some(rule =>
+                    rule.check(cardToLeave, cardOnBoard)
+                );
+
+            }
+
+            if (mode === "all") {
+
+                return rules.every(rule =>
+                    rule.check(cardToLeave, cardOnBoard)
+                );
+
+            }
+
+            console.warn("Unknown rule mode:", mode);
+
+            return false;
+        }
+
+
+        function checkGameRules(action, cards) {
+            let allowed = false;
+
+            const unoRules = [
+                { name: "colorCheck", check: checkColor },
+                { name: "numberCheck", check: checkNumber },
+                { name: "wildCheck", check: checkWild }
+            ];
+
+            switch (action) {
+
+                        case "UNOleaveCard":
+
+                            console.log(
+                                cards.cardToLeave,
+                                cards.cardOnBoard
+                            );
+
+                            return evaluateRules(
+                                unoRules,
+                                cards.cardToLeave,
+                                cards.cardOnBoard,
+                                "any"
+                            );
+
+
+                        default: console.log("not managed rule: ", rule)
+                    }
+ 
+            return allowed
+        }
+
+
+        function saveGameState(gameState) {
+            if (!gameState) return;
+
+
+            console.log(
+                gameState
+            )
+            return set(gameRef, gameState);
+        }
+
+
+        function generateDeck() {
+
+            const deck = [];
+            let id = 1;
+
+            const colors = ["red", "yellow", "green", "blue"];
+
+            colors.forEach(color => {
+
+                // =========================
+                // CARTA 0
+                // =========================
+                deck.push({
+                    id: id++,
+                    type: "number",
+                    color: color,
+                    value: 0
+                });
+
+                // =========================
+                // CARTE 1 - 9
+                // 2 copie per ogni numero
+                // =========================
+                for (let value = 1; value <= 9; value++) {
+
+                    for (let i = 0; i < 2; i++) {
+
+                        deck.push({
+                            id: id++,
+                            type: "number",
+                            color: color,
+                            value: value
+                        });
+
+                    }
+                }
+
+                // =========================
+                // SKIP
+                // 2 copie
+                // =========================
+                for (let i = 0; i < 2; i++) {
+
+                    deck.push({
+                        id: id++,
+                        type: "skip",
+                        color: color
+                    });
+
+                }
+
+                // =========================
+                // REVERSE
+                // 2 copie
+                // =========================
+                for (let i = 0; i < 2; i++) {
+
+                    deck.push({
+                        id: id++,
+                        type: "reverse",
+                        color: color
+                    });
+
+                }
+
+                // =========================
+                // +2
+                // 2 copie
+                // =========================
+                for (let i = 0; i < 2; i++) {
+
+                    deck.push({
+                        id: id++,
+                        type: "draw-two",
+                        color: color
+                    });
+
+                }
+            });
+
+            // =========================
+            // WILD
+            // 4 copie
+            // =========================
+            for (let i = 0; i < 4; i++) {
+
+                deck.push({
+                    id: id++,
+                    type: "wild"
+                });
+
+            }
+
+            // =========================
+            // WILD +4
+            // 4 copie
+            // =========================
+            for (let i = 0; i < 4; i++) {
+
+                deck.push({
+                    id: id++,
+                    type: "wild-draw-four"
+                });
+
+            }
+
+            // =========================
+            // MESCOLA
+            // =========================
+            shuffleDeck(deck);
+
+            return deck;
+        }
+
+
+        function shuffleDeck(deck) {
+
+            for (let i = deck.length - 1; i > 0; i--) {
+
+                const j = Math.floor(Math.random() * (i + 1));
+
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+
+        }
+
+
+        function moveCards(
+            sourceDeck,
+            targetDeck,
+            amount,
+            random = true,
+            cardIds = [],
+            toTop = false
+        ) {
+
+            if (!sourceDeck || !targetDeck) {
+                return;
+            }
+
+            if (amount <= 0 || sourceDeck.length === 0) {
+                return;
+            }
+
+            // =========================
+            // FUNZIONE INSERIMENTO
+            // =========================
+
+            function addCard(card) {
+
+                if (toTop) {
+                    targetDeck.unshift(card);
+                } else {
+                    targetDeck.push(card);
+                }
+
+            }
+
+            // =========================
+            // CARTE CASUALI
+            // =========================
+
+            if (random) {
+
+                for (let i = 0; i < amount; i++) {
+
+                    if (sourceDeck.length === 0) {
+                        break;
+                    }
+
+                    const randomIndex = Math.floor(
+                        Math.random() * sourceDeck.length
+                    );
+
+                    const card = sourceDeck.splice(randomIndex, 1)[0];
+
+                    addCard(card);
+                }
+
+            }
+
+            // =========================
+            // CARTE SCELTE
+            // =========================
+
+            else {
+
+                for (const cardId of cardIds) {
+
+                    if (sourceDeck.length === 0) {
+                        break;
+                    }
+
+                    const index = sourceDeck.findIndex(
+                        card => card.id === cardId
+                    );
+
+                    if (index !== -1) {
+
+                        const card = sourceDeck.splice(index, 1)[0];
+
+                        addCard(card);
+                    }
+                }
+            }
+        }
+
+
+        function dealCards(gameState) {
+
+            if (!gameState || !gameState.board || !gameState.board.mainDeck) {
+                return;
+            }
+
+            const mainDeck = gameState.board.mainDeck;
+
+            // Svuota i deck dei giocatori
+            gameState.players.forEach(player => {
+                player.deck = [];
+            });
+
+            // =========================
+            // 7 CARTE A OGNI GIOCATORE
+            // =========================
+
+            gameState.players.forEach(player => {
+
+                moveCards(
+                    mainDeck,
+                    player.deck,
+                    7,
+                    true
+                );
+
+            });
+        }
+
+
+        function initializeGame(gameState) {
+
+            if (!gameState) return;
+
+            if (!gameState.players) {
+                gameState.players = [];
+            }
+
+            if (!gameState.board) {
+                gameState.board = {
+                    mainDeck: [],
+                    boardDeck: []
+                };
+            }
+
+            // Se la partita è già inizializzata NON fare nulla
+            if (gameState.initialized === true) {
+                return gameState;
+            }
+
+            // ==========================================
+            // NUOVA PARTITA
+            // ==========================================
+
+            gameState.board.mainDeck = generateDeck();
+
+            gameState.board.boardDeck = [];
+
+            // Svuota le mani SOLO all'inizio
+            gameState.players.forEach(player => {
+                player.deck = [];
+            });
+
+            // Distribuisce 7 carte
+            dealCards(gameState);
+
+            // Prima carta scoperta
+            if (gameState.board.mainDeck.length > 0) {
+
+                const randomIndex = Math.floor(
+                    Math.random() * gameState.board.mainDeck.length
+                );
+
+                const card = gameState.board.mainDeck.splice(
+                    randomIndex,
+                    1
+                )[0];
+
+                gameState.board.boardDeck.push(card);
+            }
+
+            // IMPORTANTE
+            gameState.initialized = true;
+
+            return gameState;
+        }
+
+
+        function drawBoard(userId, gameState) {
+            if (!gameState) return;
+
+            const player = gameState.players.find(player => player.id === userId);
+
+            if (!player) return;
+
+            const playerBoard = player.deck;
+            const board2 = [];
+            const boardDeck = gameState.board.boardDeck;
+
+            const boards = [
+                playerBoard,
+                board2,
+                boardDeck
+            ];
+
+            const boardElements = [
+                boardElement,
+                boardElement2,
+                boardDeckElement
+            ];
+
+            boards.forEach((board, boardIndex) => {
+                const currentBoardElement = boardElements[boardIndex];
+
+                currentBoardElement.innerHTML = "";
+                if (currentBoardElement.id == "boardDeck") {
+                    board = board.slice(0, 1);
+                }
+                board.forEach(card => {
+                    const cardElement = document.createElement("div");
+                    let type = card.type;
+                    if (card.type == "number") {
+                        type = card.color + "-" + card.value
+                    } else if (card.type == "skip" || card.type == "reverse" || card.type == "draw-two") {
+                        type = card.color + "-" + card.type
+                    } else if (card.type == "wild-draw-four" || card.type == "wild-card") {
+                        type = card.type
+                    }
+
+                    cardElement.className = "card " + type;
+                    cardElement.id = card.id
+
+                    if (card.type === "wild") {
+                        cardElement.innerHTML = `
+                    <div class="card-body deck-card uno deck-wild">
+                        <div class="card-content">
+
+                            <div class="uno-symbol-wild small-symbol"></div>
+
+                            <div class="uno-symbol-wild"></div>
+
+                            <div class="uno-symbol-wild small-symbol"></div>
+
+                        </div>
+                    </div>
+                `;
+                    }
+
+                    else if (card.type === "wild-gerry") {
+                        cardElement.innerHTML = `
+                    <div class="card-body deck-card uno deck-wild">
+                        <div class="card-content">
+
+                            <div class="small-number">+20</div>
+
+                            <img
+                                class="uno-center-image"
+                                src="assets/images/wild-gerry.png"
+                                alt="Wild card"
+                                style="
+                                    z-index: 1;
+                                    width: auto;
+                                    height: 75%;
+                                "
+                            />
+
+                            <div class="small-number">+20</div>
+
+                        </div>
+                    </div>
+                `;
+                    }
+
+                    else if (card.type === "draw-two") {
+                        cardElement.innerHTML = `
+                    <div class="card-body deck-card uno deck-${card.color}">
+                        <div class="card-content">
+
+                            <div class="small-number">+2</div>
+
+                            <div class="uno-symbol-plus-two uno-symbol-plus-two-white">
+                                <span class="mini-card mini-card-back"></span>
+                                <span class="mini-card mini-card-front"></span>
+                            </div>
+
+                            <div class="small-number">+2</div>
+
+                        </div>
+                    </div>
+                `;
+                    }
+
+                    else if (card.type === "wild-draw-four") {
+                        cardElement.innerHTML = `
+                    <div class="card-body deck-card uno deck-wild">
+                        <div class="card-content">
+
+                            <div class="small-number">+4</div>
+
+                            <div class="uno-symbol-plus-four">
+                                <span class="mini-card mini-card-blue"></span>
+                                <span class="mini-card mini-card-green"></span>
+                                <span class="mini-card mini-card-yellow"></span>
+                                <span class="mini-card mini-card-red"></span>
+                            </div>
+
+                            <div class="small-number">+4</div>
+
+                        </div>
+                    </div>
+                `;
+                    }
+
+                    else if (card.type === "skip") {
+                        cardElement.innerHTML = `
+                    <div class="card-body deck-card uno deck-${card.color}">
+                        <div class="card-content">
+
+                            <div class="uno-skip small-symbol">
+                                <span class="skip-circle"></span>
+                                <span class="skip-bar"></span>
+                            </div>
+
+                            <div class="uno-skip">
+                                <span class="skip-circle"></span>
+                                <span class="skip-bar"></span>
+                            </div>
+
+                            <div class="uno-skip small-symbol">
+                                <span class="skip-circle"></span>
+                                <span class="skip-bar"></span>
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+                    }
+
+                    else if (card.type === "reverse") {
+                        cardElement.innerHTML = `
+                    <div class="card-body deck-card uno deck-${card.color}">
+                        <div class="card-content">
+
+                            <div class="uno-reverse small-symbol">
+                                <span class="reverse-arrow reverse-arrow-up"></span>
+                                <span class="reverse-arrow reverse-arrow-down"></span>
+                            </div>
+
+                            <div class="uno-reverse">
+                                <span class="reverse-arrow reverse-arrow-up"></span>
+                                <span class="reverse-arrow reverse-arrow-down"></span>
+                            </div>
+
+                            <div class="uno-reverse small-symbol">
+                                <span class="reverse-arrow reverse-arrow-up"></span>
+                                <span class="reverse-arrow reverse-arrow-down"></span>
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+                    }
+
+                    else {
+                        cardElement.innerHTML = `
+                    <div class="card-body deck-card uno deck-${card.color}">
+                        <div class="card-content">
+
+                            <div class="small-number">${card.value}</div>
+                            <div class="large-number">${card.value}</div>
+                            <div class="small-number">${card.value}</div>
+
+                        </div>
+                    </div>
+                `;
+                    }
+
+                    currentBoardElement.appendChild(cardElement);
+
+
+                    cardElement.addEventListener("click", e => handleClick(e));
+                });
+            });
+
+            // ==================================================
+            // AVVERSARI
+            // ==================================================
+
+            const opponentsBoard = document.getElementById("opponentsBoard");
+
+            if (opponentsBoard) {
+
+                opponentsBoard.innerHTML = "";
+
+                const playersContainer = document.createElement("div");
+
+                playersContainer.className = "d-flex flex-column justify-content-between";
+
+                gameState.players.forEach(opponent => {
+
+                    // Non mostrare il giocatore corrente
+                    if (opponent.id === userId) return;
+
+                    // Contenitore del giocatore
+                    const opponentCards = document.createElement("div");
+
+                    opponentCards.className = "opponent-cards";
+
+                    // Nome giocatore
+                    const title = document.createElement("h6");
+
+                    title.style.marginRight = "40px";
+                    title.style.marginBottom = "30px";
+                    title.textContent = `Player ${opponent.id}`;
+
+                    opponentCards.appendChild(title);
+
+                    // Una carta coperta per ogni carta nel deck
+                    opponent.deck.forEach(() => {
+
+                        const opponentCard = document.createElement("div");
+
+                        opponentCard.className = "opponent-card";
+
+                        opponentCard.innerHTML = `
+                <div class="card-body deck-card uno-back">
+                    <div class="uno-back-oval">
+                        <span>ONE</span>
+                    </div>
+                </div>
+            `;
+
+                        opponentCards.appendChild(opponentCard);
+                    });
+
+                    playersContainer.appendChild(opponentCards);
+                });
+
+                opponentsBoard.appendChild(playersContainer);
+            }
+
+        }
+
+
+        function show(elements) {
+            for (let element of elements) {
+                if (element && element.style) {
+                    element.style.display = "block";
+                }
+            }
+        }
+
+        function hide(elements) {
+            for (let element of elements) {
+                if (element && element.style) {
+                    element.style.display = "none";
+                }
+            }
+        }
+    </script>
+</body>
+
 </html>
