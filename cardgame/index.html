@@ -156,7 +156,25 @@
             transform: scale(.8);
         }
 
+
+        #boardDeck,
+        #board2,
+        #board {
+            max-width: 600px;
+        }
+
         @media (max-width: 600px) {
+
+
+            .opponent-card .deck-card.uno-back {
+
+                transform: rotate(90deg) scale(0.25);
+            }
+            #boardDeck,
+            #board2,
+            #board {
+                max-width: 200px!important;
+            }
 
             .card:has(.uno-back):hover {
                 transform: translateY(-15px) scale(.6) !important;
@@ -1158,7 +1176,8 @@
                     <div class="h-100">
                         <div class="h-100 d-flex flex-column justify-content-center">
                             <div class="d-flex justify-content-around">
-                                <div class="d-flex justify-content-center align-items-center gap-4">
+                                <div class="d-flex justify-content-center align-items-center gap-4"
+                                style="margin-left: -20px;">
                                     <div class="card" id="uno-deck">
                                         <div class="card-body deck-card uno-back">
                                             <div class="uno-back-oval">
@@ -1167,7 +1186,7 @@
                                         </div>
                                     </div>
 
-                                    <div id="boardDeck" class="d-flex justify-content-around" style="max-width: 600px;">
+                                    <div id="boardDeck" class="d-flex justify-content-around">
 
                                     </div>
                                 </div>
@@ -1179,11 +1198,9 @@
                     <div class="d-flex justify-content-center">
                         <div class="h-100 d-flex flex-column justify-content-center">
                             <div class="d-flex flex-column ">
-                                <div id="board" class="d-flex justify-content-around" style="  
-                                max-width: 600px;"> </div>
+                                <div id="board" class="d-flex justify-content-around"> </div>
 
-                                <div id="board2" class="d-flex justify-content-around" style="  
-                                max-width: 600px;"> </div>
+                                <div id="board2" class="d-flex justify-content-around"> </div>
                             </div>
                         </div>
                     </div>
@@ -2901,9 +2918,9 @@
             }
 
             deck.push({
-                    id: id++,
-                    type: "wild-gerry"
-                });
+                id: id++,
+                type: "wild-gerry"
+            });
 
             // =========================
             // MESCOLA
@@ -3145,7 +3162,7 @@
                     gameState.board.boardDeck.push(card);
 
                     gameState.currentColor = card.color;
-                } 
+                }
             }
 
             // IMPORTANTE
@@ -3182,6 +3199,9 @@
                 const currentBoardElement = boardElements[boardIndex];
 
                 currentBoardElement.innerHTML = "";
+                if (currentBoardElement.id == "board") {
+                    currentBoardElement.innerHTML+="<div style='margin-left: -70px;'></div>";
+                }
                 if (currentBoardElement.id == "boardDeck") {
                     board = board.slice(0, 1);
                 }
