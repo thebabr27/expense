@@ -16,6 +16,10 @@
             font-family: 'Luckiest Guy', cursive;
         }
 
+        .badge {
+            font-weight: 100 !important;
+        }
+
         .game-actions {
             width: 100%;
             margin: 20px auto;
@@ -26,6 +30,34 @@
             font-size: 1.2rem;
             font-weight: 200;
             min-height: 30px;
+        }
+
+        .waiting-game-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(5px);
+        }
+
+        .waiting-game-card {
+            width: min(92vw, 460px);
+            padding: 32px 26px;
+            text-align: center;
+            color: white;
+            background: rgba(20, 20, 20, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 22px;
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .waiting-game-card .spinner-border {
+            width: 3rem;
+            height: 3rem;
         }
 
         .game-modal {
@@ -166,14 +198,18 @@
         @media (max-width: 600px) {
 
 
+            #board2 {
+                max-width: 260px !important;
+            }
+
             .opponent-card .deck-card.uno-back {
 
                 transform: rotate(90deg) scale(0.25);
             }
+
             #boardDeck,
-            #board2,
             #board {
-                max-width: 200px!important;
+                max-width: 200px !important;
             }
 
             .card:has(.uno-back):hover {
@@ -1035,8 +1071,13 @@
             left: -20px !important;
         }
 
-        #board {
+        #board,
+        #board2 {
             margin-bottom: -120px;
+        }
+
+        #board2 {
+            margin-left: -60px;
         }
 
         .deck-card.uno>.card-content>div.small-symbol:first-child,
@@ -1154,8 +1195,49 @@
                 </div>
 
             </div>
-            <div id="game-selection-section" class="col-12 text-light 
-            h-100 bg-semi-transparent d-flex flex-column justify-content-between">
+            <div id="lobby-section" class="h-100 d-flex flex-column justify-content-center align-items-center p-4">
+                <div class="card bg-dark bg-opacity-75 text-light shadow-lg" style="width: min(720px, 95vw);">
+                    <div class="card-body p-4">
+                        <h2 class="text-center mb-2">Lobby partite</h2>
+                        <p class="text-center text-white-50 mb-4">
+                            Scegli una partita disponibile oppure creane una nuova.
+                        </p>
+
+                        <div id="lobby-games" class="list-group mb-4" style="max-height: 350px; overflow-y: auto;">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button id="start-2-players" type="button" class="btn btn-primary">
+                                <i class="bi bi-people-fill me-2"></i>
+                                Nuova partita 2 giocatori
+                            </button>
+
+                            <button id="start-4-players" type="button" class="btn btn-success">
+                                <i class="bi bi-people-fill me-2"></i>
+                                Nuova partita 4 giocatori
+                            </button>
+
+                            <button id="play-vs-pc" type="button" class="btn btn-outline-light">
+                                Gioca contro il PC
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="waiting-game-overlay" class="waiting-game-overlay" style="display:none;">
+                <div class="waiting-game-card">
+                    <div class="spinner-border mb-3" role="status" aria-hidden="true"></div>
+                    <div class="fs-3 mb-2">Sei dentro la partita</div>
+                    <div id="waiting-game-title" class="text-white-50 mb-2">In attesa dell'altro giocatore...</div>
+                    <div id="waiting-game-players" class="fw-bold fs-5 mb-4">1 / 2 giocatori</div>
+                    <button id="waiting-game-exit" type="button" class="btn btn-outline-light">
+                        Torna alla lobby
+                    </button>
+                </div>
+            </div>
+
+            <div id="game-board-section" style="display:none; height:100%;">
                 <div style="height: 10%;">
                     <button id="new-game" type="button" class="btn btn-primary">
                         Nuova partita
@@ -1177,7 +1259,7 @@
                         <div class="h-100 d-flex flex-column justify-content-center">
                             <div class="d-flex justify-content-around">
                                 <div class="d-flex justify-content-center align-items-center gap-4"
-                                style="margin-left: -20px;">
+                                    style="margin-left: -20px;">
                                     <div class="card" id="uno-deck">
                                         <div class="card-body deck-card uno-back">
                                             <div class="uno-back-oval">
@@ -1212,6 +1294,7 @@
                     </div>
                 </div>
             </div>
+
             <div style="height: 20%;">C</div>
         </div>
     </div>
@@ -1223,7 +1306,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
-        import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+        import { getDatabase, ref, set, get, onValue, push, onDisconnect, runTransaction } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
         // ===== CONFIG FIREBASE =====
         const firebaseConfig = {
@@ -1235,13 +1318,21 @@
             messagingSenderId: "513177430863",
             appId: "1:513177430863:web:d84e2ad140e1aaa342733a"
         };
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-        let gameId = "game4";
+        let gameId = null;
         let dbRef = ref(db, `/cards`);
-        let gameRef = ref(db, `/cards/${gameId}`);
-        let chatRef = ref(db, `/cards/${gameId}/chat`);
+        let gameRef = null;
+        let chatRef = null;
+        let currentPlayerId = null;
+        let lobbyRef = ref(db, "/cards/lobby");
+        let lobbyPlayersRef = ref(db, "/cards/lobby/players");
+        let lobbyDisconnectRef = null;
+        let lobbyListenerAttached = false;
+        let gameListenerAttached = false;
+        let gameListenerUnsubscribe = null;
         let selected;
         let gameSelected = false;
         let currentUser;
@@ -1258,6 +1349,16 @@
         const loginBtn = document.getElementById("loginBtn");
         const appSection = document.getElementById("app-section");
         const newGameBtn = document.getElementById("new-game");
+        const lobbySection = document.getElementById("lobby-section");
+        const gameBoardSection = document.getElementById("game-board-section");
+        const lobbyGamesElement = document.getElementById("lobby-games");
+        const waitingGameOverlay = document.getElementById("waiting-game-overlay");
+        const waitingGameTitle = document.getElementById("waiting-game-title");
+        const waitingGamePlayers = document.getElementById("waiting-game-players");
+        const waitingGameExit = document.getElementById("waiting-game-exit");
+        const start2PlayersBtn = document.getElementById("start-2-players");
+        const start4PlayersBtn = document.getElementById("start-4-players");
+        const playVsPcBtn = document.getElementById("play-vs-pc");
 
         const gameModal = document.getElementById("gameModal");
         const gameModalBody = document.getElementById("gameModalBody");
@@ -1304,24 +1405,456 @@
             await newGame();
         });
 
+        start2PlayersBtn.addEventListener("click", async () => {
+            await startOnlineGameFromLobby(2);
+        });
+
+        start4PlayersBtn.addEventListener("click", async () => {
+            await startOnlineGameFromLobby(4);
+        });
+
+        playVsPcBtn.addEventListener("click", async () => {
+            await startVsPcGame();
+        });
+
+        waitingGameExit?.addEventListener("click", async () => {
+            await leaveWaitingGame();
+        });
+
         // ===== REALTIME LISTENER =====
         onAuthStateChanged(auth, async user => {
             if (user) {
-                console.log("logged in")
                 currentUser = user;
-                //console.log("logged", user)
-                hide([authSection])
-                show([appSection, opponentsBoard])
+                currentPlayerId = null;
 
-                await playAgainstPC(1)
+                hide([authSection]);
+                show([appSection]);
+                showLobby();
+                await joinLobby();
 
             } else {
-                console.log("logged out")
-                show([authSection])
-                hide([appSection, opponentsBoard])
+                currentUser = null;
+                currentPlayerId = null;
+                gameState = null;
+                gameId = null;
+                gameRef = null;
+                if (gameListenerUnsubscribe) {
+                    gameListenerUnsubscribe();
+                    gameListenerUnsubscribe = null;
+                }
+                gameListenerAttached = false;
+                lobbyListenerAttached = false;
+                hideWaitingGameOverlay();
+
+                show([authSection]);
+                hide([appSection, opponentsBoard]);
             }
         });
 
+
+        function showLobby() {
+            if (lobbySection) lobbySection.style.display = "flex";
+            if (gameBoardSection) gameBoardSection.style.display = "none";
+            hideWaitingGameOverlay();
+        }
+
+        function showGameScreen() {
+            if (lobbySection) {
+                lobbySection.classList.remove("d-flex");
+                lobbySection.classList.add("d-none");
+                lobbySection.style.setProperty("display", "none", "important");
+            }
+
+            if (gameBoardSection) {
+                gameBoardSection.classList.remove("d-none");
+                gameBoardSection.style.setProperty("display", "block", "important");
+            }
+
+            show([opponentsBoard]);
+        }
+
+        function showWaitingGameOverlay() {
+            if (!waitingGameOverlay || !gameState) return;
+
+            const count = gameState.players?.length || 0;
+            const maxPlayers = Number(gameState.maxPlayers) || 2;
+
+            if (waitingGameTitle) {
+                waitingGameTitle.textContent =
+                    maxPlayers === 2
+                        ? "In attesa del secondo giocatore..."
+                        : "In attesa degli altri giocatori...";
+            }
+
+            if (waitingGamePlayers) {
+                waitingGamePlayers.textContent = `${count} / ${maxPlayers} giocatori`;
+            }
+
+            waitingGameOverlay.style.display = "flex";
+        }
+
+        function hideWaitingGameOverlay() {
+            if (waitingGameOverlay) waitingGameOverlay.style.display = "none";
+        }
+
+        async function joinLobby() {
+            if (!currentUser) return;
+
+            const playerRef = ref(db, `/cards/lobby/players/${currentUser.uid}`);
+            lobbyDisconnectRef = playerRef;
+
+            await set(playerRef, {
+                uid: currentUser.uid,
+                email: currentUser.email || "Giocatore",
+                joinedAt: Date.now(),
+                gameId: null
+            });
+
+            await onDisconnect(playerRef).remove();
+
+            if (!lobbyListenerAttached) {
+                lobbyListenerAttached = true;
+
+                onValue(ref(db, "/cards"), snapshot => {
+                    const cards = snapshot.val() || {};
+                    renderLobbyGames(cards);
+
+                    const myPlayer = cards.lobby?.players?.[currentUser?.uid];
+                    if (myPlayer?.gameId && myPlayer.gameId !== gameId) {
+                        enterOnlineGame(myPlayer.gameId);
+                    }
+                });
+            }
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function renderLobbyGames(cards) {
+            if (!lobbyGamesElement) return;
+
+            lobbyGamesElement.innerHTML = "";
+            const games = [];
+
+            Object.entries(cards || {}).forEach(([id, game]) => {
+                if (id === "lobby" || !game) return;
+                if (game.mode !== "online") return;
+                if (!game.players) return;
+                if (game.status === "finished") return;
+
+                const players = Array.isArray(game.players)
+                    ? game.players
+                    : Object.values(game.players || {});
+
+                const maxPlayers = Number(game.maxPlayers) || 2;
+                const me = players.find(
+                    player => player.uid === currentUser?.uid
+                );
+                const isMine = !!me;
+                const full = players.length >= maxPlayers;
+
+                // Una partita completa rimane visibile:
+                // - è cliccabile per chi è già dentro;
+                // - è disabilitata per tutti gli altri giocatori.
+                games.push({
+                    id,
+                    game,
+                    players,
+                    maxPlayers,
+                    full,
+                    isMine
+                });
+            });
+
+            // Prima mostriamo le partite in cui il giocatore è già presente,
+            // poi quelle disponibili per entrare.
+            games.sort((a, b) => {
+                if (a.isMine !== b.isMine) return a.isMine ? -1 : 1;
+                return (a.game.createdAt || 0) - (b.game.createdAt || 0);
+            });
+
+            if (games.length === 0) {
+                lobbyGamesElement.innerHTML = `
+                    <div class="list-group-item bg-dark text-white-50 text-center py-4">
+                        <i class="bi bi-controller fs-3 d-block mb-2"></i>
+                        Nessuna partita disponibile.<br>
+                        <small>Crea una nuova partita per iniziare.</small>
+                    </div>`;
+                return;
+            }
+
+            games.forEach(({ id, game, players, maxPlayers, full, isMine }) => {
+                const item = document.createElement("button");
+                item.type = "button";
+
+                // Solo chi appartiene già alla partita può rientrare in una
+                // partita completa/in corso.
+                const clickable = isMine || !full;
+                item.disabled = !clickable;
+
+                item.className =
+                    "list-group-item list-group-item-action bg-dark text-light " +
+                    "d-flex justify-content-between align-items-center" +
+                    (isMine ? " border border-primary" : "");
+
+                const host = players[0]?.email || "Giocatore";
+
+                let badgeClass = "text-bg-success";
+                let badgeText = "Entra";
+
+                if (isMine && game.status === "playing") {
+                    badgeClass = "text-bg-primary";
+                    badgeText = "Rientra";
+                } else if (isMine) {
+                    badgeClass = "text-bg-warning";
+                    badgeText = "In attesa";
+                } else if (full) {
+                    badgeClass = "text-bg-secondary";
+                    badgeText = "Completa";
+                }
+
+                item.innerHTML = `
+                    <div class="text-start">
+                        <div class="fw-bold">
+                            Partita ${maxPlayers} giocatori
+                        </div>
+                        <small class="text-white-50">
+                            ${players.length} / ${maxPlayers} giocatori · ${escapeHtml(host)}
+                        </small>
+                    </div>
+                    <span class="badge ${badgeClass}">
+                        ${badgeText}
+                    </span>`;
+
+                if (clickable) {
+                    item.addEventListener("click", async () => {
+                        item.disabled = true;
+
+                        try {
+                            if (isMine) {
+                                // Il giocatore era già dentro: non tentare di
+                                // aggiungerlo nuovamente. Rientra direttamente.
+                                await enterOnlineGame(id);
+                            } else {
+                                await joinOnlineGame(id);
+                            }
+                        } catch (error) {
+                            console.error("Errore ingresso partita:", error);
+                            item.disabled = false;
+                            alert("Impossibile entrare nella partita.");
+                        }
+                    });
+                }
+
+                lobbyGamesElement.appendChild(item);
+            });
+        }
+
+        async function startOnlineGameFromLobby(playerCount) {
+            if (!currentUser || ![2, 4].includes(playerCount)) return;
+
+            const newGameRef = push(ref(db, "/cards"));
+            const newGameId = newGameRef.key;
+
+            const newGameState = {
+                mode: "online",
+                status: "waiting",
+                maxPlayers: playerCount,
+                hostUid: currentUser.uid,
+                createdAt: Date.now(),
+                players: [{
+                    id: 1,
+                    uid: currentUser.uid,
+                    email: currentUser.email || "Giocatore",
+                    deck: []
+                }],
+                board: { mainDeck: [], boardDeck: [] },
+                turn: 1,
+                direction: 1,
+                currentColor: null,
+                drawFourPending: false,
+                drawFourPenalty: 0,
+                drawTwoPending: false,
+                drawTwoPenalty: 0,
+                initialized: false
+            };
+
+            await set(newGameRef, newGameState);
+            await set(ref(db, `/cards/lobby/players/${currentUser.uid}/gameId`), newGameId);
+            await enterOnlineGame(newGameId);
+        }
+
+        async function joinOnlineGame(id) {
+            if (!currentUser || !id) return;
+
+            const gameRefToJoin = ref(db, `/cards/${id}`);
+            let joined = false;
+            let alreadyInGame = false;
+
+            const result = await runTransaction(gameRefToJoin, game => {
+                if (!game || game.mode !== "online" || game.status === "finished") {
+                    return;
+                }
+
+                const players = Array.isArray(game.players)
+                    ? game.players
+                    : Object.values(game.players || {});
+                const maxPlayers = Number(game.maxPlayers) || 2;
+
+                if (players.some(player => player.uid === currentUser.uid)) {
+                    alreadyInGame = true;
+                    return game;
+                }
+
+                if (players.length >= maxPlayers || game.status === "playing") {
+                    return;
+                }
+
+                players.push({
+                    id: players.length + 1,
+                    uid: currentUser.uid,
+                    email: currentUser.email || "Giocatore",
+                    deck: []
+                });
+
+                game.players = players;
+
+                if (players.length === maxPlayers) {
+                    game.status = "playing";
+                    game.initialized = false;
+                    initializeGame(game);
+                    game.initialized = true;
+                } else {
+                    game.status = "waiting";
+                }
+
+                joined = true;
+                return game;
+            });
+
+            if (!result.committed || (!joined && !alreadyInGame)) {
+                throw new Error("La partita non è più disponibile.");
+            }
+
+            await set(ref(db, `/cards/lobby/players/${currentUser.uid}/gameId`), id);
+            await enterOnlineGame(id);
+        }
+
+        async function enterOnlineGame(id) {
+            if (!currentUser || !id) return;
+
+            if (gameListenerUnsubscribe) {
+                gameListenerUnsubscribe();
+                gameListenerUnsubscribe = null;
+            }
+            gameListenerAttached = false;
+
+            gameId = id;
+            gameRef = ref(db, `/cards/${gameId}`);
+            chatRef = ref(db, `/cards/${gameId}/chat`);
+
+            const snapshot = await get(gameRef);
+            if (!snapshot.exists()) return;
+
+            gameState = snapshot.val();
+            const me = gameState.players?.find(player => player.uid === currentUser.uid);
+            if (!me) return;
+
+            currentPlayerId = me.id;
+            showGameScreen();
+            listenToGame();
+        }
+
+        function listenToGame() {
+            if (!gameRef || gameListenerAttached) return;
+
+            gameListenerAttached = true;
+            gameListenerUnsubscribe = onValue(gameRef, snapshot => {
+                if (!snapshot.exists()) return;
+
+                gameState = snapshot.val();
+                const me = gameState.players?.find(
+                    player => player.uid === currentUser?.uid
+                );
+
+                if (!me) return;
+                currentPlayerId = me.id;
+
+                if (gameState.status === "waiting" || gameState.initialized !== true) {
+                    showGameScreen();
+                    showWaitingGameOverlay();
+                    return;
+                }
+
+                hideWaitingGameOverlay();
+                drawBoard(currentPlayerId, gameState);
+                updateCurrentColor(gameState);
+            });
+        }
+
+        async function leaveWaitingGame() {
+            if (!currentUser) return;
+
+            const waitingGameId = gameId;
+
+            if (gameListenerUnsubscribe) {
+                gameListenerUnsubscribe();
+                gameListenerUnsubscribe = null;
+            }
+            gameListenerAttached = false;
+
+            if (waitingGameId) {
+                const gameSnapshot = await get(ref(db, `/cards/${waitingGameId}`));
+                if (gameSnapshot.exists()) {
+                    const game = gameSnapshot.val();
+                    const players = Array.isArray(game.players)
+                        ? game.players
+                        : Object.values(game.players || {});
+
+                    const remainingPlayers = players.filter(
+                        player => player.uid !== currentUser.uid
+                    );
+
+                    if (remainingPlayers.length === 0 && game.status === "waiting") {
+                        await set(ref(db, `/cards/${waitingGameId}`), null);
+                    } else if (game.status === "waiting") {
+                        remainingPlayers.forEach((player, index) => {
+                            player.id = index + 1;
+                        });
+                        await set(ref(db, `/cards/${waitingGameId}/players`), remainingPlayers);
+                    }
+                }
+            }
+
+            await set(ref(db, `/cards/lobby/players/${currentUser.uid}/gameId`), null);
+
+            gameId = null;
+            gameRef = null;
+            chatRef = null;
+            currentPlayerId = null;
+            gameState = null;
+
+            showLobby();
+        }
+
+        async function startVsPcGame() {
+            if (!currentUser) return;
+
+            gameListenerAttached = false;
+            gameId = "game4";
+            gameRef = ref(db, `/cards/${gameId}`);
+            chatRef = ref(db, `/cards/${gameId}/chat`);
+            currentPlayerId = 1;
+
+            showGameScreen();
+            await playAgainstPC(1);
+        }
 
         function updateCurrentColor(gameState) {
 
@@ -1445,6 +1978,9 @@
 
             console.log("PARTITA RIPRISTINATA:", gameState);
 
+            gameState.mode = "cpu";
+            currentPlayerId = 1;
+
             // Assicuriamoci che la struttura esista
             if (!gameState.board) {
                 gameState.board = {
@@ -1461,11 +1997,11 @@
             initializeGame(gameState);
 
             // Disegna lo stato salvato
-            drawBoard(1, gameState);
+            drawBoard(currentPlayerId || 1, gameState);
 
             // Se il turno salvato appartiene alla CPU,
             // la CPU deve continuare a giocare
-            if (gameState.turn !== 1) {
+            if (gameState.mode === "cpu" && gameState.turn !== 1) {
                 console.log("Turno della CPU:", gameState.turn);
 
                 await CPUplay();
@@ -1485,11 +2021,21 @@
 
         async function handleClick(e) {
 
+            if (!gameState || !currentPlayerId) return;
+
+            if (gameState.mode === "online" && gameState.turn !== currentPlayerId) {
+                return;
+            }
+
             const sq = e.target.closest(".card");
 
             if (!sq) return;
 
-            const player = gameState.players[0];
+            const player = gameState.players.find(
+                player => player.id === currentPlayerId
+            );
+
+            if (!player) return;
 
             const cardOnBoard = gameState.board.boardDeck[0];
 
@@ -1531,10 +2077,10 @@
                     // Passa il turno rispettando direction
                     nextTurn(gameState);
 
-                    drawBoard(1, gameState);
+                    drawBoard(currentPlayerId || 1, gameState);
                     await saveGameState(gameState);
 
-                    if (gameState.turn !== 1) {
+                    if (gameState.mode === "cpu" && gameState.turn !== 1) {
                         await CPUplay();
                     }
 
@@ -1571,10 +2117,10 @@
 
                     nextTurn(gameState);
 
-                    drawBoard(1, gameState);
+                    drawBoard(currentPlayerId || 1, gameState);
                     await saveGameState(gameState);
 
-                    if (gameState.turn !== 1) {
+                    if (gameState.mode === "cpu" && gameState.turn !== 1) {
                         await CPUplay();
                     }
 
@@ -1643,10 +2189,10 @@
                         }
                     );
 
-                    drawBoard(1, gameState);
+                    drawBoard(currentPlayerId || 1, gameState);
                     await saveGameState(gameState);
 
-                    if (gameState.turn !== 1) {
+                    if (gameState.mode === "cpu" && gameState.turn !== 1) {
                         await CPUplay();
                     }
 
@@ -1662,7 +2208,7 @@
                     "Carta pescata giocabile → rimane il turno del player"
                 );
 
-                drawBoard(1, gameState);
+                drawBoard(currentPlayerId || 1, gameState);
 
                 await saveGameState(gameState);
 
@@ -1727,7 +2273,7 @@
             if (checkWinner(player)) {
 
                 await saveGameState(gameState);
-                drawBoard(1, gameState);
+                drawBoard(currentPlayerId || 1, gameState);
 
                 return;
             }
@@ -1876,12 +2422,12 @@
             );
 
 
-            drawBoard(1, gameState);
+            drawBoard(currentPlayerId || 1, gameState);
 
             await saveGameState(gameState);
 
 
-            if (gameState.turn !== 1) {
+            if (gameState.mode === "cpu" && gameState.turn !== 1) {
                 await CPUplay();
             }
         }
@@ -1980,7 +2526,7 @@
 
         async function checkTurn() {
 
-            if (gameState.turn !== 1) {
+            if (gameState.mode === "cpu" && gameState.turn !== 1) {
                 await CPUplay();
             }
         }
@@ -2122,7 +2668,7 @@
                     if (checkWinner(cpu)) {
 
                         await saveGameState(gameState);
-                        drawBoard(1, gameState);
+                        drawBoard(currentPlayerId || 1, gameState);
 
                         return;
                     }
@@ -2206,7 +2752,7 @@
 
                 nextTurn(gameState);
 
-                drawBoard(1, gameState);
+                drawBoard(currentPlayerId || 1, gameState);
                 await saveGameState(gameState);
 
 
@@ -2314,7 +2860,7 @@
 
                 nextTurn(gameState);
 
-                drawBoard(1, gameState);
+                drawBoard(currentPlayerId || 1, gameState);
                 await saveGameState(gameState);
 
 
@@ -2380,7 +2926,7 @@
                 if (checkWinner(cpu)) {
 
                     await saveGameState(gameState);
-                    drawBoard(1, gameState);
+                    drawBoard(currentPlayerId || 1, gameState);
 
                     return;
                 }
@@ -2574,11 +3120,11 @@
             );
 
 
-            drawBoard(1, gameState);
+            drawBoard(currentPlayerId || 1, gameState);
             await saveGameState(gameState);
 
 
-            if (gameState.turn !== 1) {
+            if (gameState.mode === "cpu" && gameState.turn !== 1) {
                 await CPUplay();
             }
         }
@@ -2790,7 +3336,7 @@
 
             initializeGame(gameState);
 
-            drawBoard(1, gameState);
+            drawBoard(currentPlayerId || 1, gameState);
 
             await saveGameState(gameState);
 
@@ -3195,12 +3741,22 @@
                 boardDeckElement
             ];
 
-            boards.forEach((board, boardIndex) => {
+            // Dividi le carte: max 15 nella prima board, il resto nella seconda
+            const firstBoard = boards[0].slice(0, 15);
+            const secondBoard = boards[0].slice(15);
+
+            const boardsToRender = [
+                firstBoard,
+                secondBoard,
+                boards[2] // la board del deck, se serve
+            ];
+
+            boardsToRender.forEach((board, boardIndex) => {
                 const currentBoardElement = boardElements[boardIndex];
 
                 currentBoardElement.innerHTML = "";
                 if (currentBoardElement.id == "board") {
-                    currentBoardElement.innerHTML+="<div style='margin-left: -70px;'></div>";
+                    currentBoardElement.innerHTML += "<div style='margin-left: -70px;'></div>";
                 }
                 if (currentBoardElement.id == "boardDeck") {
                     board = board.slice(0, 1);
